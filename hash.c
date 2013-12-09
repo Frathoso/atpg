@@ -34,8 +34,8 @@
  *  Jenkin's one-at-a-time hash (By Bob Jenkins 
  *  <http://en.wikipedia.org/wiki/Jenkins_hash_function> )
  *  
- *  @param  char*   key  - an circuit to be populated
- *  @param  int     size - total number of gates currently in the circuit
+ *  @param  char*   key  - string to be hashed
+ *  @param  int     size - the size of the hash list
  *  @return int	    hashed value for the given <key>
  */
 int hashStringToInt( char* key, int size )
