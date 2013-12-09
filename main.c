@@ -88,7 +88,7 @@ int main( int argc, char* argv[] )
     /* Parse command line arguments */
     BOOLEAN isDebugMode = FALSE;    
     char* filename = NULL;
-    opterr = 0;
+    errno = opterr = 0;
     int opt;
     while((opt = getopt(argc, argv, OPTIONS_LIST)) != -1)
     {
@@ -127,13 +127,13 @@ int main( int argc, char* argv[] )
     
     if(isDebugMode) fprintf(stdout, "Parsing: \"%s\"...\n", filename);
 
-    if(populateCircuit( circuit, &info, filename))
+    if(populateCircuit(circuit, &info, filename))
     {
         if(isDebugMode) fprintf(stdout, "Netlist file successfully parsed.\n\n");
     }
     else
     {
-        errno = ERROR_PARSING_NETLIST;
+        if(errno == 0) errno = ERROR_PARSING_NETLIST;
         exit(1);
     }
 

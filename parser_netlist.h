@@ -114,11 +114,11 @@ int findIndex( CIRCUIT circuit, int* totalGates, char* name, BOOLEAN init );
 /*
  * Prints the type name of the gate at position <index>
  *
- *  @param  CIRCUIT circuit - the circuit
+ *  @param  GATE* gate - the gate to be printed
  *  @param  int     index   - the position of the gate in the <circuit>
  *  @return nothing
  */
-void printType( CIRCUIT circuit, int index );
+void printType( GATE* gate );
 
 /*
  *  Print the details of a gate
