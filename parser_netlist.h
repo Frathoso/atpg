@@ -3,15 +3,19 @@
  *
  *       Filename:  parser_netlist.h
  *
- *    Description:  
+ *    Description:  Header file for the netlist parser. The file also defines
+ *                  the Gate and CircuitInfo structures.
  *
  *        Version:  1.0
  *        Created:  02 December 2013
  *       Revision:  none
  *       Compiler:  gcc
  *
- *         Author:  
- *   Organization:  New York University Abu Dhabi 
+ *         Author:  Francis Sowani <fts215@nyu.edu>
+ *         Author:  Wei-Chung Lin <wcl262@nyu.edu>
+ *     Supervisor:  Prof. Ozgur Sinanoglu <os22@nyu.edu>
+ *     Supervisor:  Samah Saeed <sms22@nyu.edu>
+ *   Organization:  New York University Abu Dhabi
  *
  * =====================================================================================
  */
@@ -63,14 +67,14 @@ typedef struct Gate  GATE;
  */
 struct CircuitInfo
  {
-    int numGates;
-    int numPI;
-    int numPO;
-    int numPPI;
-    int numPPO;
-    int numIIR;
-    int numOIR;
-    int numINT_2_OIR;
+    int numGates;       // Total number of gates
+    int numPI;          // Total number of primary inputs
+    int numPO;          // Total number of primary outputs
+    int numPPI;         // TOtal number of pseudo primary inputs
+    int numPPO;         // Total number of pseudo primary outputs
+    int numIIR;         // Total number of input interface registers
+    int numOIR;         // Total number of output interface registers
+    int numINT_2_OIR;   //
  };
 
  typedef struct CircuitInfo CIRCUIT_INFO;

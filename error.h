@@ -3,15 +3,18 @@
  *
  *       Filename:  error.h
  *
- *    Description:  
+ *    Description:  Define custom error codes to extend the "errno" variable with.
  *
  *        Version:  1.0
  *        Created:  02 December 2013
  *       Revision:  none
  *       Compiler:  gcc
  *
- *         Author:  
- *   Organization:  New York University Abu Dhabi 
+ *         Author:  Francis Sowani <fts215@nyu.edu>
+ *         Author:  Wei-Chung Lin <wcl262@nyu.edu>
+ *     Supervisor:  Prof. Ozgur Sinanoglu <os22@nyu.edu>
+ *     Supervisor:  Samah Saeed <sms22@nyu.edu>
+ *   Organization:  New York University Abu Dhabi
  *
  * =====================================================================================
  */

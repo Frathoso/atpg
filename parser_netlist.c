@@ -3,15 +3,21 @@
  *
  *       Filename:  parser_netlist.c
  *
- *    Description:  
+ *    Description:  Netlist parser for the ATPG program. This parses a netlist
+ *                  file and populates a circuit with the data. It defines the
+ *                  Gate, Circuit and CircuitInfo data structures and all the
+ *                  helper functions.
  *
  *        Version:  1.0
  *        Created:  07 December 2013
  *       Revision:  none
  *       Compiler:  gcc
  *
- *         Author:  
- *   Organization:  New York University Abu Dhabi 
+ *         Author:  Francis Sowani <fts215@nyu.edu>
+ *         Author:  Wei-Chung Lin <wcl262@nyu.edu>
+ *     Supervisor:  Prof. Ozgur Sinanoglu <os22@nyu.edu>
+ *     Supervisor:  Samah Saeed <sms22@nyu.edu>
+ *   Organization:  New York University Abu Dhab
  *
  * =====================================================================================
  */
