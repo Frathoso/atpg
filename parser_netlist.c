@@ -42,7 +42,7 @@
  *  Allocates memory for the gate at location <totalGates>
  *  
  *  @param  CIRCUIT circuit - an circuit to be populated
- *	@param	int* 	total  	- total number of gates currently in the circuit
+ *  @param  int*    total   - total number of gates currently in the circuit
  *  @return BOOLEAN - TRUE -> parsing and population were successful, FALSE otherwise
  */
 BOOLEAN appendNewGate( CIRCUIT circuit, int* total, char* name )
@@ -63,7 +63,7 @@ BOOLEAN appendNewGate( CIRCUIT circuit, int* total, char* name )
  *  <circuit> with the netlist
  *  
  *  @param  CIRCUIT circuit  - an empty circuit to be populated
- *	@param	CIRCUIT_INFO* info - summary of circuit details
+ *  @param  CIRCUIT_INFO* info - summary of circuit details
  *  @param  char*   filename - the filename storing the netlist
  *  @return BOOLEAN - TRUE -> parsing and population were successful, FALSE otherwise
  */
@@ -138,7 +138,7 @@ BOOLEAN populateCircuit( CIRCUIT circuit, CIRCUIT_INFO* info, char* filename )
             index = info->numGates;
             appendNewGate(circuit, &(info->numGates), tempBuffer);
 
-            if (isPseudo)
+            if(isPseudo)
             {
                 circuit[index]->PPO = 1;
                 info->numPPO++;
@@ -352,14 +352,14 @@ BOOLEAN populateCircuit( CIRCUIT circuit, CIRCUIT_INFO* info, char* filename )
  *  Finds the first occurence of the given gate's <name> in the <circuit>
  *
  *  @param  CIRCUIT circuit - the circuit to search
- *	@param	int* totalGates - total number of gates currently in the circuit
+ *  @param  int* totalGates - total number of gates currently in the circuit
  *  @param  char*   name    - gate's name to search for
  *  @param  BOOLEAN init    - flag to initialize a new gate if none was found
  *  @return int - the index of the gate in the <circuit>
  */
 int findIndex( CIRCUIT circuit, int* totalGates, char* name, BOOLEAN init )
 {
-     int K = 0;
+    int K = 0;
     for( ; K < *totalGates; K++)
     {
         if(strcmp(name, circuit[K]->name) == 0) return K;
@@ -380,7 +380,7 @@ int findIndex( CIRCUIT circuit, int* totalGates, char* name, BOOLEAN init )
  */
 void printType( GATE* gate )
 {
-	switch(gate->type)
+    switch(gate->type)
     {
         case AND:   fprintf(stdout, "AND"); break;
         case OR:    fprintf(stdout, "OR"); break;
@@ -430,13 +430,13 @@ void printGateInfo( CIRCUIT circuit, int index )
  *  Print the details of a circuit
  *
  *  @param  CIRCUIT circuit - the circuit
- *	@param	int totalGates  - total number of gates currently in the circuit
+ *  @param  int totalGates  - total number of gates currently in the circuit
  *  @return nothing
  */
 void printCircuitInfo( CIRCUIT circuit, int totalGates )
 {
-	int index = 0;
-    for ( ; index < totalGates; index++)
+    int index = 0;
+    for( ; index < totalGates; index++)
     {
         printGateInfo(circuit, index);
     }

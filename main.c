@@ -37,6 +37,9 @@
 /* isprint */
 #include <ctype.h>
 
+/* time, difftime */
+#include <time.h>
+
 /* Netlist files parsing functionality */
 #include "parser_netlist.h"
 
@@ -60,7 +63,7 @@ BOOLEAN isDebugMode = FALSE;    // Turns ON/OFF the display of program progress
 
 
 /*
- *  Alerts the user of a successful execution of the program or the errors
+ *  Alerts the user of a successful execution of the program or the error
  *  causing an unsuccessful termination of the program
  */
 void onProgramTermination(void)
@@ -140,9 +143,13 @@ int main( int argc, char* argv[] )
     
     if(isDebugMode) fprintf(stdout, "Parsing: \"%s\"...\n", filename);
 
+    clock_t start, stop;
+    time(&start);
     if(populateCircuit(circuit, &info, filename))
     {
-        if(isDebugMode) fprintf(stdout, "Netlist file successfully parsed.\n\n");
+        time(&stop);
+        if(isDebugMode) fprintf(stdout, "Netlist file successfully parsed"
+                "[ %.0f seconds ].\n\n", difftime(stop, start));
     }
     else
     {
