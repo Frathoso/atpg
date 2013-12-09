@@ -40,11 +40,10 @@
 /* time, difftime */
 #include <time.h>
 
-/* Netlist files parsing functionality */
-#include "parser_netlist.h"
 
-/* Custom error codes */
+#include "parser_netlist.h"
 #include "error.h"
+#include "hash.h"
 
 
 /*
@@ -68,6 +67,7 @@ BOOLEAN isDebugMode = FALSE;    // Turns ON/OFF the display of program progress
  */
 void onProgramTermination(void)
 {
+    // Display any errors/success message
     switch(errno)
     {
         case 0:
@@ -88,6 +88,14 @@ void onProgramTermination(void)
             perror("Error");
     }
     fprintf(stdout, "Program was terminated prematurely!\n\n");
+
+    // Clean up allocated memories
+    int K = 0;
+    extern HASH_ENTRY hashTableGates[MAX_GATES];
+    for(; K < MAX_GATES; K++)
+    {
+        if(hashTableGates[K].strKey) free(hashTableGates[K].strKey);
+    }
 }
 
 /*
@@ -140,11 +148,14 @@ int main( int argc, char* argv[] )
     /* Populate the circuit from the passed netlist file */
     CIRCUIT circuit;
     CIRCUIT_INFO info;
+    extern HASH_ENTRY hashTableGates[MAX_GATES];
+    bzero(hashTableGates, sizeof(hashTableGates));
     
     if(isDebugMode) fprintf(stdout, "Parsing: \"%s\"...\n", filename);
 
     clock_t start, stop;
     time(&start);
+
     if(populateCircuit(circuit, &info, filename))
     {
         time(&stop);

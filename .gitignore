@@ -19,3 +19,7 @@ __*
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+# Design files #
+dev/
+test/

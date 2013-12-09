@@ -36,7 +36,7 @@
 
 #include "parser_netlist.h"
 #include "error.h"
-
+#include "hash.h"
 
 /*
  *  Allocates memory for the gate at location <totalGates>
@@ -55,6 +55,18 @@ BOOLEAN appendNewGate( CIRCUIT circuit, int* total, char* name )
     circuit[*total]->PPO    = 0;
     circuit[*total]->type   = OTHER;
     (*total)++;
+
+    // Store the gate name and index in a hash table
+    extern HASH_ENTRY hashTableGates[MAX_GATES];
+    int K = hashStringToInt(name, MAX_GATES);
+
+    // TODO drop the assumption that the hash table is not full
+    while(hashTableGates[K].strKey != NULL) K = (K + 1) % MAX_GATES;
+    
+    hashTableGates[K].strKey = (char*) malloc(sizeof(name) + 1);
+    strcpy(hashTableGates[K].strKey, name);
+    hashTableGates[K].intKey = (*total) - 1;
+
     return TRUE;
 }
 
@@ -95,7 +107,7 @@ BOOLEAN populateCircuit( CIRCUIT circuit, CIRCUIT_INFO* info, char* filename )
 
             // Check if PPI is the same as one of the existing POs
             BOOLEAN found = FALSE;
-            index = findIndex(circuit, &(info->numGates), tempBuffer, TRUE);
+            index = findIndex(circuit, &(info->numGates), tempBuffer, FALSE);
 
             // Check if the gate is a pseudo gate
             if(outputSeen && (index < info->numGates) && circuit[index]->PO)
@@ -126,7 +138,7 @@ BOOLEAN populateCircuit( CIRCUIT circuit, CIRCUIT_INFO* info, char* filename )
         }
         else if(strstr(line, "OUTPUT"))     // Output gate
         {
-            // Indicate the output gate has been seen
+            // Indicate an output gate has been seen
             outputSeen = 1;
 
             // Extract output gate's name
@@ -341,8 +353,8 @@ BOOLEAN populateCircuit( CIRCUIT circuit, CIRCUIT_INFO* info, char* filename )
             //if(isDebugMode) printGateInfo(circuit, index);
         }
     }
-    //free(tempBuffer);
-    //free(tempName);
+    // free(tempBuffer);
+    // free(tempName);
     fclose(fp);
 
     return TRUE;
@@ -359,16 +371,23 @@ BOOLEAN populateCircuit( CIRCUIT circuit, CIRCUIT_INFO* info, char* filename )
  */
 int findIndex( CIRCUIT circuit, int* totalGates, char* name, BOOLEAN init )
 {
-    int K = 0;
-    for( ; K < *totalGates; K++)
+    extern HASH_ENTRY hashTableGates[MAX_GATES];
+    int K = hashStringToInt(name, MAX_GATES);
+
+    while(TRUE)
     {
-        if(strcmp(name, circuit[K]->name) == 0) return K;
+        if(hashTableGates[K].strKey == NULL)
+            break;
+        else if(strcmp(hashTableGates[K].strKey, name) == 0)
+            return hashTableGates[K].intKey;
+        
+        K = (K+1) % MAX_GATES;
     }
 
-    if(init == FALSE) return K;
+    if(init == FALSE) return (*totalGates);
 
     appendNewGate(circuit, totalGates, name);
-    return K;
+    return ((*totalGates) - 1);
 }
 
 /*

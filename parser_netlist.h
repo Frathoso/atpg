@@ -77,7 +77,9 @@ struct CircuitInfo
     int numINT_2_OIR;   //
  };
 
- typedef struct CircuitInfo CIRCUIT_INFO;
+typedef struct CircuitInfo CIRCUIT_INFO;
+
+int list[MAX_GATES];
 
 
 /*
