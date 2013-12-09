@@ -52,6 +52,14 @@
 #define OPTIONS_LIST "df:"
 
 /*
+ *  GLOBAL Variables
+ */
+char ERROR_MESSAGE[MAX_LINE_LENGTH];    // Holds custom error messages
+
+BOOLEAN isDebugMode = FALSE;    // Turns ON/OFF the display of program progress
+
+
+/*
  *  Alerts the user of a successful execution of the program or the errors
  *  causing an unsuccessful termination of the program
  */
@@ -61,16 +69,22 @@ void onProgramTermination(void)
     {
         case 0:
             fprintf(stdout, "Program successfully finished!\n\n");
+            return;
             break;
         case ERROR_PARSING_NETLIST:
-            fprintf(stdout, "Error: There was an error parsing the netlist file.\n\n");
+            fprintf(stdout, "Error: There was an error parsing the netlist file.\n");
+            break;
+        case ERROR_IO_LIMIT_EXCEEDED:
+        case ERROR_PARSING_CIRCUIT:
+            fprintf(stdout, "Error: %s\n", ERROR_MESSAGE);
             break;
         case ERROR_COMMAND_LINE_ARGUMENTS:
-            fprintf(stdout, "Usage:\natpg -f <filename> [-d]\n\n");
+            fprintf(stdout, "Usage:\natpg -f <filename> [-d]\n");
             break;
         default:
             perror("Error");
     }
+    fprintf(stdout, "Program was terminated prematurely!\n\n");
 }
 
 /*
@@ -85,8 +99,7 @@ int main( int argc, char* argv[] )
     /* Register the program finalizing function */
     atexit(onProgramTermination);
 
-    /* Parse command line arguments */
-    BOOLEAN isDebugMode = FALSE;    
+    /* Parse command line arguments */   
     char* filename = NULL;
     errno = opterr = 0;
     int opt;
@@ -137,7 +150,7 @@ int main( int argc, char* argv[] )
         exit(1);
     }
 
-    /* TODO Check if the populated circuit is valid */
+    /* TODO: NEXT STEP: Generate test patterns */
     
 
     exit(0);

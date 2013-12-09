@@ -22,7 +22,7 @@
  * =====================================================================================
  */
 
-/* FILE, fprintf, fscanf, fopen, fgets, fclose, stderr, stdin, stdout */
+/* FILE, sprintf, fprintf, fscanf, fopen, fgets, fclose, stderr, stdin, stdout */
 #include <stdio.h> 
 
 /* malloc, free, exit, abort, atexit, NULL */     
@@ -31,7 +31,11 @@
 /* strcmp, strcpy, strtok */  
 #include <string.h>    
 
+/* errno */
+#include <errno.h>
+
 #include "parser_netlist.h"
+#include "error.h"
 
 
 /*
@@ -39,7 +43,7 @@
  *  
  *  @param  CIRCUIT circuit - an circuit to be populated
  *	@param	int* 	total  	- total number of gates currently in the circuit
- *  @return BOOLEAN - TRUE -> parsing and population were successful, FALSE OTHERwise
+ *  @return BOOLEAN - TRUE -> parsing and population were successful, FALSE otherwise
  */
 BOOLEAN appendNewGate( CIRCUIT circuit, int* total, char* name )
 {
@@ -61,11 +65,12 @@ BOOLEAN appendNewGate( CIRCUIT circuit, int* total, char* name )
  *  @param  CIRCUIT circuit  - an empty circuit to be populated
  *	@param	CIRCUIT_INFO* info - summary of circuit details
  *  @param  char*   filename - the filename storing the netlist
- *  @return BOOLEAN - TRUE -> parsing and population were successful, FALSE OTHERwise
+ *  @return BOOLEAN - TRUE -> parsing and population were successful, FALSE otherwise
  */
 BOOLEAN populateCircuit( CIRCUIT circuit, CIRCUIT_INFO* info, char* filename )
 {
-    BOOLEAN isDebugMode = TRUE;
+    extern char ERROR_MESSAGE[MAX_LINE_LENGTH];
+    //extern BOOLEAN isDebugMode;
 
     FILE* fp = fopen(filename, "r");
     if(fp == NULL) return FALSE;
@@ -117,7 +122,7 @@ BOOLEAN populateCircuit( CIRCUIT circuit, CIRCUIT_INFO* info, char* filename )
             if (found) circuit[index]->PO = 1;
             circuit[index]->PPO    = 0;
 
-            printGateInfo(circuit, index); // TODO remove
+            //if(isDebugMode) printGateInfo(circuit, index);
         }
         else if(strstr(line, "OUTPUT"))     // Output gate
         {
@@ -146,7 +151,7 @@ BOOLEAN populateCircuit( CIRCUIT circuit, CIRCUIT_INFO* info, char* filename )
                 circuit[index]->PPO = 0;
             }
 
-            printGateInfo(circuit, index);  // TODO remove
+            //if(isDebugMode) printGateInfo(circuit, index);
         }
         else if(strstr(line, "="))  // Inner gate
         {
@@ -165,17 +170,19 @@ BOOLEAN populateCircuit( CIRCUIT circuit, CIRCUIT_INFO* info, char* filename )
             if ((index < info->numGates) && ((circuit[index]->type == PI) ||
                 (circuit[index]->type == PPI)))
             {
-                if (isDebugMode) 
-                    printf("Error: Node %s (id:%d), which is a PI/PPI, is at the output of a gate!\n",
-                                circuit[index]->name, index);
+                sprintf(ERROR_MESSAGE, 
+                        "Node %s (id:%d), which is a PI/PPI, is at the output"
+                        " of a gate!", circuit[index]->name, index);
+                errno = ERROR_PARSING_CIRCUIT;
+                exit(1);
             }
 
-            // TODO comment
+            // Determine gate's type
             strcpy(tempBuffer, line);
             tempBuffer = strstr(tempBuffer, "=");
             tempBuffer += 2;
             *strstr(tempBuffer, "(") = 0;
-
+            
             if( *tempBuffer == 'N' )
             {
                 circuit[index]->inv = 1;
@@ -183,9 +190,8 @@ BOOLEAN populateCircuit( CIRCUIT circuit, CIRCUIT_INFO* info, char* filename )
             }
             else circuit[index]->inv = 0;
 
-            // TODO comment
             dff = 0;
-            if( (strcmp(tempBuffer, "OT") == 0) || (strcmp(tempBuffer, "BUF") == 0) )
+            if((strcmp(tempBuffer, "OT") == 0) || (strcmp(tempBuffer, "BUF") == 0))
             {
                 if ((circuit[index]->PO != 1) || 
                     (circuit[index]->type != OTHER)) circuit[index]->PO = 0;
@@ -224,7 +230,7 @@ BOOLEAN populateCircuit( CIRCUIT circuit, CIRCUIT_INFO* info, char* filename )
                 if ((circuit[index]->PPO != 1) || 
                     (circuit[index]->type != OTHER)) circuit[index]->PPO = 0;
                 if (index < info->numGates-1)  
-                    //which means found a PO with the same name ===> need to add new PPI
+                // Found a PO with the same name ===> need to add new PPI
                 {
                     circuit[index]->PO = 0;
                     appendNewGate(circuit, &(info->numGates), tempName);
@@ -268,7 +274,10 @@ BOOLEAN populateCircuit( CIRCUIT circuit, CIRCUIT_INFO* info, char* filename )
             }
             else
             {
-                printf("Unknown gate type (N)%s encountered!\n",tempBuffer);
+                sprintf(ERROR_MESSAGE, 
+                        "Unknown gate type \"%s\" encountered!", tempBuffer);
+                errno = ERROR_PARSING_CIRCUIT;
+                exit(1);
             }
 
             // Get all inputs and set output of those nodes
@@ -286,9 +295,12 @@ BOOLEAN populateCircuit( CIRCUIT circuit, CIRCUIT_INFO* info, char* filename )
                 if ((index2 < info->numGates) && ((circuit[index2]->PO) || 
                     (circuit[index2]->PPO)))
                 {
-                    if (isDebugMode) 
-                            printf("Error: Node %s (id:%d), which is a PO/PPO, is feeding gate %s (id:%d)!\n",
-                                    circuit[index2]->name, index2, circuit[index]->name, index);
+                    sprintf(ERROR_MESSAGE, 
+                        "Node %s (id:%d), which is a PO/PPO, is feeding gate"
+                        " %s (id:%d)",
+                        circuit[index2]->name, index2, circuit[index]->name, index);
+                    errno = ERROR_PARSING_CIRCUIT;
+                    exit(1);      
                 }
 
                 // Update input of created node
@@ -298,7 +310,13 @@ BOOLEAN populateCircuit( CIRCUIT circuit, CIRCUIT_INFO* info, char* filename )
                     (circuit[index]->numIn)++;
                 }
 
-                if (circuit[index]->numIn > 10) printf("Too many inputs to gate %s \n",circuit[index]->name);
+                if (circuit[index]->numIn > MAX_INPUT_GATES)
+                {
+                    sprintf(ERROR_MESSAGE, "Too many inputs to gate %s",
+                        circuit[index]->name);
+                    errno = ERROR_IO_LIMIT_EXCEEDED;
+                    exit(1);
+                } 
 
                 // Update output of listed node
                 if (!dff)
@@ -312,10 +330,15 @@ BOOLEAN populateCircuit( CIRCUIT circuit, CIRCUIT_INFO* info, char* filename )
                     info->numPPO++;
                 }
 
-                if (circuit[index2]->numOut > MAX_OUTPUT_GATES) printf("Too many outputs from gate %s \n",
-                    circuit[index]->name);
+                if (circuit[index2]->numOut > MAX_OUTPUT_GATES)
+                {
+                    sprintf(ERROR_MESSAGE, "Too many outputs from gate %s", 
+                        circuit[index]->name);
+                    errno = ERROR_IO_LIMIT_EXCEEDED;
+                    exit(1);
+                }
             }
-            printGateInfo(circuit, index);
+            //if(isDebugMode) printGateInfo(circuit, index);
         }
     }
     //free(tempBuffer);
