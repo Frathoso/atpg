@@ -3,6 +3,8 @@
 #include <cstdlib>
 #include <ctime>
 
+#define BILLION  1000000000L;
+
 using namespace std;
 
 int main()
@@ -18,18 +20,20 @@ int main()
     };
 
     char command[256];
-    clock_t start, stop;
+    timespec start, stop;
     for(int K=0; K<sizeof(benchFiles)/sizeof(benchFiles[0]); K++)
     {
         fprintf(stdout, "Running circuit %s ... ", benchFiles[K]);
         fprintf(stderr, "Running circuit %s ... ", benchFiles[K]);
-        time(&start);
+        clock_gettime(CLOCK_REALTIME, &start);
         sprintf(command, "../atpg -f ../bench/%s", benchFiles[K]);
         system(command);
-        time(&stop);
+        clock_gettime(CLOCK_REALTIME, &stop);
 
-        fprintf(stdout, "[%.0f seconds]\n", difftime(stop, start));
-        fprintf(stderr, "[%.0f seconds]\n", difftime(stop, start));
+        float duration = ( stop.tv_sec - start.tv_sec ) + float( stop.tv_nsec - start.tv_nsec ) / BILLION;
+
+        fprintf(stdout, "[%.5f seconds]\n", duration);
+        fprintf(stderr, "[%.5f seconds]\n", duration);
     }
     return 0;
 }
