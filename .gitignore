@@ -20,3 +20,6 @@ __*
 ehthumbs.db
 Thumbs.db
 
+# Developments #
+/dev
+/test

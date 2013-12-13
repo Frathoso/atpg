@@ -1,9 +1,11 @@
 CC=gcc
 CFLAGS=-Wall -g
+SRC_DIR=./src
+BIN_DIR=./bin
 TARGET=atpg
 
-all:
-	$(CC) $(CFLAGS) *.c -o $(TARGET) 
+atpgmake:
+	$(CC) $(CFLAGS) $(SRC_DIR)/*.c -o $(BIN_DIR)/$(TARGET) 
 
 clean:
-	rm -f *.o $(TARGET)
+	rm -f $(BIN_DIR)/*.o $(BIN_DIR)/$(TARGET)
