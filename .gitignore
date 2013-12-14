@@ -1,5 +1,5 @@
 # Compiled files #
-atpg
+/bin
 *.o
 *.so
 *.out
@@ -19,7 +19,3 @@ __*
 .Trashes
 ehthumbs.db
 Thumbs.db
-
-# Developments #
-/dev
-/test
