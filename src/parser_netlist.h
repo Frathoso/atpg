@@ -38,7 +38,7 @@ typedef unsigned short BOOLEAN;     // For TRUE or FALSE conditions
 /*
  *  Gate abstraction
  */
-struct Gate
+typedef struct Gate
 {
     char    name[MAX_WORD];   // Name given to the gate
     BOOLEAN numIn;      // Count of connected input gates
@@ -56,17 +56,16 @@ struct Gate
     BOOLEAN flag5;      // Used for tracing
     BOOLEAN flag6;      // Used for IIR
     BOOLEAN flag7;      // Used for OIR
-};
+} GATE;
 
-typedef struct Gate* CIRCUIT[MAX_GATES];
-typedef struct Gate  GATE;
+typedef GATE* CIRCUIT[MAX_GATES];
 
 
 /*
  *  Details for the circuit
  */
-struct CircuitInfo
- {
+typedef struct CircuitInfo
+{
     int numGates;       // Total number of gates
     int numPI;          // Total number of primary inputs
     int numPO;          // Total number of primary outputs
@@ -75,9 +74,7 @@ struct CircuitInfo
     int numIIR;         // Total number of input interface registers
     int numOIR;         // Total number of output interface registers
     int numINT_2_OIR;   //
- };
-
-typedef struct CircuitInfo CIRCUIT_INFO;
+} CIRCUIT_INFO;
 
 int list[MAX_GATES];
 

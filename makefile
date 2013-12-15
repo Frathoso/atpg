@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-Wall -g
+CFLAGS=-Wall -g -lrt
 SRC_DIR=./src
 BIN_DIR=./bin
 TARGET=atpg

@@ -17,7 +17,7 @@
  *         Author:  Wei-Chung Lin <wcl262@nyu.edu>
  *     Supervisor:  Prof. Ozgur Sinanoglu <os22@nyu.edu>
  *     Supervisor:  Samah Saeed <sms22@nyu.edu>
- *   Organization:  New York University Abu Dhab
+ *   Organization:  New York University Abu Dhabi
  *
  * =====================================================================================
  */

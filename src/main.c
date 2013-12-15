@@ -37,15 +37,11 @@
 /* isprint */
 #include <ctype.h>
 
-/* clock_gettime, timespec */
-#include <time.h>
-
 
 #include "parser_netlist.h"
 #include "error.h"
 #include "hash.h"
-
-#define  BILLION 1000000000L
+#include "ptime.h"
 
 
 /*
@@ -155,15 +151,13 @@ int main( int argc, char* argv[] )
     
     if(isDebugMode) fprintf(stdout, "Parsing: \"%s\"...\n", filename);
 
-    struct timespec start, stop;
-    clock_gettime(CLOCK_REALTIME, &start);
+    STOP_WATCH stopwatch;
+    startSW(&stopwatch);
     if(populateCircuit(circuit, &info, filename))
     {
-        clock_gettime(CLOCK_REALTIME, &stop);
-        float duration = (stop.tv_sec - start.tv_sec) + 
-                         (float) (stop.tv_nsec - start.tv_nsec) / BILLION;
+        double duration = getElaspedTimeSW(&stopwatch);
         if(isDebugMode) fprintf(stdout, "Netlist file successfully parsed"
-                "[ %.6f seconds ].\n\n", duration);
+                "[ %.4f seconds ].\n\n", duration);
     }
     else
     {
