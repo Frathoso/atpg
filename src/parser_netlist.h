@@ -20,24 +20,17 @@
  * =====================================================================================
  */
 
+#include "defines.h"
+
 #ifndef CIRCUIT_TRACE_H
 #define CIRCUIT_TRACE_H
 
 
-#define MAX_WORD            32      // Maximum length of names
-#define MAX_GATES           50000   // Maximum gates in a circuit
-#define MAX_INPUT_GATES     10      // Maximum input lines in a gate
-#define MAX_OUTPUT_GATES    500     // Maximum output lines in a gate
-#define MAX_LINE_LENGTH     256     // Maximum length of an input file line
-
-#define TRUE                1
-#define FALSE               0
-typedef unsigned short BOOLEAN;     // For TRUE or FALSE conditions
-
 /*
  *  Gate types
  */
-typedef enum {
+typedef enum
+{
     AND,    // Logical AND Gate
     OR,     // Logical OR Gate
     PI,     // Primary Input
@@ -51,11 +44,11 @@ typedef enum {
 /*
  *  Gate abstraction
  */
-typedef struct Gate
+typedef struct
 {
     char    name[MAX_WORD];   // Name given to the gate
-    BOOLEAN numIn;      // Count of connected input gates
-    BOOLEAN numOut;     // Count of connected output gates
+    BOOLEAN numIn;      // Number of connected input gates
+    BOOLEAN numOut;     // Number of connected output gates
     BOOLEAN in[MAX_INPUT_GATES];     // List of connected input gates
     BOOLEAN out[MAX_OUTPUT_GATES];   // List of connected output gates
     BOOLEAN inv;        // 1 -> the gate is inverted, 0 otherwise
@@ -77,7 +70,7 @@ typedef GATE* CIRCUIT[MAX_GATES];
 /*
  *  Details for the circuit
  */
-typedef struct CircuitInfo
+typedef struct
 {
     int numGates;       // Total number of gates
     int numPI;          // Total number of primary inputs

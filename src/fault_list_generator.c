@@ -1,12 +1,12 @@
 /*
  * =====================================================================================
  *
- *       Filename:  error.h
+ *       Filename:  fault_list_generator.c
  *
- *    Description:  Define custom error codes to extend the "errno" variable with.
+ *    Description:
  *
  *        Version:  1.0
- *        Created:  02 December 2013
+ *        Created:  15 February 2014
  *       Revision:  none
  *       Compiler:  gcc
  *
@@ -19,14 +19,25 @@
  * =====================================================================================
  */
 
-#ifndef ERROR_H
-#define ERROR_H
+/* strcpy */
+#include <string.h>
+
+#include "fault_list_generator.h"
+
+/*
+ *  Creates a fault object
+ *
+ *  @param  char* _name - the name of the wire stuck-at fault
+ *  @param  FAULT_TYPE _type  - the type of the fault
+ *  @return FAULT - the created fault object
+ */
+FAULT createNewFault(char* _name, FAULT_TYPE _type)
+{
+    FAULT fault;
+    strcpy(fault.name, _name);
+    fault.type = _type;
+
+    return (fault);
+}
 
 
-#define ERROR_COMMAND_LINE_ARGUMENTS    10000
-#define ERROR_PARSING_NETLIST           10001
-#define ERROR_IO_LIMIT_EXCEEDED		10002
-#define ERROR_PARSING_CIRCUIT		10003
-
-
-#endif

@@ -36,12 +36,12 @@
  */
 void startSW( STOP_WATCH *sw )
 {
-  #ifdef _WIN32
+#ifdef _WIN32
     QueryPerformanceCounter(&(sw->start));
     QueryPerformanceFrequency(&(sw->freq));
-  #else 
+#else
     gettimeofday(&(sw->start), 0);
-  #endif
+#endif
 }
 
 /*
@@ -51,12 +51,12 @@ void startSW( STOP_WATCH *sw )
  */
 double getElaspedTimeSW( STOP_WATCH *sw )
 {
-  #ifdef _WIN32
+#ifdef _WIN32
     QueryPerformanceCounter(&(sw->stop));
     return (double) (sw->stop.QuadPart - sw->start.QuadPart) / sw->freq.QuadPart;
-  #else 
+#else
     gettimeofday(&(sw->stop), 0);
-    return (sw->stop.tv_sec - sw->start.tv_sec + 
-           (double)(sw->stop.tv_usec - sw->start.tv_usec) / MILLION);
-  #endif
+    return (sw->stop.tv_sec - sw->start.tv_sec +
+            (double)(sw->stop.tv_usec - sw->start.tv_usec) / MILLION);
+#endif
 }

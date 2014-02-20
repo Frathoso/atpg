@@ -26,11 +26,11 @@
  *  Logic values for the five-valued logic
  */
 typedef enum{
-    ZERO,   // 0 in true and faulty circuits
-    ONE,    // 1 in true and faulty circuits
-    D,      // 1 in true circuits and 0 in faulty circuits
-    DB,     // 0 in true circuits and 1 in faulty circuits
-    X       // Unknown value in either true or faulty circuits
+    0,	// 0 in true and faulty circuits
+    1,  // 1 in true and faulty circuits
+    D,  // 1 in true circuits and 0 in faulty circuits
+    B,  // 0 in true circuits and 1 in faulty circuits
+    X   // Unknown value in either true or faulty circuits
 } LOGIC_VALUE;
 
 

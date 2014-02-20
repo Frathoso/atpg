@@ -20,16 +20,16 @@
  */
 
 /* fprintf, stdout, perror */
-#include <stdio.h> 
+#include <stdio.h>
 
-/* malloc, free, exit, atexit, NULL */     
-#include <stdlib.h>   
+/* malloc, free, exit, atexit, NULL */
+#include <stdlib.h>
 
-/* strcmp, strcpy, strtok */  
-#include <string.h>    
+/* strcmp, strcpy, strtok */
+#include <string.h>
 
-/* opterr, getopt, optopt, optarg */ 
-#include <unistd.h>    
+/* opterr, getopt, optopt, optarg */
+#include <unistd.h>
 
 /* errno */
 #include <errno.h>
@@ -39,7 +39,8 @@
 
 
 #include "parser_netlist.h"
-#include "error.h"
+#include "fault_list_generator.h"
+#include "test_generator.h"
 #include "hash.h"
 #include "ptime.h"
 
@@ -108,7 +109,7 @@ int main( int argc, char* argv[] )
     /* Register the program finalizing function */
     atexit(onProgramTermination);
 
-    /* Parse command line arguments */   
+    /* Parse command line arguments */
     char* filename = NULL;
     errno = opterr = 0;
     int opt;
@@ -143,12 +144,14 @@ int main( int argc, char* argv[] )
         exit(1);
     }
 
-    /* Populate the circuit from the passed netlist file */
+    /* Populate the circuit and faults list from the passed netlist file */
     CIRCUIT circuit;
     CIRCUIT_INFO info;
+    FAULT faultList[50000];
+
     extern HASH_ENTRY hashTableGates[MAX_GATES];
     bzero(hashTableGates, sizeof(hashTableGates));
-    
+
     if(isDebugMode) fprintf(stdout, "Parsing: \"%s\"...\n", filename);
 
     STOP_WATCH stopwatch;
@@ -166,7 +169,7 @@ int main( int argc, char* argv[] )
     }
 
     /* TODO: NEXT STEP: Generate test patterns */
-    
+
 
     exit(0);
 }

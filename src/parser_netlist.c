@@ -23,24 +23,23 @@
  */
 
 /* FILE, sprintf, fprintf, fscanf, fopen, fgets, fclose, stderr, stdin, stdout */
-#include <stdio.h> 
+#include <stdio.h>
 
-/* malloc, free, exit, abort, atexit, NULL */     
-#include <stdlib.h>   
+/* malloc, free, exit, abort, atexit, NULL */
+#include <stdlib.h>
 
-/* strcmp, strcpy, strtok */  
-#include <string.h>    
+/* strcmp, strcpy, strtok */
+#include <string.h>
 
 /* errno */
 #include <errno.h>
 
 #include "parser_netlist.h"
-#include "error.h"
 #include "hash.h"
 
 /*
  *  Allocates memory for the gate at location <totalGates>
- *  
+ *
  *  @param  CIRCUIT circuit - an circuit to be populated
  *  @param  int*    total   - total number of gates currently in the circuit
  *  @return BOOLEAN - TRUE -> parsing and population were successful, FALSE otherwise
@@ -62,7 +61,7 @@ BOOLEAN appendNewGate( CIRCUIT circuit, int* total, char* name )
 
     // TODO drop the assumption that the hash table is not full
     while(hashTableGates[K].strKey != NULL) K = (K + 1) % MAX_GATES;
-    
+
     hashTableGates[K].strKey = (char*) malloc(sizeof(name) + 1);
     strcpy(hashTableGates[K].strKey, name);
     hashTableGates[K].intKey = (*total) - 1;
@@ -73,7 +72,7 @@ BOOLEAN appendNewGate( CIRCUIT circuit, int* total, char* name )
 /*
  *  Reads circuit gates from a netlist stored in <filename> and populates the
  *  <circuit> with the netlist
- *  
+ *
  *  @param  CIRCUIT circuit  - an empty circuit to be populated
  *  @param  CIRCUIT_INFO* info - summary of circuit details
  *  @param  char*   filename - the filename storing the netlist
@@ -86,7 +85,7 @@ BOOLEAN populateCircuit( CIRCUIT circuit, CIRCUIT_INFO* info, char* filename )
 
     FILE* fp = fopen(filename, "r");
     if(fp == NULL) return FALSE;
-    
+
     char line[MAX_LINE_LENGTH];
     char* tempBuffer   = NULL;
     char* tempName     = NULL;
@@ -182,7 +181,7 @@ BOOLEAN populateCircuit( CIRCUIT circuit, CIRCUIT_INFO* info, char* filename )
             if ((index < info->numGates) && ((circuit[index]->type == PI) ||
                 (circuit[index]->type == PPI)))
             {
-                sprintf(ERROR_MESSAGE, 
+                sprintf(ERROR_MESSAGE,
                         "Node %s (id:%d), which is a PI/PPI, is at the output"
                         " of a gate!", circuit[index]->name, index);
                 errno = ERROR_PARSING_CIRCUIT;
@@ -194,7 +193,7 @@ BOOLEAN populateCircuit( CIRCUIT circuit, CIRCUIT_INFO* info, char* filename )
             tempBuffer = strstr(tempBuffer, "=");
             tempBuffer += 2;
             *strstr(tempBuffer, "(") = 0;
-            
+
             if( *tempBuffer == 'N' )
             {
                 circuit[index]->inv = 1;
@@ -205,43 +204,43 @@ BOOLEAN populateCircuit( CIRCUIT circuit, CIRCUIT_INFO* info, char* filename )
             dff = 0;
             if((strcmp(tempBuffer, "OT") == 0) || (strcmp(tempBuffer, "BUF") == 0))
             {
-                if ((circuit[index]->PO != 1) || 
+                if ((circuit[index]->PO != 1) ||
                     (circuit[index]->type != OTHER)) circuit[index]->PO = 0;
-                if ((circuit[index]->PPO != 1) || 
+                if ((circuit[index]->PPO != 1) ||
                     (circuit[index]->type != OTHER)) circuit[index]->PPO = 0;
                 circuit[index]->type = BUF;
             }
             else if(strcmp(tempBuffer, "AND") == 0)
             {
-                if ((circuit[index]->PO != 1) || 
+                if ((circuit[index]->PO != 1) ||
                     (circuit[index]->type != OTHER)) circuit[index]->PO = 0;
-                if ((circuit[index]->PPO != 1) || 
+                if ((circuit[index]->PPO != 1) ||
                     (circuit[index]->type != OTHER)) circuit[index]->PPO = 0;
                 circuit[index]->type = AND;
             }
             else if(strcmp(tempBuffer, "OR") == 0)
             {
-                if ((circuit[index]->PO != 1) || 
+                if ((circuit[index]->PO != 1) ||
                     (circuit[index]->type != OTHER)) circuit[index]->PO = 0;
-                if ((circuit[index]->PPO != 1) || 
+                if ((circuit[index]->PPO != 1) ||
                     (circuit[index]->type != OTHER)) circuit[index]->PPO = 0;
                 circuit[index]->type = OR;
             }
             else if(strcmp(tempBuffer, "PI") == 0)
             {
-                if ((circuit[index]->PO != 1) || 
+                if ((circuit[index]->PO != 1) ||
                     (circuit[index]->type != OTHER)) circuit[index]->PO = 0;
-                if ((circuit[index]->PPO != 1) || 
+                if ((circuit[index]->PPO != 1) ||
                     (circuit[index]->type != OTHER)) circuit[index]->PPO = 0;
                 circuit[index]->type = PI;
             }
             else if(strcmp(tempBuffer, "DFF") == 0)
             {
-                if ((circuit[index]->PO != 1) || 
+                if ((circuit[index]->PO != 1) ||
                     (circuit[index]->type != OTHER)) circuit[index]->PO = 0;
-                if ((circuit[index]->PPO != 1) || 
+                if ((circuit[index]->PPO != 1) ||
                     (circuit[index]->type != OTHER)) circuit[index]->PPO = 0;
-                if (index < info->numGates-1)  
+                if (index < info->numGates-1)
                 // Found a PO with the same name ===> need to add new PPI
                 {
                     circuit[index]->PO = 0;
@@ -249,7 +248,7 @@ BOOLEAN populateCircuit( CIRCUIT circuit, CIRCUIT_INFO* info, char* filename )
                     circuit[info->numGates]->type = PPI;
                     info->numPPI++;
                     circuit[info->numGates]->PO = TRUE;
-       
+
                     dff = 1;
                 }
                 else
@@ -261,32 +260,32 @@ BOOLEAN populateCircuit( CIRCUIT circuit, CIRCUIT_INFO* info, char* filename )
             }
             else if(strcmp(tempBuffer, "XOR") == 0)
             {
-                if ((circuit[index]->PO != 1) || 
+                if ((circuit[index]->PO != 1) ||
                     (circuit[index]->type != OTHER)) circuit[index]->PO = 0;
-                if ((circuit[index]->PPO != 1) || 
+                if ((circuit[index]->PPO != 1) ||
                     (circuit[index]->type != OTHER)) circuit[index]->PPO = 0;
                 circuit[index]->type = XOR;
             }
             else if(strcmp(tempBuffer, "XNOR") == 0)
             {
-                if ((circuit[index]->PO != 1) || 
+                if ((circuit[index]->PO != 1) ||
                     (circuit[index]->type != OTHER)) circuit[index]->PO = 0;
-                if ((circuit[index]->PPO != 1) || 
+                if ((circuit[index]->PPO != 1) ||
                     (circuit[index]->type != OTHER)) circuit[index]->PPO = 0;
                 circuit[index]->type = XOR;
                 circuit[index]->inv = 1;
             }
             else if(strcmp(tempBuffer, "PPI") == 0)
             {
-                if ((circuit[index]->PO != 1) || 
+                if ((circuit[index]->PO != 1) ||
                     (circuit[index]->type != OTHER)) circuit[index]->PO = 0;
-                if ((circuit[index]->PPO != 1) || 
+                if ((circuit[index]->PPO != 1) ||
                     (circuit[index]->type != OTHER)) circuit[index]->PPO = 0;
                 circuit[index]->type = PPI;
             }
             else
             {
-                sprintf(ERROR_MESSAGE, 
+                sprintf(ERROR_MESSAGE,
                         "Unknown gate type \"%s\" encountered!", tempBuffer);
                 errno = ERROR_PARSING_CIRCUIT;
                 exit(1);
@@ -304,15 +303,15 @@ BOOLEAN populateCircuit( CIRCUIT circuit, CIRCUIT_INFO* info, char* filename )
                 index2 = findIndex(circuit, &(info->numGates), in , TRUE);
 
                 // Error check
-                if ((index2 < info->numGates) && ((circuit[index2]->PO) || 
+                if ((index2 < info->numGates) && ((circuit[index2]->PO) ||
                     (circuit[index2]->PPO)))
                 {
-                    sprintf(ERROR_MESSAGE, 
+                    sprintf(ERROR_MESSAGE,
                         "Node %s (id:%d), which is a PO/PPO, is feeding gate"
                         " %s (id:%d)",
                         circuit[index2]->name, index2, circuit[index]->name, index);
                     errno = ERROR_PARSING_CIRCUIT;
-                    exit(1);      
+                    exit(1);
                 }
 
                 // Update input of created node
@@ -328,7 +327,7 @@ BOOLEAN populateCircuit( CIRCUIT circuit, CIRCUIT_INFO* info, char* filename )
                         circuit[index]->name);
                     errno = ERROR_IO_LIMIT_EXCEEDED;
                     exit(1);
-                } 
+                }
 
                 // Update output of listed node
                 if (!dff)
@@ -344,7 +343,7 @@ BOOLEAN populateCircuit( CIRCUIT circuit, CIRCUIT_INFO* info, char* filename )
 
                 if (circuit[index2]->numOut > MAX_OUTPUT_GATES)
                 {
-                    sprintf(ERROR_MESSAGE, "Too many outputs from gate %s", 
+                    sprintf(ERROR_MESSAGE, "Too many outputs from gate %s",
                         circuit[index]->name);
                     errno = ERROR_IO_LIMIT_EXCEEDED;
                     exit(1);
@@ -380,7 +379,7 @@ int findIndex( CIRCUIT circuit, int* totalGates, char* name, BOOLEAN init )
             break;
         else if(strcmp(hashTableGates[K].strKey, name) == 0)
             return hashTableGates[K].intKey;
-        
+
         K = (K+1) % MAX_GATES;
     }
 
@@ -428,13 +427,13 @@ void printGateInfo( CIRCUIT circuit, int index )
     printType(circuit[index]);
     fprintf(stdout, "\n");
     fprintf(stdout, "Inv: %d\n", circuit[index]->inv);
-    
+
     fprintf(stdout, "NumIn: %d\n", circuit[index]->numIn);
     int i;
     fprintf(stdout, "Inputs:");
     for(i = 0; i<(circuit[index]->numIn); i++)
         fprintf(stdout, " %s",circuit[circuit[index]->in[i]]->name);
-    
+
     fprintf(stdout, "\nNumOut: %d\n", circuit[index]->numOut);
     fprintf(stdout, "Outputs:");
     for(i = 0; i<(circuit[index]->numOut); i++)
