@@ -82,7 +82,7 @@ BOOLEAN appendNewGate( CIRCUIT circuit, int* total, char* name )
 BOOLEAN populateCircuit( CIRCUIT circuit, CIRCUIT_INFO* info, char* filename )
 {
     extern char ERROR_MESSAGE[MAX_LINE_LENGTH];
-    //extern BOOLEAN isDebugMode;
+    extern BOOLEAN isDebugMode;
 
     FILE* fp = fopen(filename, "r");
     if(fp == NULL) return FALSE;
@@ -134,7 +134,7 @@ BOOLEAN populateCircuit( CIRCUIT circuit, CIRCUIT_INFO* info, char* filename )
             if (found) circuit[index]->PO = 1;
             circuit[index]->PPO    = 0;
 
-            //if(isDebugMode) printGateInfo(circuit, index);
+            if(isDebugMode) printGateInfo(circuit, index);
         }
         else if(strstr(line, "OUTPUT"))     // Output gate
         {
@@ -163,7 +163,7 @@ BOOLEAN populateCircuit( CIRCUIT circuit, CIRCUIT_INFO* info, char* filename )
                 circuit[index]->PPO = 0;
             }
 
-            //if(isDebugMode) printGateInfo(circuit, index);
+            if(isDebugMode) printGateInfo(circuit, index);
         }
         else if(strstr(line, "="))  // Inner gate
         {
@@ -350,7 +350,7 @@ BOOLEAN populateCircuit( CIRCUIT circuit, CIRCUIT_INFO* info, char* filename )
                     exit(1);
                 }
             }
-            //if(isDebugMode) printGateInfo(circuit, index);
+            if(isDebugMode) printGateInfo(circuit, index);
         }
     }
     // free(tempBuffer);

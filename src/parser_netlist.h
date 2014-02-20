@@ -30,10 +30,23 @@
 #define MAX_OUTPUT_GATES    500     // Maximum output lines in a gate
 #define MAX_LINE_LENGTH     256     // Maximum length of an input file line
 
-#define TRUE                1   
+#define TRUE                1
 #define FALSE               0
 typedef unsigned short BOOLEAN;     // For TRUE or FALSE conditions
 
+/*
+ *  Gate types
+ */
+typedef enum {
+    AND,    // Logical AND Gate
+    OR,     // Logical OR Gate
+    PI,     // Primary Input
+    BUF,    // Buffer
+    FF,     //
+    XOR,    // Logical XOR Gate
+    PPI,    //
+    OTHER   // Other gate type
+} GATE_TYPE;
 
 /*
  *  Gate abstraction
@@ -46,7 +59,7 @@ typedef struct Gate
     BOOLEAN in[MAX_INPUT_GATES];     // List of connected input gates
     BOOLEAN out[MAX_OUTPUT_GATES];   // List of connected output gates
     BOOLEAN inv;        // 1 -> the gate is inverted, 0 otherwise
-    enum AbSym { AND, OR, PI, BUF, FF, XOR, PPI, OTHER } type;  // Gate type
+    GATE_TYPE type;     // Gate type
     BOOLEAN PO;         // 1 -> the gate is a primary output, 0 otherwise
     BOOLEAN PPO;        // 1 -> the gate is a pseudo PO, 0 otherwise
     BOOLEAN flag1;      // Used for tracing
@@ -81,7 +94,7 @@ int list[MAX_GATES];
 
 /*
  *  Allocates memory for the gate at location <totalGates>
- *  
+ *
  *  @param  CIRCUIT circuit - an circuit to be populated
  *  @param  int*    total   - total number of gates currently in the circuit
  *  @return BOOLEAN - TRUE -> parsing and population were successful, FALSE otherwise
@@ -91,7 +104,7 @@ BOOLEAN appendNewGate( CIRCUIT circuit, int* total, char* name );
 /*
  *  Reads circuit gates from a netlist stored in <filename> and populates the
  *  <circuit> with the netlist
- *  
+ *
  *  @param  CIRCUIT circuit  - an empty circuit to be populated
  *  @param  CIRCUIT_INFO* info - summary of circuit details
  *  @param  char*   filename - the filename storing the netlist
