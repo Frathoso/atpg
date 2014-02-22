@@ -33,7 +33,7 @@ int list[MAX_GATES];
 /*
  *  Allocates memory for the gate at location <totalGates>
  *
- *  @param  CIRCUIT circuit - an circuit to be populated
+ *  @param  CIRCUIT circuit - a circuit to be populated
  *  @param  int*    total   - total number of gates currently in the circuit
  *  @return BOOLEAN - TRUE -> parsing and population were successful, FALSE otherwise
  */

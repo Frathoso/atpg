@@ -35,12 +35,13 @@
 #include <errno.h>
 
 #include "parser_netlist.h"
+#include "atpg_types.h"
 #include "hash.h"
 
 /*
  *  Allocates memory for the gate at location <totalGates>
  *
- *  @param  CIRCUIT circuit - an circuit to be populated
+ *  @param  CIRCUIT circuit - a circuit to be populated
  *  @param  int*    total   - total number of gates currently in the circuit
  *  @return BOOLEAN - TRUE -> parsing and population were successful, FALSE otherwise
  */
@@ -53,6 +54,9 @@ BOOLEAN appendNewGate( CIRCUIT circuit, int* total, char* name )
     circuit[*total]->PO     = 0;
     circuit[*total]->PPO    = 0;
     circuit[*total]->type   = OTHER;
+    circuit[*total]->value  = X;
+    bzero(circuit[*total]->justified, sizeof(JUST_OBJECT));
+    bzero(circuit[*total]->propagated, sizeof(PROP_OBJECT));
     (*total)++;
 
     // Store the gate name and index in a hash table
@@ -407,7 +411,7 @@ void printType( GATE* gate )
         case BUF:   fprintf(stdout, "BUF"); break;
         case FF:    fprintf(stdout, "FF"); break;
         case XOR:   fprintf(stdout, "XOR"); break;
-        case OTHER: fprintf(stdout, "Unknown"); break;
+        case OTHER: fprintf(stdout, "OTHER"); break;
         default:    fprintf(stdout, "Unknown");
     }
 }
@@ -421,26 +425,53 @@ void printType( GATE* gate )
  */
 void printGateInfo( CIRCUIT circuit, int index )
 {
-    fprintf(stdout, "Index: %d\n", index);
-    fprintf(stdout, "Name: %s\n", circuit[index]->name);
+    fprintf(stdout, "Index: %d\t", index);
+    fprintf(stdout, "Name: %s\t", circuit[index]->name);
     fprintf(stdout, "Type: ");
     printType(circuit[index]);
-    fprintf(stdout, "\n");
-    fprintf(stdout, "Inv: %d\n", circuit[index]->inv);
+    fprintf(stdout, "\t");
+    fprintf(stdout, "Inv: %d\t", circuit[index]->inv);
 
-    fprintf(stdout, "NumIn: %d\n", circuit[index]->numIn);
+    fprintf(stdout, "\nNumIn: %d\t", circuit[index]->numIn);
     int i;
-    fprintf(stdout, "Inputs:");
+    fprintf(stdout, "{");
     for(i = 0; i<(circuit[index]->numIn); i++)
-        fprintf(stdout, " %s",circuit[circuit[index]->in[i]]->name);
+        fprintf(stdout, " %s,",circuit[circuit[index]->in[i]]->name);
+    fprintf(stdout, "}");
 
-    fprintf(stdout, "\nNumOut: %d\n", circuit[index]->numOut);
-    fprintf(stdout, "Outputs:");
+    fprintf(stdout, "\nNumOut: %d\t", circuit[index]->numOut);
+    fprintf(stdout, "{");
     for(i = 0; i<(circuit[index]->numOut); i++)
-        fprintf(stdout, " %s",circuit[circuit[index]->out[i]]->name);
+        fprintf(stdout, " %s,",circuit[circuit[index]->out[i]]->name);
+    fprintf(stdout, "}");
 
     if(circuit[index]->PO)  fprintf(stdout, "\nThis gate is a PO also");
     if(circuit[index]->PPO) fprintf(stdout, "\nThis gate is a PPO also");
+
+    // For debugging Justification and Propagation
+    char logValName;
+	switch(circuit[index]->value){
+		case O: logValName = 'O'; break;
+		case I: logValName = 'I'; break;
+		case D: logValName = 'D'; break;
+		case B: logValName = 'B'; break;
+		case X: logValName = 'X'; break;
+	};
+	fprintf(stdout, "\nValue: '%c'", logValName);
+    fprintf(stdout, "\nJustified:  ");
+    fprintf(stdout, "{");
+    for(i = 0; i<MAX_LOGIC_VALUES; i++)
+        fprintf(stdout, " %d:%d,",circuit[index]->justified[i].state, 
+        		circuit[index]->justified[i].value);
+    fprintf(stdout, "}");
+
+    fprintf(stdout, "\nPropagated: ");
+    fprintf(stdout, "{");
+    for(i = 0; i<MAX_LOGIC_VALUES; i++)
+        fprintf(stdout, " %d:%d,",circuit[index]->propagated[i].state, 
+        		circuit[index]->propagated[i].value);
+    fprintf(stdout, "}");
+
     fprintf(stdout, "\n\n");
 }
 

@@ -1,0 +1,26 @@
+# circuit 1
+# 6 inputs
+# 3 outputs
+# 2 inverters
+# 4 gates (1 ANDs + 1NANDs + 1 ORs + 1 NORs)
+
+INPUT(A)
+INPUT(B)
+INPUT(C)
+INPUT(D)
+INPUT(E)
+INPUT(F)
+
+OUTPUT(G)
+OUTPUT(H)
+OUTPUT(I)
+
+S1 = NOT(A)
+S3 = NOT(D)
+
+S2 = AND(B, C)
+G = NAND(S1, S2)
+I = OR(E, F)
+H = NOR(S3, I)
+
+

@@ -3,7 +3,8 @@
  *
  *       Filename:  logic_tables.h
  *
- *    Description:  Define the boolean five valued logic tables
+ *    Description:  Define the boolean five valued logic tables and logic operators
+ *
  *        Version:  1.0
  *        Created:  15 February 2014
  *       Revision:  none
@@ -20,7 +21,6 @@
 
 #include "atpg_types.h"
 
-
 #ifndef LOGIC_TABLES_H
 #define LOGIC_TABLES_H
 
@@ -28,56 +28,82 @@
 /*
  *  Logic tables
  */
-static const                                //  0   1   D   B   X
-LOGIC_VALUE TABLE_AND[5][5]  =  {/* 0 */    {   0,  0,  0,  0,  0   },
-                                 /* 1 */    {   0,  1,  D,  B,  X   },
-                                 /* D */    {   0,  D,  D,  0,  X   },
-                                 /* B */    {   0,  B,  0,  B,  X   },
-                                 /* X */    {   0,  X,  X,  X,  X   }
+static const                                //  O   I   D   B   X
+LOGIC_VALUE TABLE_AND[5][5]  =  {/* O */    {   O,  O,  O,  O,  O   },
+                                 /* I */    {   O,  I,  D,  B,  X   },
+                                 /* D */    {   O,  D,  D,  O,  X   },
+                                 /* B */    {   O,  B,  O,  B,  X   },
+                                 /* X */    {   O,  X,  X,  X,  X   }
                                 };
 
-static const                                //  0   1   D   B   X
-LOGIC_VALUE TABLE_NAND[5][5]  = {/* 0 */    {   1,  1,  1,  1,  1   },
-                                 /* 1 */    {   1,  0,  B,  D,  X   },
-                                 /* D */    {   1,  B,  B,  1,  X   },
-                                 /* B */    {   1,  D,  1,  D,  X   },
-                                 /* X */    {   1,  X,  X,  X,  X   }
+static const                                //  O   I   D   B   X
+LOGIC_VALUE TABLE_NAND[5][5]  = {/* O */    {   I,  I,  I,  I,  I   },
+                                 /* I */    {   I,  O,  B,  D,  X   },
+                                 /* D */    {   I,  B,  B,  I,  X   },
+                                 /* B */    {   I,  D,  I,  D,  X   },
+                                 /* X */    {   I,  X,  X,  X,  X   }
                                 };
 
-static const                                //  0   1   D   B   X
-LOGIC_VALUE TABLE_OR[5][5]   =  {/* 0 */    {   0,  1,  D,  B,  X   },
-                                 /* 1 */    {   1,  1,  1,  1,  1   },
-                                 /* D */    {   D,  1,  D,  1,  X   },
-                                 /* B */    {   B,  1,  1,  B,  X   },
-                                 /* X */    {   X,  1,  X,  X,  X   }
+static const                                //  O   I   D   B   X
+LOGIC_VALUE TABLE_OR[5][5]   =  {/* O */    {   O,  I,  D,  B,  X   },
+                                 /* I */    {   I,  I,  I,  I,  I   },
+                                 /* D */    {   D,  I,  D,  I,  X   },
+                                 /* B */    {   B,  I,  I,  B,  X   },
+                                 /* X */    {   X,  I,  X,  X,  X   }
                                 };
 
-static const                                //  0   1   D   B   X
-LOGIC_VALUE TABLE_NOR[5][5]  =  {/* 0 */    {   1,  0,  B,  D,  X   },
-                                 /* 1 */    {   0,  0,  0,  0,  0   },
-                                 /* D */    {   B,  0,  B,  0,  X   },
-                                 /* B */    {   D,  0,  0,  D,  X   },
-                                 /* X */    {   X,  0,  X,  X,  X   }
+static const                                //  O   I   D   B   X
+LOGIC_VALUE TABLE_NOR[5][5]  =  {/* O */    {   I,  O,  B,  D,  X   },
+                                 /* I */    {   O,  O,  O,  O,  O   },
+                                 /* D */    {   B,  O,  B,  O,  X   },
+                                 /* B */    {   D,  O,  O,  D,  X   },
+                                 /* X */    {   X,  O,  X,  X,  X   }
                                 };
 
-static const                                //  0   1   D   B   X
-LOGIC_VALUE TABLE_XOR[5][5]  =  {/* 0 */    {   0,  1,  D,  B,  X   },
-                                 /* 1 */    {   1,  0,  B,  D,  X   },
-                                 /* D */    {   D,  B,  0,  1,  X   },
-                                 /* B */    {   B,  D,  1,  0,  X   },
+static const                                //  O   I   D   B   X
+LOGIC_VALUE TABLE_XOR[5][5]  =  {/* O */    {   O,  I,  D,  B,  X   },
+                                 /* I */    {   I,  O,  B,  D,  X   },
+                                 /* D */    {   D,  B,  O,  I,  X   },
+                                 /* B */    {   B,  D,  I,  O,  X   },
                                  /* X */    {   X,  X,  X,  X,  X   }
                                 };
 
-static const                                //  0   1   D   B   X
-LOGIC_VALUE TABLE_XNOR[5][5]  = {/* 0 */    {   1,  0,  B,  D,  X   },
-                                 /* 1 */    {   0,  1,  D,  B,  X   },
-                                 /* D */    {   B,  D,  1,  0,  X   },
-                                 /* B */    {   D,  B,  0,  1,  X   },
+static const                                //  O   I   D   B   X
+LOGIC_VALUE TABLE_XNOR[5][5]  = {/* O */    {   I,  O,  B,  D,  X   },
+                                 /* I */    {   O,  I,  D,  B,  X   },
+                                 /* D */    {   B,  D,  I,  O,  X   },
+                                 /* B */    {   D,  B,  O,  I,  X   },
                                  /* X */    {   X,  X,  X,  X,  X   }
                                 };
 
-static const                        //  0   1   D   B   X
-LOGIC_VALUE TABLE_INV [5]    =  {       1,  0,  B,  D,  X   };
+static const                        //  O   I   D   B   X
+LOGIC_VALUE TABLE_INV [5]    =  {       I,  O,  B,  D,  X   };
 
+
+/*
+ *  Computes the logic value of the inputs on passing through the gate
+ *
+ * 	@param  CIRCUIT circuit - the circuit containing the gates
+ *  @param  int 	index 	- the target gate
+ *  @return LOGIC_VALUE	- the results of the operation
+ */
+LOGIC_VALUE computeGateOutput( CIRCUIT circuit, int index );
+
+/*
+ *  Negates or passes the value as it is depending on the flag <inv>
+ *
+ * 	@param  LOGIC_VALUE value - the value to be negated
+ *  @param  BOOLEAN		inv   - marking if the value has to be negated or not
+ *  @return LOGIC_VALUE	- the results of the operation
+ */
+LOGIC_VALUE negate( LOGIC_VALUE value, BOOLEAN inv );
+
+/*
+ *  Returns the name of the given logic value
+ *
+ * 	@param  LOGIC_VALUE value - the value to be named
+ *  @return char	- the name of the logic value
+ */
+char logicName( LOGIC_VALUE value);
 
 #endif
