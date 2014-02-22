@@ -34,6 +34,7 @@ typedef enum
     ST_1    // Stuck-at one fault
 } FAULT_TYPE;
 
+
 /*
  *  A fault structure
  */
@@ -43,6 +44,7 @@ typedef struct
     FAULT_TYPE type;        // Either stuck at 1 or stuck at 0
 } FAULT;
 
+
 /*
  *  Creates a fault object
  *
@@ -51,5 +53,15 @@ typedef struct
  *  @return FAULT - the created fault object
  */
 FAULT createNewFault(char* _name, FAULT_TYPE _type);
+
+/*
+ *  Creates a fault object
+ *
+ *  @param  char* _name - the name of the wire stuck-at fault
+ *  @param  FAULT_TYPE _type  - the type of the fault
+ *  @return BOOLEAN - TRUE if the fault list was successfully generated and
+ *                    FALSE otherwise
+ */
+//BOOLEAN createNewFault(char* _name, FAULT_TYPE _type);
 
 #endif

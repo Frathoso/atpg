@@ -147,7 +147,7 @@ int main( int argc, char* argv[] )
     /* Populate the circuit and faults list from the passed netlist file */
     CIRCUIT circuit;
     CIRCUIT_INFO info;
-    FAULT faultList[50000];
+    FAULT* faultList[50000];     // TODO: Determine the probable size of fault list
 
     extern HASH_ENTRY hashTableGates[MAX_GATES];
     bzero(hashTableGates, sizeof(hashTableGates));

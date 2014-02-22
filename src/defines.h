@@ -38,20 +38,12 @@
 #define MAX_INPUT_GATES     10      // Maximum input lines in a gate
 #define MAX_OUTPUT_GATES    500     // Maximum output lines in a gate
 #define MAX_LINE_LENGTH     256     // Maximum length of an input file line
+#define MAX_LOGIC_VALUES	5 		// Maximum number of logical values used
 
 /*
  *
  */
 #define MAX_FAULTS          50000   // Maximum number of faults
-
-/*
- *  Boolean type for True and False conditions
- */
-typedef enum
-{
-    FALSE = 0,  // Boolean False
-    TRUE  = 1   // Boolean True
-} BOOLEAN;
 
 
 #endif

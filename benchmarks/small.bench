@@ -1,0 +1,19 @@
+# 4 inputs
+# 1 output
+# 0 flipflops
+# 1 inverter
+# 4 gates (3 ANDs + 1 OR)
+
+INPUT(A)
+INPUT(B)
+INPUT(C)
+INPUT(E)
+
+OUTPUT(L)
+
+J = NOT(I)
+
+H = AND(A, B)
+I = AND(B, C)
+K = OR(H, J)
+L = AND(E, K)

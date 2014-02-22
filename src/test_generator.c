@@ -22,10 +22,31 @@
 #include "test_generator.h"
 
 /*
- *  Print the details of a circuit
+ *  Justifies to the primary input the value given to a circuit line
  *
- *  @param  CIRCUIT circuit - the circuit
- *  @param  int totalGates  - total number of gates currently in the circuit
- *  @return nothing
+ *  @param  CIRCUIT 	circuit - the circuit
+ *  @param  int 		index  	- the position of the gate in the <circuit>
+ *  @param  LOGIC_VALUE	value  	- the logical value to justify the given gate with
+ *  @return BOOLEAN -  TRUE	 if the value can be justified and FALSE if the 
+ *					   value causes conflicts
  */
+BOOLEAN justify(CIRCUIT circuit, int index, LOGIC_VALUE value)
+{
 
+	return TRUE;
+}
+
+/*
+ *  Propagates to the primary output the value given to a circuit line
+ *
+ *  @param  CIRCUIT 	circuit - the circuit
+ *  @param  int 		index  	- the position of the gate in the <circuit>
+ *  @param  LOGIC_VALUE	value  	- the logical value to justify the given gate with
+ *  @return BOOLEAN -  TRUE	 if the value can be justified and FALSE if the 
+ *					   value causes conflicts
+ */
+BOOLEAN propagate(CIRCUIT circuit, int index, LOGIC_VALUE value)
+{
+
+	return TRUE;
+}

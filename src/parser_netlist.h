@@ -20,67 +20,12 @@
  * =====================================================================================
  */
 
-#include "defines.h"
+#include "atpg_types.h"
+
 
 #ifndef CIRCUIT_TRACE_H
 #define CIRCUIT_TRACE_H
 
-
-/*
- *  Gate types
- */
-typedef enum
-{
-    AND,    // Logical AND Gate
-    OR,     // Logical OR Gate
-    PI,     // Primary Input
-    BUF,    // Buffer
-    FF,     //
-    XOR,    // Logical XOR Gate
-    PPI,    //
-    OTHER   // Other gate type
-} GATE_TYPE;
-
-/*
- *  Gate abstraction
- */
-typedef struct
-{
-    char    name[MAX_WORD];   // Name given to the gate
-    BOOLEAN numIn;      // Number of connected input gates
-    BOOLEAN numOut;     // Number of connected output gates
-    BOOLEAN in[MAX_INPUT_GATES];     // List of connected input gates
-    BOOLEAN out[MAX_OUTPUT_GATES];   // List of connected output gates
-    BOOLEAN inv;        // 1 -> the gate is inverted, 0 otherwise
-    GATE_TYPE type;     // Gate type
-    BOOLEAN PO;         // 1 -> the gate is a primary output, 0 otherwise
-    BOOLEAN PPO;        // 1 -> the gate is a pseudo PO, 0 otherwise
-    BOOLEAN flag1;      // Used for tracing
-    BOOLEAN flag2;      // Used for IIR
-    BOOLEAN flag3;      // Used for OIR
-    BOOLEAN flag4;      // Used for exclude
-    BOOLEAN flag5;      // Used for tracing
-    BOOLEAN flag6;      // Used for IIR
-    BOOLEAN flag7;      // Used for OIR
-} GATE;
-
-typedef GATE* CIRCUIT[MAX_GATES];
-
-
-/*
- *  Details for the circuit
- */
-typedef struct
-{
-    int numGates;       // Total number of gates
-    int numPI;          // Total number of primary inputs
-    int numPO;          // Total number of primary outputs
-    int numPPI;         // TOtal number of pseudo primary inputs
-    int numPPO;         // Total number of pseudo primary outputs
-    int numIIR;         // Total number of input interface registers
-    int numOIR;         // Total number of output interface registers
-    int numINT_2_OIR;   //
-} CIRCUIT_INFO;
 
 int list[MAX_GATES];
 
