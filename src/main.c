@@ -168,6 +168,13 @@ int main( int argc, char* argv[] )
         exit(1);
     }
 
+    int K; 
+    printf("Input gates: ");
+    for(K=0; K<info.numPI; K++) printf(" %s", circuit[info.inputs[K]]->name);
+    printf("\nOutput gates:");
+    for(K=0; K<info.numPO; K++) printf(" %s", circuit[info.outputs[K]]->name);
+    printf("\n\n");
+
     /* Generate test patterns */
 
     //printf("=================================================\n");
@@ -176,7 +183,13 @@ int main( int argc, char* argv[] )
 
     int index = findIndex(circuit, &(info.numGates), "B" , FALSE);
     BOOLEAN results = propagate(circuit, index, D);
-    if(results == TRUE) printf("Propagation:  [ succeeded ]\n");
+    if(results == TRUE)
+    {
+        TEST_VECTOR testVector = extractTestVector(circuit, &info);
+        printf("Propagation:  [ succeeded ]\n");
+        printf("Test Vectors:\n");
+        displayTestVector(testVector);
+    }
     else  printf("Propagation: [ failed ]\n");
 
     //printf("=================================================\n");

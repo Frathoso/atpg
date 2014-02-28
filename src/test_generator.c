@@ -326,3 +326,40 @@ BOOLEAN propagate(CIRCUIT circuit, int index, LOGIC_VALUE log_val)
 	circuit[index]->propagated[log_val].value = FALSE;
 	return FALSE;
 }
+
+/*
+ *  Extracts a test pattern from the current input and output values
+ *
+ *  @param  CIRCUIT 	circuit - the circuit
+ *  @param  CIRCUIT_INFO info  	- containing the list of inputs/outputs
+ *  @return TEST_VECTOR - the generated test vector
+ */
+TEST_VECTOR extractTestVector(CIRCUIT circuit, CIRCUIT_INFO* info)
+{
+	TEST_VECTOR tv;
+	bzero(tv.input, sizeof(tv.input));
+	bzero(tv.output, sizeof(tv.output));
+	tv.faults_count = 1;
+
+	//	Get values of input gates
+	int K;
+	for(K = 0; K < info->numPI; K++)
+		tv.input[K] = logicName(circuit[info->inputs[K]]->value);
+
+	// Get values of output gates
+	for(K = 0; K < info->numPO; K++)
+		tv.output[K] = logicName(circuit[info->outputs[K]]->value);
+
+	return tv;
+}
+
+/*
+ *  Print to the standard output the given test vector
+ *
+ *  @param  TEST_VECTOR	tv 	- the test vector to output
+ *  @return nothing
+ */
+void displayTestVector(TEST_VECTOR tv)
+{
+	printf("%s\t%s\t%d\n", tv.input, tv.output, tv.faults_count);
+}

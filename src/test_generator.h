@@ -67,4 +67,21 @@ BOOLEAN justify(CIRCUIT circuit, int index, LOGIC_VALUE log_val);
  */
 BOOLEAN propagate(CIRCUIT circuit, int index, LOGIC_VALUE log_val);
 
+/*
+ *  Extracts a test pattern from the current input and output values
+ *
+ *  @param  CIRCUIT 	circuit - the circuit
+ *  @param  CIRCUIT_INFO info  	- containing the list of inputs/outputs
+ *  @return TEST_VECTOR - the generated test vector
+ */
+TEST_VECTOR extractTestVector(CIRCUIT circuit, CIRCUIT_INFO* info);
+
+/*
+ *  Print to the standard output the given test vector
+ *
+ *  @param  TEST_VECTOR	tv 	- the test vector to output
+ *  @return nothing
+ */
+void displayTestVector(TEST_VECTOR tv);
+
 #endif

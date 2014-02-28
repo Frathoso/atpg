@@ -43,9 +43,9 @@ BOOLEAN appendNewGate( CIRCUIT circuit, int* total, char* name );
  *  Reads circuit gates from a netlist stored in <filename> and populates the
  *  <circuit> with the netlist
  *
- *  @param  CIRCUIT circuit  - an empty circuit to be populated
- *  @param  CIRCUIT_INFO* info - summary of circuit details
- *  @param  char*   filename - the filename storing the netlist
+ *  @param  CIRCUIT circuit  	- an empty circuit to be populated
+ *  @param  CIRCUIT_INFO* info 	- summary of circuit details
+ *  @param  char*   filename 	- the filename storing the netlist
  *  @return BOOLEAN - TRUE -> parsing and population were successful, FALSE otherwise
  */
 BOOLEAN populateCircuit( CIRCUIT circuit, CIRCUIT_INFO* info, char* filename );

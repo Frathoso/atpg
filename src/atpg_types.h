@@ -142,7 +142,9 @@ typedef struct
 {
     int numGates;       // Total number of gates
     int numPI;          // Total number of primary inputs
+    int inputs[MAX_INPUT_GATES];    // List of primary inputs
     int numPO;          // Total number of primary outputs
+    int outputs[MAX_OUTPUT_GATES];  // List of primary outputs
     int numPPI;         // TOtal number of pseudo primary inputs
     int numPPO;         // Total number of pseudo primary outputs
     int numIIR;         // Total number of input interface registers
@@ -162,9 +164,9 @@ typedef struct
  */
 typedef struct
 {
-    char input[MAX_INPUT_GATES];    // Input gates values
-    char output[MAX_OUTPUT_GATES]; 	// Output gates values
-    int  faults_count;              // Total stuck-at faults the test can detect
+    char input[MAX_INPUT_GATES+1];    // Input gates values
+    char output[MAX_OUTPUT_GATES+1];  // Output gates values
+    int  faults_count;      // Total stuck-at faults the test can detect
 } TEST_VECTOR;
 
 
