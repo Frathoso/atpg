@@ -24,6 +24,33 @@
 #include "strings.h"
 
 /*
+ *  Sets all gates value from the gate to the primary output as Don't-Cares (X)
+ *
+ *  @param  CIRCUIT 	circuit - the circuit
+ *  @param  int 		index  	- the starting gate/wire
+ *  @return nothing
+ */
+void clearPath(CIRCUIT circuit, int index)
+{
+	// Clear all the input lines to the current gate
+	int K, J;
+	for(K = 0; K < circuit[index]->numIn; K++)
+	{
+		circuit[circuit[index]->in[K]]->value = X;
+
+		for(J = 0; J < MAX_LOGIC_VALUES; J++)
+			circuit[circuit[index]->in[K]]->justified[J].state = FALSE;
+	}
+
+	// Stop when reaching a primar output or continue clearing the output lines otherwise
+	if(circuit[index]->PO == TRUE)
+		return;
+	else
+		for(K = 0; K < circuit[index]->numOut; K++)
+			clearPath(circuit, circuit[index]->out[K]);
+}
+
+/*
  *  Justifies to the primary input the value given to a circuit line
  *
  * 	ASSUMPTIONS: 
@@ -37,11 +64,11 @@
  */
 BOOLEAN justify(CIRCUIT circuit, int index, LOGIC_VALUE log_val)
 {
-	printf("justify(%s with '%c'  ['%c'])\n", circuit[index]->name, logicName(log_val), logicName(circuit[index]->value));
+	printf("Justify(%s with '%c')\n", circuit[index]->name, logicName(log_val));
 
 	// Check if the gate has already been justified
-	//if(circuit[index]->justified[log_val].state == TRUE) 
-		//return circuit[index]->justified[log_val].value;
+	if(circuit[index]->justified[log_val].state == TRUE) 
+		return circuit[index]->justified[log_val].value;
 
 	// A Primary Input can be justified for any value
 	if(circuit[index]->type == PI)
@@ -59,6 +86,10 @@ BOOLEAN justify(CIRCUIT circuit, int index, LOGIC_VALUE log_val)
 			BOOLEAN result = FALSE;
 			switch(circuit[circuit[index]->in[0]]->value)
 			{
+				case X: {
+					circuit[circuit[index]->in[0]]->value = negate(circuit[index]->value, TRUE);
+					result = TRUE; break;
+				}
 				case I: circuit[index]->value == O? result = TRUE : FALSE; break;
 				case O: circuit[index]->value == I? result = TRUE : FALSE; break;
 				case D: circuit[index]->value == B? result = TRUE : FALSE; break;
@@ -69,7 +100,7 @@ BOOLEAN justify(CIRCUIT circuit, int index, LOGIC_VALUE log_val)
 			{
 				circuit[index]->justified[log_val].state = TRUE;
 				circuit[index]->justified[log_val].value = TRUE;
-				return TRUE;
+				return justify(circuit, circuit[index]->in[0], circuit[circuit[index]->in[0]]->value);
 			}
 			else
 			{
@@ -84,6 +115,7 @@ BOOLEAN justify(CIRCUIT circuit, int index, LOGIC_VALUE log_val)
 			{
 				circuit[index]->justified[log_val].state = TRUE;
 				circuit[index]->justified[log_val].value = TRUE;
+				// TODO: Justify further and deal with a don't care on the input
 				return TRUE;
 			}
 			else
@@ -97,6 +129,7 @@ BOOLEAN justify(CIRCUIT circuit, int index, LOGIC_VALUE log_val)
 	}
 
 	// Logical value Don't-Care (X) does not need justification
+	// TODO check if this is true
 	if(log_val == X) return TRUE;
 
 
@@ -105,23 +138,24 @@ BOOLEAN justify(CIRCUIT circuit, int index, LOGIC_VALUE log_val)
 	LOGIC_VALUE result = computeGateOutput(circuit, index);
 	if(result != log_val)
 	{
-		circuit[index]->justified[log_val].state = TRUE;
-		circuit[index]->justified[log_val].value = FALSE;
-		printf("faaaaiiilll: %c  %c\n", logicName(result), logicName(log_val));
-		return FALSE;
-	}
-
-	// Justify the current gate's inputs
-	int inLine = 0;
-	for(; inLine < circuit[index]->numIn; inLine++)
-	{
-		if(justify(circuit, circuit[index]->in[inLine], circuit[index]->value) == FALSE)
+		// Check if it is possible to justify if the Don't-Cares were manipulated
+		if(isOutputPossible(circuit, index, log_val) == FALSE)
 		{
 			circuit[index]->justified[log_val].state = TRUE;
 			circuit[index]->justified[log_val].value = FALSE;
 			return FALSE;
 		}
 	}
+
+	// Justify the current gate's inputs
+	int inLine = 0;
+	for(; inLine < circuit[index]->numIn; inLine++)
+		if(justify(circuit, circuit[index]->in[inLine], circuit[circuit[index]->in[inLine]]->value) == FALSE)
+		{
+			circuit[index]->justified[log_val].state = TRUE;
+			circuit[index]->justified[log_val].value = FALSE;
+			return FALSE;
+		}
 	return TRUE;
 }
 
@@ -142,14 +176,14 @@ BOOLEAN justify(CIRCUIT circuit, int index, LOGIC_VALUE log_val)
  */
 BOOLEAN propagate(CIRCUIT circuit, int index, LOGIC_VALUE log_val)
 {
-	printf("propagate(%s with '%c')\n", circuit[index]->name, logicName(log_val));
+	printf("Propagate(%s with '%c')\n", circuit[index]->name, logicName(log_val));
 
 	// Set this wire to the propagated value
 	circuit[index]->value = log_val;
 
 	// Check if the value has already been propagated through this gate
-	//if(circuit[index]->propagated[log_val].state == TRUE) 
-		//return circuit[index]->propagated[log_val].value;
+	if(circuit[index]->propagated[log_val].state == TRUE) 
+		return circuit[index]->propagated[log_val].value;
 
 	// Check if a Primary Output has been reached
 	if(circuit[index]->PO == TRUE)
@@ -157,10 +191,9 @@ BOOLEAN propagate(CIRCUIT circuit, int index, LOGIC_VALUE log_val)
 		BOOLEAN results = justify(circuit, index, log_val);
 		if(results == FALSE) 
 		{
-			printf("justification: [failed]\n");
 			bzero(circuit[index]->propagated, sizeof(PROP_OBJECT));
+			printf("Propagation: [ failed ]\n");
 		}
-		else printf("justification: [succeeded]\n");
 		circuit[index]->propagated[log_val].state = TRUE;
 		circuit[index]->propagated[log_val].value = results;
 		return results;
@@ -175,15 +208,37 @@ BOOLEAN propagate(CIRCUIT circuit, int index, LOGIC_VALUE log_val)
 		LOGIC_VALUE prop_log_val;
 		if(circuit[index]->inv == TRUE)		// An INVERTER
 		{
-			switch(circuit[circuit[index]->in[0]]->value)
+			prop_log_val = negate(circuit[circuit[index]->in[0]]->value, TRUE);
+			circuit[index]->value =  prop_log_val;	// Modify the propagated value
+
+			int K;
+			int outIndex = circuit[index]->out[0];
+			LOGIC_VALUE log_val_other;
+			switch(circuit[outIndex]->type)
 			{
-				case I: prop_log_val = O; break;
-				case O: prop_log_val = I; break;
-				case D: prop_log_val = B; break;
-				case B: prop_log_val = D; break;
-				default: prop_log_val = X;;
+				case AND:
+					log_val_other = I;	// Other input lines need to be 1 for propagation
+					for(K = 0; K < circuit[outIndex]->numIn; K++)
+						if(circuit[outIndex]->in[K] != index)
+							circuit[circuit[outIndex]->in[K]]->value = log_val_other;
+					break;
+				case OR:
+				{
+					log_val_other = O;	// Other input lines need to be O for propagation
+					for(K = 0; K < circuit[outIndex]->numIn; K++)
+						if(circuit[outIndex]->in[K] != index)
+							circuit[circuit[outIndex]->in[K]]->value = log_val_other;
+					break;
+				}
+				case XOR:
+				{
+					// TODO Implement XOR propagation
+					break;
+				}
+				// TODO: Implement other types of gates
+				default:
+					break;
 			}
-			circuit[index]->value = prop_log_val;	// Modify the propagated value
 
 			if(propagate(circuit, circuit[index]->out[0], prop_log_val) == TRUE)
 			{
@@ -259,6 +314,12 @@ BOOLEAN propagate(CIRCUIT circuit, int index, LOGIC_VALUE log_val)
 			circuit[index]->propagated[log_val].state = TRUE;
 			circuit[index]->propagated[log_val].value = TRUE;
 			return TRUE;
+		}
+		else
+		{
+			// Clear the propagation values
+			clearPath(circuit, outIndex);
+			circuit[index]->value = log_val;
 		}
 	}
 	circuit[index]->propagated[log_val].state = TRUE;

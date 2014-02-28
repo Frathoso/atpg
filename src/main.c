@@ -170,18 +170,18 @@ int main( int argc, char* argv[] )
 
     /* Generate test patterns */
 
-    printf("=================================================\n");
-    printCircuitInfo(circuit, info.numGates);
-    printf("=================================================\n");
+    //printf("=================================================\n");
+    //printCircuitInfo(circuit, info.numGates);
+    //printf("=================================================\n");
 
     int index = findIndex(circuit, &(info.numGates), "B" , FALSE);
     BOOLEAN results = propagate(circuit, index, D);
-    if(results == TRUE) printf("Propagation:  [succeeded]\n");
-    else  printf("Propagation: [failed]\n");
+    if(results == TRUE) printf("Propagation:  [ succeeded ]\n");
+    else  printf("Propagation: [ failed ]\n");
 
-    printf("=================================================\n");
-    printCircuitInfo(circuit, info.numGates);
-    printf("=================================================\n");
+    //printf("=================================================\n");
+    //printCircuitInfo(circuit, info.numGates);
+    //printf("=================================================\n");
 
     exit(0);
 }

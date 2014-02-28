@@ -19,7 +19,6 @@
  * =====================================================================================
  */
 
-#include "stdio.h"
 #include "logic_tables.h"
 
 
@@ -55,9 +54,7 @@ LOGIC_VALUE computeGateOutput( CIRCUIT circuit, int index )
 			while(++K < circuit[index]->numIn)
 			{
 				temp = circuit[circuit[index]->in[K]]->value;
-				printf("OR(%c, %c) = ", logicName(result), logicName(temp));
 				result = TABLE_OR[result][temp];
-				printf("%c\n",  logicName(result));
 			}
 
 			if(circuit[index]->inv == TRUE)	// NOR Gate
@@ -67,6 +64,58 @@ LOGIC_VALUE computeGateOutput( CIRCUIT circuit, int index )
 		default:
 			// TODO: Implement XOR and other gate types
 			return X;
+	}
+}
+
+/*
+ *  Checks if it is possible to generate the given output by manipulating 
+ *  the Don't-Cares (X) input lines
+ *
+ *      @param  CIRCUIT circuit - the circuit containing the gates
+ *  @param  int         index   - the target gate
+ *      @param  LOGIC_VALUE output - the logical value output of interest 
+ *  @return BOOLEAN TRUE if it is possible and FALSE otherwise
+ */
+BOOLEAN isOutputPossible( CIRCUIT circuit, int index, LOGIC_VALUE output )
+{
+	int K;
+	BOOLEAN result = FALSE;
+
+	// Check if there are any Don't-Cares to manipulate and set them to their probable values
+	for(K = 0; K < circuit[index]->numIn; K++)
+		if(circuit[circuit[index]->in[K]]->value == X)
+		{
+			// Check for the special cases of AND and OR gates
+			if(result == FALSE)
+			{
+				if(circuit[index]->type == AND && circuit[index]->inv == FALSE && output == O)
+				{
+					circuit[circuit[index]->in[K]]->value = O;
+					return TRUE;
+				}
+				if(circuit[index]->type == OR  && circuit[index]->inv == FALSE && output == I)
+				{
+					circuit[circuit[index]->in[K]]->value = I;
+					return TRUE;
+				}
+			}
+
+			// Other cases
+			result = TRUE;
+			switch(circuit[index]->type)
+			{
+				case AND: circuit[circuit[index]->in[K]]->value = I; break;
+				case OR:  circuit[circuit[index]->in[K]]->value = O; break;
+				case BUF: circuit[circuit[index]->in[K]]->value = (LOGIC_VALUE) negate(output, 
+					circuit[circuit[index]->in[K]]->inv); break;
+				default: break;
+			}
+		}
+	if(result == FALSE) return FALSE;
+	else
+	{
+		LOGIC_VALUE jibu = computeGateOutput(circuit, index);
+		return (jibu == output);
 	}
 }
 

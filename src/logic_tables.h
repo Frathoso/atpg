@@ -90,6 +90,17 @@ LOGIC_VALUE TABLE_INV [5]    =  {       I,  O,  B,  D,  X   };
 LOGIC_VALUE computeGateOutput( CIRCUIT circuit, int index );
 
 /*
+ *  Checks if it is possible to generate the given output by manipulating 
+ *  the Don't-Cares (X) input lines
+ *
+ *      @param  CIRCUIT circuit - the circuit containing the gates
+ *  @param  int         index   - the target gate
+ *      @param  LOGIC_VALUE output - the logical value output of interest 
+ *  @return BOOLEAN TRUE if it is possible and FALSE otherwise
+ */
+BOOLEAN isOutputPossible( CIRCUIT circuit, int index, LOGIC_VALUE output );
+
+/*
  *  Negates or passes the value as it is depending on the flag <inv>
  *
  * 	@param  LOGIC_VALUE value - the value to be negated

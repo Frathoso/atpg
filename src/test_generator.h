@@ -28,6 +28,15 @@
 
 
 /*
+ *  Sets all gates value from the gate to the primary output as Don't-Cares (X)
+ *
+ *  @param  CIRCUIT 	circuit - the circuit
+ *  @param  int 		index  	- the starting gate/wire
+ *  @return nothing
+ */
+void clearPath(CIRCUIT circuit, int index);
+
+/*
  *  Justifies to the primary input the value given to a circuit line
  *
  * 	ASSUMPTIONS: 
