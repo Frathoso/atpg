@@ -30,7 +30,7 @@
  *  @param  int 		index  	- the starting gate/wire
  *  @return nothing
  */
-void clearPath(CIRCUIT circuit, int index)
+void clearPropagationValuesPath(CIRCUIT circuit, int index)
 {
 	// Clear all the input lines to the current gate
 	int K, J;
@@ -47,7 +47,21 @@ void clearPath(CIRCUIT circuit, int index)
 		return;
 	else
 		for(K = 0; K < circuit[index]->numOut; K++)
-			clearPath(circuit, circuit[index]->out[K]);
+			clearPropagationValuesPath(circuit, circuit[index]->out[K]);
+}
+
+/*
+ *  Clear propagation values for the entire circuit
+ *
+ *  @param  CIRCUIT 	circuit - the circuit
+ *  @param  CIRCUIT_INFO info  	- for the maximum number of gates
+ *  @return nothing
+ */
+void clearPropagationValuesCircuit(CIRCUIT circuit, CIRCUIT_INFO* info)
+{
+	int index;
+	for(index = 0; index < info->numGates; index++)
+		circuit[index]->value = X;
 }
 
 /*
@@ -64,7 +78,7 @@ void clearPath(CIRCUIT circuit, int index)
  */
 BOOLEAN justify(CIRCUIT circuit, int index, LOGIC_VALUE log_val)
 {
-	printf("Justify(%s with '%c')\n", circuit[index]->name, logicName(log_val));
+	//printf("Justify(%s with '%c')\n", circuit[index]->name, logicName(log_val));
 
 	// Check if the gate has already been justified
 	if(circuit[index]->justified[log_val].state == TRUE) 
@@ -176,7 +190,7 @@ BOOLEAN justify(CIRCUIT circuit, int index, LOGIC_VALUE log_val)
  */
 BOOLEAN propagate(CIRCUIT circuit, int index, LOGIC_VALUE log_val)
 {
-	printf("Propagate(%s with '%c')\n", circuit[index]->name, logicName(log_val));
+	//printf("Propagate(%s with '%c')\n", circuit[index]->name, logicName(log_val));
 
 	// Set this wire to the propagated value
 	circuit[index]->value = log_val;
@@ -192,7 +206,7 @@ BOOLEAN propagate(CIRCUIT circuit, int index, LOGIC_VALUE log_val)
 		if(results == FALSE) 
 		{
 			bzero(circuit[index]->propagated, sizeof(PROP_OBJECT));
-			printf("Propagation: [ failed ]\n");
+			//printf("Propagation: [ failed ]\n");
 		}
 		circuit[index]->propagated[log_val].state = TRUE;
 		circuit[index]->propagated[log_val].value = results;
@@ -318,7 +332,7 @@ BOOLEAN propagate(CIRCUIT circuit, int index, LOGIC_VALUE log_val)
 		else
 		{
 			// Clear the propagation values
-			clearPath(circuit, outIndex);
+			clearPropagationValuesPath(circuit, outIndex);
 			circuit[index]->value = log_val;
 		}
 	}
@@ -344,7 +358,14 @@ TEST_VECTOR extractTestVector(CIRCUIT circuit, CIRCUIT_INFO* info)
 	//	Get values of input gates
 	int K;
 	for(K = 0; K < info->numPI; K++)
-		tv.input[K] = logicName(circuit[info->inputs[K]]->value);
+		switch(circuit[info->inputs[K]]->value)
+		{
+			case X:
+			case I:
+			case O: tv.input[K] = logicName(circuit[info->inputs[K]]->value); break;
+			case D: tv.input[K] = 'I'; break;
+			case B: tv.input[K] = 'O'; break;
+		}
 
 	// Get values of output gates
 	for(K = 0; K < info->numPO; K++)
@@ -361,5 +382,5 @@ TEST_VECTOR extractTestVector(CIRCUIT circuit, CIRCUIT_INFO* info)
  */
 void displayTestVector(TEST_VECTOR tv)
 {
-	printf("%s\t%s\t%d\n", tv.input, tv.output, tv.faults_count);
+	printf("%s\t\t%s\t\t\t%d\n", tv.input, tv.output, tv.faults_count);
 }
