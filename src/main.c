@@ -169,10 +169,10 @@ int main( int argc, char* argv[] )
     }
 
     int K; 
-    printf("Input gates: ");
-    for(K=0; K<info.numPI; K++) printf(" %s", circuit[info.inputs[K]]->name);
-    printf("\nOutput gates:");
-    for(K=0; K<info.numPO; K++) printf(" %s", circuit[info.outputs[K]]->name);
+    printf("Input gates:\n");
+    for(K = 0; K < info.numPI; K++) printf("%s  ", circuit[info.inputs[K]]->name);
+    printf("\nOutput gates:\n");
+    for(K = 0; K < info.numPO; K++) printf("%s  ", circuit[info.outputs[K]]->name);
     printf("\n\n");
 
     /* Generate test patterns */
@@ -181,16 +181,27 @@ int main( int argc, char* argv[] )
     //printCircuitInfo(circuit, info.numGates);
     //printf("=================================================\n");
 
-    int index = findIndex(circuit, &(info.numGates), "B" , FALSE);
-    BOOLEAN results = propagate(circuit, index, D);
-    if(results == TRUE)
+    
+    int index, stuck_at;
+    printf("Test Vectors:\n <Wire> <Stuck-at> <Pattern> <Results> <# Faults>\n");
+    for(index = 0; index < info.numGates; index++)
     {
-        TEST_VECTOR testVector = extractTestVector(circuit, &info);
-        printf("Propagation:  [ succeeded ]\n");
-        printf("Test Vectors:\n");
-        displayTestVector(testVector);
+        if(circuit[index]->PO == FALSE)
+        {
+            for(stuck_at = 0; stuck_at < 2; stuck_at++)
+            {
+                BOOLEAN results = propagate(circuit, index, (stuck_at == 1? B : D));
+                if(results == TRUE)
+                {
+                    printf("\t%s\t\t%d\t\t", circuit[index]->name, stuck_at);
+                    TEST_VECTOR testVector = extractTestVector(circuit, &info);
+                    //printf("Propagation:  [ succeeded ]\n");
+                    displayTestVector(testVector);
+                }
+                //else  printf("Propagation: [ failed ]\n");
+            }
+        }
     }
-    else  printf("Propagation: [ failed ]\n");
 
     //printf("=================================================\n");
     //printCircuitInfo(circuit, info.numGates);
