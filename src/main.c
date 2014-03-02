@@ -109,7 +109,9 @@ int main( int argc, char* argv[] )
     /* Register the program finalizing function */
     atexit(onProgramTermination);
 
-    /* Parse command line arguments */
+    /* ===========================================================================
+     *  Parse command line arguments
+     * ===========================================================================*/
     char* filename = NULL;
     errno = opterr = 0;
     int opt;
@@ -144,9 +146,11 @@ int main( int argc, char* argv[] )
         exit(1);
     }
 
-    /* Populate the circuit and faults list from the passed netlist file */
-    CIRCUIT circuit;
-    CIRCUIT_INFO info;
+    /* ===========================================================================
+     *  Populate the circuit and faults list from the passed netlist file 
+     * ===========================================================================*/
+    CIRCUIT circuit;        // Graph containing all the gates nodes in the circuit
+    CIRCUIT_INFO info;      // Graphs metadata object
     FAULT* faultList[50000];     // TODO: Determine the probable size of fault list
 
     extern HASH_ENTRY hashTableGates[MAX_GATES];
@@ -175,17 +179,15 @@ int main( int argc, char* argv[] )
     for(K = 0; K < info.numPO; K++) printf("%s  ", circuit[info.outputs[K]]->name);
     printf("\n\n");
 
-    /* Generate test patterns */
 
-    //printf("=================================================\n");
-    //printCircuitInfo(circuit, info.numGates);
-    //printf("=================================================\n");
-
+    /* ===========================================================================
+     *  Generate test patterns 
+     * ===========================================================================*/
     
     int index = 1, stuck_at = 1;
     printf("Test Vectors:\n <Wire> <Stuck-at> <Pattern> <Results> <# Faults>\n");
 
-/*
+    /*
     BOOLEAN results = propagate(circuit, index, (stuck_at == 1? B : D));
     if(results == TRUE)
     {
@@ -219,10 +221,5 @@ int main( int argc, char* argv[] )
         }
     }
     
-
-    //printf("=================================================\n");
-    //printCircuitInfo(circuit, info.numGates);
-    //printf("=================================================\n");
-
     exit(0);
 }
