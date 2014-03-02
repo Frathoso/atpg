@@ -205,21 +205,18 @@ int main( int argc, char* argv[] )
     for(index = 0; index < info.numGates; index++)
     {
         clearPropagationValuesCircuit(circuit, &info);
-        
-        if(circuit[index]->PO == FALSE)
+
+        for(stuck_at = 0; stuck_at < 2; stuck_at++)
         {
-            for(stuck_at = 0; stuck_at < 2; stuck_at++)
+            BOOLEAN results = propagate(circuit, index, (stuck_at == 1? B : D));
+            if(results == TRUE)
             {
-                BOOLEAN results = propagate(circuit, index, (stuck_at == 1? B : D));
-                if(results == TRUE)
-                {
-                    printf("\t%s\t\t%d\t\t", circuit[index]->name, stuck_at);
-                    TEST_VECTOR testVector = extractTestVector(circuit, &info);
-                    //printf("Propagation:  [ succeeded ]\n");
-                    displayTestVector(testVector);
-                }
-                //else  printf("Propagation: [ failed ]\n");
+                printf("\t%s\t\t%d\t\t", circuit[index]->name, stuck_at);
+                TEST_VECTOR testVector = extractTestVector(circuit, &info);
+                //printf("Propagation:  [ succeeded ]\n");
+                displayTestVector(testVector);
             }
+            //else  printf("Propagation: [ failed ]\n");
         }
     }
     
