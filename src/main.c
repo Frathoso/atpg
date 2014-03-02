@@ -204,6 +204,8 @@ int main( int argc, char* argv[] )
     
     for(index = 0; index < info.numGates; index++)
     {
+        clearPropagationValuesCircuit(circuit, &info);
+        
         if(circuit[index]->PO == FALSE)
         {
             for(stuck_at = 0; stuck_at < 2; stuck_at++)
