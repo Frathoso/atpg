@@ -182,8 +182,24 @@ int main( int argc, char* argv[] )
     //printf("=================================================\n");
 
     
-    int index, stuck_at;
+    int index = 1, stuck_at = 1;
     printf("Test Vectors:\n <Wire> <Stuck-at> <Pattern> <Results> <# Faults>\n");
+
+/*
+    BOOLEAN results = propagate(circuit, index, (stuck_at == 1? B : D));
+    if(results == TRUE)
+    {
+        printf("\t%s\t\t%d\t\t", circuit[index]->name, stuck_at);
+        TEST_VECTOR testVector = extractTestVector(circuit, &info);
+        //printf("Propagation:  [ succeeded ]\n");
+        displayTestVector(testVector);
+    }
+    else
+    {
+        printf("Failed\n");
+    }
+    */
+    
     for(index = 0; index < info.numGates; index++)
     {
         if(circuit[index]->PO == FALSE)
@@ -202,6 +218,7 @@ int main( int argc, char* argv[] )
             }
         }
     }
+    
 
     //printf("=================================================\n");
     //printCircuitInfo(circuit, info.numGates);

@@ -81,8 +81,8 @@ BOOLEAN justify(CIRCUIT circuit, int index, LOGIC_VALUE log_val)
 	//printf("Justify(%s with '%c')\n", circuit[index]->name, logicName(log_val));
 
 	// Check if the gate has already been justified
-	if(circuit[index]->justified[log_val].state == TRUE) 
-		return circuit[index]->justified[log_val].value;
+	//if(circuit[index]->justified[log_val].state == TRUE) 
+		//return circuit[index]->justified[log_val].value;
 
 	// A Primary Input can be justified for any value
 	if(circuit[index]->type == PI)
@@ -196,8 +196,8 @@ BOOLEAN propagate(CIRCUIT circuit, int index, LOGIC_VALUE log_val)
 	circuit[index]->value = log_val;
 
 	// Check if the value has already been propagated through this gate
-	if(circuit[index]->propagated[log_val].state == TRUE) 
-		return circuit[index]->propagated[log_val].value;
+	//if(circuit[index]->propagated[log_val].state == TRUE) 
+		//return circuit[index]->propagated[log_val].value;
 
 	// Check if a Primary Output has been reached
 	if(circuit[index]->PO == TRUE)
