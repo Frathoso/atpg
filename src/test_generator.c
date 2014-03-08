@@ -65,6 +65,74 @@ void clearPropagationValuesCircuit(CIRCUIT circuit, CIRCUIT_INFO* info)
 }
 
 /*
+ *  Excites to the primary input the value given to a circuit line
+ *
+ *  @param  CIRCUIT 	circuit - the circuit
+ *  @param  int 		index  	- the position of the gate in the <circuit>
+ *  @param  LOGIC_VALUE	log_val	- the logical value to excite the given gate with
+ *  @return BOOLEAN -  TRUE	 if the value can be excited and FALSE otherwise
+ */
+BOOLEAN excite(CIRCUIT circuit, int index, LOGIC_VALUE log_val)
+{
+	//printf("Excite(%s with '%c')\n", circuit[index]->name, logicName(log_val));
+
+	// A Primary Input does not need excitation
+	if(circuit[index]->type == PI)
+	{
+		circuit[index]->value = log_val;
+		return TRUE;
+	}
+
+	// Excite a BUFFER
+	BOOLEAN results;
+	if(circuit[index]->type == BUF)
+	{
+		results = excite(circuit, (int) circuit[index]->in[0], 
+					  (BOOLEAN) negate(circuit[index]->value, (BOOLEAN) circuit[index]->inv));
+		if(results == TRUE)
+		{
+			circuit[index]->value = log_val;
+			return TRUE;
+		}
+		else
+		{
+			//circuit[index]->value = log_val;
+			return FALSE;
+		}
+	}
+
+	// Logical value Don't-Care (X) does not need excitation
+	// TODO check if this is true
+	if(log_val == X) return TRUE;
+
+
+	// Try exciting one of the current gates input
+	int inLine = 0, K;
+	for(; inLine < circuit[index]->numIn; inLine++)
+	{
+		if(excite(circuit, circuit[index]->in[inLine], log_val) == TRUE)
+		{
+			LOGIC_VALUE other_value = X;
+			switch(circuit[index]->type)
+			{
+				case AND: other_value = I; break;
+				case OR : other_value = O; break;
+				default : other_value = X; break;
+			}
+
+			for(K = 0; K < circuit[index]->numIn; K++)
+			{
+				if(K == inLine) circuit[K]->value = log_val;
+				else circuit[K]->value = other_value;
+			}
+			return TRUE;
+		}
+		else return FALSE;
+	}
+	return FALSE;
+}
+
+/*
  *  Justifies to the primary input the value given to a circuit line
  *
  * 	ASSUMPTIONS: 
@@ -200,7 +268,6 @@ BOOLEAN propagate(CIRCUIT circuit, int index, LOGIC_VALUE log_val)
 		if(results == FALSE) 
 		{
 			bzero(circuit[index]->propagated, sizeof(PROP_OBJECT));
-			//printf("Propagation: [ failed ]\n");
 		}
 		circuit[index]->propagated[log_val].state = TRUE;
 		circuit[index]->propagated[log_val].value = results;

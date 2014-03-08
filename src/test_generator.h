@@ -46,6 +46,16 @@ void clearPropagationValuesPath(CIRCUIT circuit, int index);
 void clearPropagationValuesCircuit(CIRCUIT circuit, CIRCUIT_INFO* info);
 
 /*
+ *  Excites to the primary input the value given to a circuit line
+ *
+ *  @param  CIRCUIT 	circuit - the circuit
+ *  @param  int 		index  	- the position of the gate in the <circuit>
+ *  @param  LOGIC_VALUE	log_val	- the logical value to excite the given gate with
+ *  @return BOOLEAN -  TRUE	 if the value can be excited and FALSE otherwise
+ */
+BOOLEAN excite(CIRCUIT circuit, int index, LOGIC_VALUE log_val);
+
+/*
  *  Justifies to the primary input the value given to a circuit line
  *
  * 	ASSUMPTIONS: 

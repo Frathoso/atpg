@@ -202,21 +202,29 @@ int main( int argc, char* argv[] )
     }
     */
     
+    BOOLEAN results;
+    printf("Total gates: %d\n\n", info.numGates);
     for(index = 0; index < info.numGates; index++)
     {
-        clearPropagationValuesCircuit(circuit, &info);
-
         for(stuck_at = 0; stuck_at < 2; stuck_at++)
         {
-            BOOLEAN results = propagate(circuit, index, (stuck_at == 1? B : D));
+        	clearPropagationValuesCircuit(circuit, &info);
+        	results = excite(circuit, index, (stuck_at == 1? B : D));
+        	if(results == FALSE){
+        		//printf("Excite %s <%c> [ _No ]\t", circuit[index]->name, logicName((stuck_at == 1? B : D)));
+        		continue;
+        	}
+        	//else printf("Excite %s <%c> [ Yes ]\t", circuit[index]->name, logicName((stuck_at == 1? B : D)));
+
+            results = propagate(circuit, index, (stuck_at == 1? B : D));
             if(results == TRUE)
             {
                 printf("\t%s\t\t%d\t\t", circuit[index]->name, stuck_at);
                 TEST_VECTOR testVector = extractTestVector(circuit, &info);
-                //printf("Propagation:  [ succeeded ]\n");
+                //printf("Prop: [ Yes ]\n");
                 displayTestVector(testVector);
             }
-            //else  printf("Propagation: [ failed ]\n");
+            //else  printf("Prop: [ _No ]\n");
         }
     }
     
