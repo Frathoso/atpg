@@ -3,7 +3,7 @@
  *
  *       Filename:  globals.h
  *
- *    Description:  Includes all defined constants
+ *    Description:  Defines global variables
  *
  *        Version:  1.0
  *        Created:  09 March 2014
