@@ -2,7 +2,7 @@
 # 6 inputs
 # 3 outputs
 # 2 inverters
-# 4 gates (1 ANDs + 1NANDs + 1 ORs + 1 NORs)
+# 4 gates (2 ANDs + 2 ORs)
 
 INPUT(A)
 INPUT(B)
@@ -19,8 +19,7 @@ S1 = NOT(A)
 S3 = NOT(D)
 
 S2 = AND(B, C)
-G = NAND(S1, S2)
-I = OR(E, F)
-H = NOR(S3, I)
-
-
+G = AND(S1, S2)
+I2 = OR(E, F)
+I = NOT(I2)
+H = OR(S3, I2)

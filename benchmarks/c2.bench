@@ -2,7 +2,7 @@
 # 5 INPUTS
 # 2 OUTPUTS
 # 1 INVERTERS
-# 6 GATES(1 ANDs + 2 NANDs + 2 ORs + 1NORs)
+# 6 GATES(3 ANDs + 3 ORs)
 
 INPUT(A)
 INPUT(B)
@@ -15,9 +15,9 @@ OUTPUT(H)
 
 S2 = NOT(C)
 
-S1 = NAND(A, B)
-S3 = NOR(D, E)
+S1 = AND(A, B)
+S3 = OR(D, E)
 S4 = OR(S1, S2)
-S5 = NAND(S2, S3)
+S5 = AND(S2, S3)
 G = AND(S4, S5)
 H = OR(S4, S5)
