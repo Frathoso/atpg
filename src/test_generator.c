@@ -88,17 +88,9 @@ BOOLEAN excite(CIRCUIT circuit, int index, LOGIC_VALUE log_val)
 	if(circuit[index]->type == BUF)
 	{
 		results = excite(circuit, (int) circuit[index]->in[0], 
-					  (BOOLEAN) negate(circuit[index]->value, (BOOLEAN) circuit[index]->inv));
-		if(results == TRUE)
-		{
-			circuit[index]->value = log_val;
-			return TRUE;
-		}
-		else
-		{
-			//circuit[index]->value = log_val;
-			return FALSE;
-		}
+					  (BOOLEAN) negate(log_val, (BOOLEAN) circuit[index]->inv));
+		circuit[index]->value = (results == TRUE ? log_val : X);
+		return results;
 	}
 
 	// Logical value Don't-Care (X) does not need excitation
@@ -125,6 +117,7 @@ BOOLEAN excite(CIRCUIT circuit, int index, LOGIC_VALUE log_val)
 				if(K == inLine) circuit[circuit[index]->in[K]]->value = log_val;
 				else circuit[circuit[index]->in[K]]->value = other_value;
 			}
+			circuit[index]->value = log_val;
 			return TRUE;
 		}
 		else return FALSE;
@@ -250,6 +243,7 @@ BOOLEAN propagate(CIRCUIT circuit, int index, LOGIC_VALUE log_val)
 		BOOLEAN results = justify(circuit, index, log_val);
 		if(results == FALSE) 
 		{
+			//printf("--> Justification Failed\n");
 			bzero(circuit[index]->propagated, sizeof(PROP_OBJECT));
 		}
 		circuit[index]->propagated[log_val].state = TRUE;
@@ -258,9 +252,13 @@ BOOLEAN propagate(CIRCUIT circuit, int index, LOGIC_VALUE log_val)
 	}
 
 	// Logical value Don't-Care (X) does not need propagation
-	if(log_val == X) return TRUE;
+	if(log_val == X) {
+		printf("+++++++>NDIYO\n");
+		return TRUE;
+	}
 
 	// Propagate through a BUFFER
+	/*
 	if(circuit[index]->type == BUF)
 	{
 		LOGIC_VALUE prop_log_val;
@@ -327,6 +325,7 @@ BOOLEAN propagate(CIRCUIT circuit, int index, LOGIC_VALUE log_val)
 			}
 		}
 	}
+	*/
 
 	// Try propagating the current gate's value into a Primary Output
 	int outLine = 0, outIndex;
@@ -377,7 +376,6 @@ BOOLEAN propagate(CIRCUIT circuit, int index, LOGIC_VALUE log_val)
 		{
 			// Clear the propagation values
 			clearPropagationValuesPath(circuit, outIndex);
-			//clearPropagationValuesCircuit(circuit, 9);
 			circuit[index]->value = log_val;
 		}
 	}
