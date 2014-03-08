@@ -1,4 +1,5 @@
 # Compiled files #
+/test/bin
 /bin
 *.o
 *.so
