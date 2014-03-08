@@ -88,7 +88,7 @@ BOOLEAN excite(CIRCUIT circuit, int index, LOGIC_VALUE log_val)
 	if(circuit[index]->type == BUF)
 	{
 		results = excite(circuit, (int) circuit[index]->in[0], 
-					  (BOOLEAN) negate(log_val, (BOOLEAN) circuit[index]->inv));
+					  (LOGIC_VALUE) negate(log_val, (BOOLEAN) circuit[index]->inv));
 		circuit[index]->value = (results == TRUE ? log_val : X);
 		return results;
 	}
@@ -139,7 +139,12 @@ BOOLEAN excite(CIRCUIT circuit, int index, LOGIC_VALUE log_val)
  */
 BOOLEAN justify(CIRCUIT circuit, int index, LOGIC_VALUE log_val)
 {
-	//printf("Justify(%s with '%c')\n", circuit[index]->name, logicName(log_val));
+	/*
+	printf("---Justify(%s with '%c'): ", circuit[index]->name, logicName(log_val));
+	int me = 0;
+    for(; me <9; me++) printf("%s<%c> ", circuit[me]->name, logicName(circuit[me]->value));
+    printf("\n");
+    */
 
 	// Check if the gate has already been justified
 	//if(circuit[index]->justified[log_val].state == TRUE) 
@@ -238,12 +243,12 @@ BOOLEAN propagate(CIRCUIT circuit, int index, LOGIC_VALUE log_val)
 		//return circuit[index]->propagated[log_val].value;
 
 	// Check if a Primary Output has been reached
+	BOOLEAN results;
 	if(circuit[index]->PO == TRUE)
 	{
-		BOOLEAN results = justify(circuit, index, log_val);
+		results = justify(circuit, index, log_val);
 		if(results == FALSE) 
 		{
-			//printf("--> Justification Failed\n");
 			bzero(circuit[index]->propagated, sizeof(PROP_OBJECT));
 		}
 		circuit[index]->propagated[log_val].state = TRUE;
@@ -253,132 +258,45 @@ BOOLEAN propagate(CIRCUIT circuit, int index, LOGIC_VALUE log_val)
 
 	// Logical value Don't-Care (X) does not need propagation
 	if(log_val == X) {
-		printf("+++++++>NDIYO\n");
 		return TRUE;
 	}
 
-	// Propagate through a BUFFER
-	/*
-	if(circuit[index]->type == BUF)
-	{
-		LOGIC_VALUE prop_log_val;
-		if(circuit[index]->inv == TRUE)		// An INVERTER
-		{
-			prop_log_val = negate(circuit[circuit[index]->in[0]]->value, TRUE);
-			circuit[index]->value =  prop_log_val;	// Modify the propagated value
-
-			int K;
-			int outIndex = circuit[index]->out[0];
-			LOGIC_VALUE log_val_other;
-			switch(circuit[outIndex]->type)
-			{
-				case AND:
-					log_val_other = I;	// Other input lines need to be 1 for propagation
-					for(K = 0; K < circuit[outIndex]->numIn; K++)
-						if(circuit[outIndex]->in[K] != index)
-							circuit[circuit[outIndex]->in[K]]->value = log_val_other;
-					break;
-				case OR:
-				{
-					log_val_other = O;	// Other input lines need to be O for propagation
-					for(K = 0; K < circuit[outIndex]->numIn; K++)
-						if(circuit[outIndex]->in[K] != index)
-							circuit[circuit[outIndex]->in[K]]->value = log_val_other;
-					break;
-				}
-				case XOR:
-				{
-					// TODO Implement XOR propagation
-					break;
-				}
-				// TODO: Implement other types of gates
-				default:
-					break;
-			}
-
-			if(propagate(circuit, circuit[index]->out[0], prop_log_val) == TRUE)
-			{
-				circuit[index]->propagated[log_val].state = TRUE;
-				circuit[index]->propagated[log_val].value = TRUE;
-				return TRUE;
-			}
-			else
-			{
-				circuit[index]->propagated[log_val].state = TRUE;
-				circuit[index]->propagated[log_val].value = FALSE;
-				return FALSE;
-			}
-		}
-		else	// NORMAL BUFFER 
-		{
-			if(propagate(circuit, circuit[index]->out[0], log_val) == TRUE)
-			{
-				circuit[index]->propagated[log_val].state = TRUE;
-				circuit[index]->propagated[log_val].value = TRUE;
-				return TRUE;
-			}
-			else
-			{
-				circuit[index]->propagated[log_val].state = TRUE;
-				circuit[index]->propagated[log_val].value = FALSE;
-				return FALSE;
-			}
-		}
-	}
-	*/
-
 	// Try propagating the current gate's value into a Primary Output
-	int outLine = 0, outIndex;
+	int outLine = 0, outIndex, K;
 	for(; outLine < circuit[index]->numOut; outLine++)
 	{
-		// Retrieve the index of the output gate
+		LOGIC_VALUE other_value = X;
 		outIndex = circuit[index]->out[outLine];
-
-		// Compute the logical value to be propagated based on the current value
-		// and type of the gate.
-		LOGIC_VALUE prop_log_val = log_val;	// Propagate the current value as-is
-		LOGIC_VALUE log_val_other = X;
-		int K;
 		switch(circuit[outIndex]->type)
 		{
-			case AND:
-				log_val_other = I;	// Other input lines need to be 1 for propagation
-				for(K = 0; K < circuit[outIndex]->numIn; K++)
-					if(circuit[outIndex]->in[K] != index)
-						circuit[circuit[outIndex]->in[K]]->value = log_val_other;
-				break;
-			case OR:
+			case BUF:
 			{
-				log_val_other = O;	// Other input lines need to be O for propagation
-				for(K = 0; K < circuit[outIndex]->numIn; K++)
-					if(circuit[outIndex]->in[K] != index)
-						circuit[circuit[outIndex]->in[K]]->value = log_val_other;
-				break;
+				LOGIC_VALUE prop_value = negate(log_val, circuit[outIndex]->inv);
+				results = propagate(circuit, outIndex, prop_value);
+				circuit[outIndex]->value = (results == TRUE ? prop_value : X);
+				if(results == TRUE) return TRUE;
+				else continue;
 			}
-			case XOR:
-			{
-				// TODO Implement XOR propagation
-				break;
-			}
-			// TODO: Implement other types of gates
-			default:
-				break;
+			case AND: other_value = I; break;
+			case OR : other_value = O; break;
+			default : other_value = X; break;
 		}
 
-		// Try propagating the value further to the Primary Output
-		if(propagate(circuit, outIndex, prop_log_val) == TRUE)
+		for(K = 0; K < circuit[outIndex]->numIn; K++)
+			circuit[circuit[outIndex]->in[K]]->value = other_value;
+		circuit[index]->value = log_val;
+
+		results = propagate(circuit, outIndex, log_val);
+		if(results == TRUE)
 		{
-			circuit[index]->propagated[log_val].state = TRUE;
-			circuit[index]->propagated[log_val].value = TRUE;
 			return TRUE;
 		}
-		else
-		{
-			// Clear the propagation values
-			clearPropagationValuesPath(circuit, outIndex);
+		else {
+			clearPropagationValuesPath(circuit, index);
 			circuit[index]->value = log_val;
 		}
 	}
+
 	circuit[index]->propagated[log_val].state = TRUE;
 	circuit[index]->propagated[log_val].value = FALSE;
 	return FALSE;

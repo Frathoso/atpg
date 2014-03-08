@@ -209,19 +209,25 @@ int main( int argc, char* argv[] )
         for(stuck_at = 0; stuck_at < 2; stuck_at++)
         {
         	clearPropagationValuesCircuit(circuit, info.numGates);
+
         	results = excite(circuit, index, (stuck_at == 1? B : D));
         	if(results == FALSE){
-        		//printf("Excite %s <%c> [ _No ]\t", circuit[index]->name, logicName((stuck_at == 1? B : D)));
+        		printf("Excite %s <%c> [ _No ]\t", circuit[index]->name, logicName((stuck_at == 1? B : D)));
         		continue;
         	}
-        	//else printf("Excite %s <%c> [ Yes ]\t", circuit[index]->name, logicName((stuck_at == 1? B : D)));
+        	else printf("Excite %s <%c> [ Yes ]\t", circuit[index]->name, logicName((stuck_at == 1? B : D)));
+
+        	/*
+        	int me = 0;
+        	for(; me <info.numGates; me++) printf("%s<%c> ", circuit[me]->name, logicName(circuit[me]->value));
+			*/
 
             results = propagate(circuit, index, (stuck_at == 1? B : D));
             if(results == TRUE)
             {
+            	//printf("Prop: [ Yes ]\n");
                 printf("\t%s\t\t%d\t\t", circuit[index]->name, stuck_at);
                 TEST_VECTOR testVector = extractTestVector(circuit, &info);
-                //printf("Prop: [ Yes ]\n");
                 displayTestVector(testVector);
             }
             //else  printf("Prop: [ _No ]\n");
