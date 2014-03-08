@@ -203,7 +203,7 @@ int main( int argc, char* argv[] )
     */
     
     BOOLEAN results;
-    printf("Total gates: %d\n\n", info.numGates);
+    printf("Total Lines: %d\n\n", info.numGates);
     for(index = 0; index < info.numGates; index++)
     {
         for(stuck_at = 0; stuck_at < 2; stuck_at++)

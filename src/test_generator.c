@@ -164,42 +164,17 @@ BOOLEAN justify(CIRCUIT circuit, int index, LOGIC_VALUE log_val)
 	// Justify a BUFFER
 	if(circuit[index]->type == BUF)
 	{
-		BOOLEAN result;
-		if(circuit[circuit[index]->in[0]]->value == X)
-		{
-			circuit[circuit[index]->in[0]]->value = (LOGIC_VALUE) 
-						negate(circuit[index]->value, circuit[index]->inv);
-		}
-		else
-		{
-			if(log_val != (LOGIC_VALUE) negate(circuit[circuit[index]->in[0]]->value, 
-				circuit[index]->inv))
-			{
-				circuit[index]->justified[log_val].state = TRUE;
-				circuit[index]->justified[log_val].value = FALSE;
-				return FALSE;
-			}
-		}
+		LOGIC_VALUE just_value = negate(log_val, circuit[index]->inv);
+		if(circuit[circuit[index]->in[0]]->value == X )
+			circuit[circuit[index]->in[0]]->value = just_value;
+		
 
-
-		result = justify(circuit, circuit[index]->in[0], circuit[circuit[index]->in[0]]->value);
-		if(result == TRUE)
-		{
-			circuit[index]->justified[log_val].state = TRUE;
-			circuit[index]->justified[log_val].value = TRUE;
-			return TRUE;
-		}
-		else
-		{
-			circuit[index]->justified[log_val].state = TRUE;
-			circuit[index]->justified[log_val].value = FALSE;
-			return FALSE;
-		}
+		return (justify(circuit, circuit[index]->in[0], just_value));
 	}
 
 	// Check if the current gate's output cannot be justified from its inputs
 	LOGIC_VALUE result = computeGateOutput(circuit, index);
-	 if(result != log_val)
+	if(result != log_val)
 	{
 		// Check if it is possible to justify if the Don't-Cares were manipulated
 		if(isOutputPossible(circuit, index, log_val) == FALSE)
