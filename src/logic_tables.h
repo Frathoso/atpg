@@ -93,9 +93,9 @@ LOGIC_VALUE computeGateOutput( CIRCUIT circuit, int index );
  *  Checks if it is possible to generate the given output by manipulating 
  *  the Don't-Cares (X) input lines
  *
- *      @param  CIRCUIT circuit - the circuit containing the gates
+ *	@param  CIRCUIT circuit - the circuit containing the gates
  *  @param  int         index   - the target gate
- *      @param  LOGIC_VALUE output - the logical value output of interest 
+ *	@param  LOGIC_VALUE output - the logical value output of interest 
  *  @return BOOLEAN TRUE if it is possible and FALSE otherwise
  */
 BOOLEAN isOutputPossible( CIRCUIT circuit, int index, LOGIC_VALUE output );

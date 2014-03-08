@@ -185,25 +185,10 @@ int main( int argc, char* argv[] )
      * ===========================================================================*/
     
     int index = 1, stuck_at = 1;
+    printf("Total Lines: %d\n\n", info.numGates);
     printf("Test Vectors:\n <Wire> <Stuck-at> <Pattern> <Results> <# Faults>\n");
-
-    /*
-    BOOLEAN results = propagate(circuit, index, (stuck_at == 1? B : D));
-    if(results == TRUE)
-    {
-        printf("\t%s\t\t%d\t\t", circuit[index]->name, stuck_at);
-        TEST_VECTOR testVector = extractTestVector(circuit, &info);
-        //printf("Propagation:  [ succeeded ]\n");
-        displayTestVector(testVector);
-    }
-    else
-    {
-        printf("Failed\n");
-    }
-    */
     
     BOOLEAN results;
-    printf("Total Lines: %d\n\n", info.numGates);
     for(index = 0; index < info.numGates; index++)
     {
         for(stuck_at = 0; stuck_at < 2; stuck_at++)
@@ -212,10 +197,10 @@ int main( int argc, char* argv[] )
 
         	results = excite(circuit, index, (stuck_at == 1? B : D));
         	if(results == FALSE){
-        		printf("Excite %s <%c> [ _No ]\t", circuit[index]->name, logicName((stuck_at == 1? B : D)));
+        		//printf("Excite %s <%c> [ _No ]\t", circuit[index]->name, logicName((stuck_at == 1? B : D)));
         		continue;
         	}
-        	else printf("Excite %s <%c> [ Yes ]\t", circuit[index]->name, logicName((stuck_at == 1? B : D)));
+        	//else printf("Excite %s <%c> [ Yes ]\t", circuit[index]->name, logicName((stuck_at == 1? B : D)));
 
         	/*
         	int me = 0;

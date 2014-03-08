@@ -139,16 +139,7 @@ BOOLEAN excite(CIRCUIT circuit, int index, LOGIC_VALUE log_val)
  */
 BOOLEAN justify(CIRCUIT circuit, int index, LOGIC_VALUE log_val)
 {
-	/*
-	printf("---Justify(%s with '%c'): ", circuit[index]->name, logicName(log_val));
-	int me = 0;
-    for(; me <9; me++) printf("%s<%c> ", circuit[me]->name, logicName(circuit[me]->value));
-    printf("\n");
-    */
-
-	// Check if the gate has already been justified
-	//if(circuit[index]->justified[log_val].state == TRUE) 
-		//return circuit[index]->justified[log_val].value;
+	//printf("---Justify(%s with '%c'): ", circuit[index]->name, logicName(log_val));
 
 	// A Primary Input can be justified for any value
 	if(circuit[index]->type == PI)
@@ -212,10 +203,6 @@ BOOLEAN propagate(CIRCUIT circuit, int index, LOGIC_VALUE log_val)
 
 	// Set this wire to the propagated value
 	circuit[index]->value = log_val;
-
-	// Check if the value has already been propagated through this gate
-	//if(circuit[index]->propagated[log_val].state == TRUE) 
-		//return circuit[index]->propagated[log_val].value;
 
 	// Check if a Primary Output has been reached
 	BOOLEAN results;
