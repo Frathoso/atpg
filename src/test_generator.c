@@ -176,12 +176,6 @@ BOOLEAN justify(CIRCUIT circuit, int index, LOGIC_VALUE log_val)
 /*
  *  Propagates to the primary output the value given to a circuit line
  *
- *	TODO:
- *		+ Work on the deadly assumption that the gates have two inputs
- *
- * 	ASSUMPTIONS: 
- *		+ The gates have at most two input lines
- *
  *  @param  CIRCUIT 	circuit - the circuit
  *  @param  int 		index  	- the position of the gate in the <circuit>
  *  @param  LOGIC_VALUE	log_val	- the logical value to justify the given gate with
