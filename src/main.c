@@ -208,7 +208,7 @@ int main( int argc, char* argv[] )
     {
         for(stuck_at = 0; stuck_at < 2; stuck_at++)
         {
-        	clearPropagationValuesCircuit(circuit, &info);
+        	clearPropagationValuesCircuit(circuit, info.numGates);
         	results = excite(circuit, index, (stuck_at == 1? B : D));
         	if(results == FALSE){
         		//printf("Excite %s <%c> [ _No ]\t", circuit[index]->name, logicName((stuck_at == 1? B : D)));

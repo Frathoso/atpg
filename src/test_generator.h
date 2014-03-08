@@ -39,11 +39,11 @@ void clearPropagationValuesPath(CIRCUIT circuit, int index);
 /*
  *  Clear propagation values for the entire circuit
  *
- *  @param  CIRCUIT 	circuit - the circuit
- *  @param  CIRCUIT_INFO info  	- for the maximum number of gates
+ *  @param  CIRCUIT circuit - the circuit
+ *  @param  int 	info  	- the maximum number of gates
  *  @return nothing
  */
-void clearPropagationValuesCircuit(CIRCUIT circuit, CIRCUIT_INFO* info);
+void clearPropagationValuesCircuit(CIRCUIT circuit, int numGates);
 
 /*
  *  Excites to the primary input the value given to a circuit line

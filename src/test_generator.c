@@ -53,14 +53,14 @@ void clearPropagationValuesPath(CIRCUIT circuit, int index)
 /*
  *  Clear propagation values for the entire circuit
  *
- *  @param  CIRCUIT 	circuit - the circuit
- *  @param  CIRCUIT_INFO info  	- for the maximum number of gates
+ *  @param  CIRCUIT circuit - the circuit
+ *  @param  int 	info  	- the maximum number of gates
  *  @return nothing
  */
-void clearPropagationValuesCircuit(CIRCUIT circuit, CIRCUIT_INFO* info)
+void clearPropagationValuesCircuit(CIRCUIT circuit, int numGates)
 {
 	int index;
-	for(index = 0; index < info->numGates; index++)
+	for(index = 0; index < numGates; index++)
 		circuit[index]->value = X;
 }
 
@@ -122,8 +122,8 @@ BOOLEAN excite(CIRCUIT circuit, int index, LOGIC_VALUE log_val)
 
 			for(K = 0; K < circuit[index]->numIn; K++)
 			{
-				if(K == inLine) circuit[K]->value = log_val;
-				else circuit[K]->value = other_value;
+				if(K == inLine) circuit[circuit[index]->in[K]]->value = log_val;
+				else circuit[circuit[index]->in[K]]->value = other_value;
 			}
 			return TRUE;
 		}
@@ -160,65 +160,48 @@ BOOLEAN justify(CIRCUIT circuit, int index, LOGIC_VALUE log_val)
 		return TRUE;
 	}
 
+	// Logical value Don't-Care (X) does not need justification
+	if(log_val == X) return TRUE;
+
 	// Justify a BUFFER
 	if(circuit[index]->type == BUF)
 	{
-		if(circuit[index]->inv == TRUE)		// An INVERTER
+		BOOLEAN result;
+		if(circuit[circuit[index]->in[0]]->value == X)
 		{
-			BOOLEAN result = FALSE;
-			switch(circuit[circuit[index]->in[0]]->value)
-			{
-				case X: {
-					circuit[circuit[index]->in[0]]->value = negate(circuit[index]->value, TRUE);
-					result = TRUE; break;
-				}
-				case I: circuit[index]->value == O? result = TRUE : FALSE; break;
-				case O: circuit[index]->value == I? result = TRUE : FALSE; break;
-				case D: circuit[index]->value == B? result = TRUE : FALSE; break;
-				case B: circuit[index]->value == D? result = TRUE : FALSE; break;
-				default: result = FALSE;
-			}
-			if(result == TRUE)
-			{
-				circuit[index]->justified[log_val].state = TRUE;
-				circuit[index]->justified[log_val].value = TRUE;
-				return justify(circuit, circuit[index]->in[0], circuit[circuit[index]->in[0]]->value);
-			}
-			else
+			circuit[circuit[index]->in[0]]->value = (LOGIC_VALUE) 
+						negate(circuit[index]->value, circuit[index]->inv);
+		}
+		else
+		{
+			if(log_val != (LOGIC_VALUE) negate(circuit[circuit[index]->in[0]]->value, 
+				circuit[index]->inv))
 			{
 				circuit[index]->justified[log_val].state = TRUE;
 				circuit[index]->justified[log_val].value = FALSE;
 				return FALSE;
 			}
 		}
-		else	// NORMAL BUFFER 
-		{
-			if(circuit[circuit[index]->in[0]]->value == circuit[index]->value)
-			{
-				circuit[index]->justified[log_val].state = TRUE;
-				circuit[index]->justified[log_val].value = TRUE;
-				// TODO: Justify further and deal with a don't care on the input
-				return TRUE;
-			}
-			else
-			{
-				circuit[index]->justified[log_val].state = TRUE;
-				circuit[index]->justified[log_val].value = FALSE;
-				return FALSE;
-			}
 
+
+		result = justify(circuit, circuit[index]->in[0], circuit[circuit[index]->in[0]]->value);
+		if(result == TRUE)
+		{
+			circuit[index]->justified[log_val].state = TRUE;
+			circuit[index]->justified[log_val].value = TRUE;
+			return TRUE;
+		}
+		else
+		{
+			circuit[index]->justified[log_val].state = TRUE;
+			circuit[index]->justified[log_val].value = FALSE;
+			return FALSE;
 		}
 	}
 
-	// Logical value Don't-Care (X) does not need justification
-	// TODO check if this is true
-	if(log_val == X) return TRUE;
-
-
-
 	// Check if the current gate's output cannot be justified from its inputs
 	LOGIC_VALUE result = computeGateOutput(circuit, index);
-	if(result != log_val)
+	 if(result != log_val)
 	{
 		// Check if it is possible to justify if the Don't-Cares were manipulated
 		if(isOutputPossible(circuit, index, log_val) == FALSE)
@@ -394,6 +377,7 @@ BOOLEAN propagate(CIRCUIT circuit, int index, LOGIC_VALUE log_val)
 		{
 			// Clear the propagation values
 			clearPropagationValuesPath(circuit, outIndex);
+			//clearPropagationValuesCircuit(circuit, 9);
 			circuit[index]->value = log_val;
 		}
 	}
