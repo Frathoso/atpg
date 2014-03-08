@@ -22,6 +22,7 @@
 /* strcpy */
 #include <string.h>
 
+#include "globals.h"
 #include "fault_list_generator.h"
 
 /*

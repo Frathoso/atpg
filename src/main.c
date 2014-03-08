@@ -38,12 +38,12 @@
 #include <ctype.h>
 
 
-#include "parser_netlist.h"
-#include "fault_list_generator.h"
-#include "test_generator.h"
-#include "hash.h"
-#include "ptime.h"
-
+#include "libs/parser_netlist.h"
+#include "libs/fault_list_generator.h"
+#include "libs/test_generator.h"
+#include "libs/hash.h"
+#include "libs/ptime.h"
+#include "libs/globals.h"
 
 /*
  *  Command line options list for the program
@@ -55,10 +55,10 @@
 /*
  *  GLOBAL Variables
  */
-char ERROR_MESSAGE[MAX_LINE_LENGTH];    // Holds custom error messages
+extern char ERROR_MESSAGE[MAX_LINE_LENGTH];    // Holds custom error messages
 
-BOOLEAN isDebugMode;    // Turns ON/OFF the display of program progress
-volatile int debugLevel;
+extern BOOLEAN isDebugMode;    // Turns ON/OFF the display of program progress
+extern volatile int debugLevel;
 
 
 /*

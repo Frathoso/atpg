@@ -19,6 +19,7 @@
  * =====================================================================================
  */
 
+#include "globals.h"
 #include "test_generator.h"
 #include "stdio.h"
 #include "strings.h"
