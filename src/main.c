@@ -50,14 +50,15 @@
  *  d   - turn on debugging mode i.e. programs progress will be printed
  *  f   - specify the filename to parse the circuit netlist from
  */
-#define OPTIONS_LIST "df:"
+#define OPTIONS_LIST "df:D:"
 
 /*
  *  GLOBAL Variables
  */
 char ERROR_MESSAGE[MAX_LINE_LENGTH];    // Holds custom error messages
 
-BOOLEAN isDebugMode = FALSE;    // Turns ON/OFF the display of program progress
+BOOLEAN isDebugMode;    // Turns ON/OFF the display of program progress
+volatile int debugLevel;
 
 
 /*
@@ -66,11 +67,13 @@ BOOLEAN isDebugMode = FALSE;    // Turns ON/OFF the display of program progress
  */
 void onProgramTermination(void)
 {
+    if(isDebugMode == FALSE || debugLevel <= 0) return;
+
     // Display any errors/success message
     switch(errno)
     {
         case 0:
-            fprintf(stdout, "Program successfully finished!\n\n");
+            fprintf(stdout, "Program successfully executed!\n");
             return;
             break;
         case ERROR_PARSING_NETLIST:
@@ -81,12 +84,12 @@ void onProgramTermination(void)
             fprintf(stdout, "Error: %s\n", ERROR_MESSAGE);
             break;
         case ERROR_COMMAND_LINE_ARGUMENTS:
-            fprintf(stdout, "Usage:\natpg -f <filename> [-d]\n");
+            fprintf(stdout, "Usage:\natpg -f <filename> [-d] [-D <debug level>]\n");
             break;
         default:
             perror("Error");
     }
-    fprintf(stdout, "Program was terminated prematurely!\n\n");
+    fprintf(stdout, "Program was terminated prematurely!\n");
 
     // Clean up allocated memories
     int K = 0;
@@ -122,11 +125,17 @@ int main( int argc, char* argv[] )
             case 'd':
                 isDebugMode = TRUE;
                 break;
+            case 'D':
+                isDebugMode = TRUE;
+                debugLevel = atoi(optarg);
+                break;
             case 'f':
                 filename = optarg;
                 break;
             case '?':
-                if (optopt == 'f')
+                if (optopt == 'D')
+                    fprintf(stdout, "Option -%c requires the debug level (0, 1, 2).\n", optopt);
+                else if (optopt == 'f')
                     fprintf(stdout, "Option -%c requires a filename.\n", optopt);
                 else if (isprint(optopt))
                     fprintf(stdout, "Unknown option '-%c'.\n", optopt);
@@ -156,14 +165,14 @@ int main( int argc, char* argv[] )
     extern HASH_ENTRY hashTableGates[MAX_GATES];
     bzero(hashTableGates, sizeof(hashTableGates));
 
-    if(isDebugMode) fprintf(stdout, "Parsing: \"%s\"...\n", filename);
+    if(isDebugMode && debugLevel > 0) fprintf(stdout, "Parsing: \"%s\"...\n", filename);
 
     STOP_WATCH stopwatch;
     startSW(&stopwatch);
     if(populateCircuit(circuit, &info, filename))
     {
         double duration = getElaspedTimeSW(&stopwatch);
-        if(isDebugMode) fprintf(stdout, "Netlist file successfully parsed"
+        if(isDebugMode && debugLevel > 0) fprintf(stdout, "Netlist file successfully parsed "
                 "[ %.4f seconds ].\n\n", duration);
     }
     else
@@ -173,20 +182,24 @@ int main( int argc, char* argv[] )
     }
 
     int K; 
-    printf("Input gates:\n");
-    for(K = 0; K < info.numPI; K++) printf("%s  ", circuit[info.inputs[K]]->name);
-    printf("\nOutput gates:\n");
-    for(K = 0; K < info.numPO; K++) printf("%s  ", circuit[info.outputs[K]]->name);
-    printf("\n\n");
+    if(isDebugMode) 
+    {
+        fprintf(stdout, "Input gates:\n");
+        for(K = 0; K < info.numPI; K++) printf("%s  ", circuit[info.inputs[K]]->name);
+        fprintf(stdout, "\nOutput gates:\n");
+        for(K = 0; K < info.numPO; K++) printf("%s  ", circuit[info.outputs[K]]->name);
+        fprintf(stdout, "\n\n");
+    }   
 
 
     /* ===========================================================================
      *  Generate test patterns 
      * ===========================================================================*/
-    
+    startSW(&stopwatch);
+
     int index = 1, stuck_at = 1;
-    printf("Total Lines: %d\n\n", info.numGates);
-    printf("Test Vectors:\n <Wire> <Stuck-at> <Pattern> <Results> <# Faults>\n");
+    if(isDebugMode) fprintf(stdout, "Total Lines: %d\n\n", info.numGates);
+    if(isDebugMode) fprintf(stdout, "Test Vectors:\n <Wire> <Stuck-at> <Pattern> <Results> <# Faults>\n");
     
     BOOLEAN results;
     for(index = 0; index < info.numGates; index++)
@@ -211,13 +224,17 @@ int main( int argc, char* argv[] )
             if(results == TRUE)
             {
             	//printf("Prop: [ Yes ]\n");
-                printf("\t%s\t\t%d\t\t", circuit[index]->name, stuck_at);
+                if(isDebugMode) fprintf(stdout, "\t%s\t\t%d\t\t", circuit[index]->name, stuck_at);
                 TEST_VECTOR testVector = extractTestVector(circuit, &info);
                 displayTestVector(testVector);
             }
             //else  printf("Prop: [ _No ]\n");
         }
     }
+
+    double duration = getElaspedTimeSW(&stopwatch);
+        if(isDebugMode && debugLevel > 0) fprintf(stdout, "\nTest vectors successfully generated "
+                "[ %.4f seconds ].\n\n", duration);
     
     exit(0);
 }

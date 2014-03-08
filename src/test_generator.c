@@ -23,6 +23,9 @@
 #include "stdio.h"
 #include "strings.h"
 
+extern BOOLEAN isDebugMode;
+extern volatile int debugLevel;
+
 /*
  *  Sets all gates value from the gate to the primary output as Don't-Cares (X)
  *
@@ -305,5 +308,5 @@ TEST_VECTOR extractTestVector(CIRCUIT circuit, CIRCUIT_INFO* info)
  */
 void displayTestVector(TEST_VECTOR tv)
 {
-	printf("%s\t\t%s\t\t\t%d\n", tv.input, tv.output, tv.faults_count);
+	if(isDebugMode) fprintf(stdout, "%s\t\t%s\t\t\t%d\n", tv.input, tv.output, tv.faults_count);
 }
