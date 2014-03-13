@@ -20,6 +20,7 @@
  */
 
 #include "atpg_types.h"
+#include "hash.h"
 
 
 #ifndef GLOBALS_H
@@ -30,6 +31,8 @@ char ERROR_MESSAGE[MAX_LINE_LENGTH];    // Holds custom error messages
 
 BOOLEAN isDebugMode;    // Turns ON/OFF the display of program progress
 volatile int debugLevel;
+
+HASH_ENTRY hashTableGates[MAX_GATES];	// hash table of gate names
 
 
 #endif

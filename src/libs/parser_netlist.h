@@ -27,9 +27,6 @@
 #define CIRCUIT_TRACE_H
 
 
-int list[MAX_GATES];
-
-
 /*
  *  Allocates memory for the gate at location <totalGates>
  *

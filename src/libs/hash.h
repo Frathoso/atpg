@@ -26,17 +26,6 @@
 
 
 /*
- *  Hash entry stores string-int pair of values to be used in the hash table
- */
-typedef struct
-{
-    char* strKey;
-    int   intKey;
-} HASH_ENTRY;
-
-HASH_ENTRY hashTableGates[MAX_GATES];
-
-/*
  *  Hashes the given string <key> to an whole number bounded by <size> using
  *  Jenkin's one-at-a-time hash (By Bob Jenkins
  *  <http://en.wikipedia.org/wiki/Jenkins_hash_function> )

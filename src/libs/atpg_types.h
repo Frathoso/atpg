@@ -35,11 +35,13 @@
 /*
  *  Boolean type for True and False conditions
  */
+#ifndef BOOLEAN
 typedef enum
 {
     FALSE = 0,  // Boolean False
     TRUE  = 1   // Boolean True
 } BOOLEAN;
+#endif
 
 
 /* 
@@ -59,6 +61,21 @@ typedef enum{
     X   // Unknown value in either true or faulty circuits
 } LOGIC_VALUE;
 
+
+/* 
+ * =====================================================================================
+ *                                  HASH TABLES TYPES
+ * =====================================================================================
+ */
+
+/*
+ *  Hash entry stores string-int pair of values to be used in the hash table
+ */
+typedef struct
+{
+    char* strKey;
+    int   intKey;
+} HASH_ENTRY;
 
 /* 
  * =====================================================================================
