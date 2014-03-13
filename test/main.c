@@ -19,7 +19,10 @@
  * =====================================================================================
  */
 
+#include <stdlib.h>
+ 
 #include "seatest.h"
+#include "globals.h"
 
 
 /*
@@ -36,6 +39,25 @@ void all_test_suits( void )
 {
 	test_fixture_Parsing_Netlist_File();
 	test_fixture_Generate_Test_Pattern();
+}
+
+/*
+ *	Global setup function
+ */
+void setup( void )
+{
+
+}
+
+/*
+ *	Global clean up function
+ */
+void teardown( void )
+{
+	// Clear the hash table
+	int K = 0;
+	for(; K < MAX_GATES; K++)
+        if(hashTableGates[K].strKey) free(hashTableGates[K].strKey);
 }
 
 /*
@@ -59,12 +81,18 @@ void my_suite_teardown( void )
  */
 int main( int argc, char** argv )
 {
+	// Set up tests
+	setup();
+
 	// Register suit setup and clean-up functions
 	suite_setup(my_suite_setup);
 	suite_teardown(my_suite_teardown);
 
 	// Run all test suits
 	run_tests(all_test_suits);	
+
+	// Clean up tests
+	teardown();
 
 	return 0;
 }

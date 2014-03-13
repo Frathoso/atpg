@@ -18,8 +18,18 @@
  *
  * =====================================================================================
  */
+#include <stdlib.h>
 
 #include "seatest.h"
+#include "parser_netlist.h"
+#include "globals.h"
+
+/*
+ *	Tests prototypes
+ */
+void test_create_empty_circuit();
+void test_append_a_gate_into_a_circuit();
+void test_search_gate_index_in_a_circuit();
 
 
 /*
@@ -31,8 +41,59 @@ void test_fixture_Parsing_Netlist_File( void )
 	test_fixture_start();               
 
 	// Run tests
-	//run_test(test_<test-name>);
+	run_test(test_create_empty_circuit);
+	run_test(test_append_a_gate_into_a_circuit);
+	run_test(test_search_gate_index_in_a_circuit);
 
 	// Ends a fixture
 	test_fixture_end();                 
+}
+
+/*		*/
+void test_create_empty_circuit()
+{
+	CIRCUIT circuit;
+	assert_true((circuit[0] == NULL));
+	assert_int_equal(sizeof(circuit[0]), sizeof(NULL));
+}
+
+/*		*/
+void test_append_a_gate_into_a_circuit()
+{
+	CIRCUIT circuit;
+	int total = 0;
+
+	appendNewGate(circuit, &total, "joy");
+
+	assert_false((circuit[0] == NULL));
+	assert_int_equal(sizeof(*circuit[0]), sizeof(GATE));
+	assert_int_equal(total, 1);
+	assert_string_equal(circuit[0]->name, "joy");
+
+	// Clean up
+	if(circuit[0]) free(circuit[0]);
+}
+
+/*		*/
+void test_search_gate_index_in_a_circuit()
+{
+	CIRCUIT circuit;
+	int total = 0;
+
+	// Search unavaible gate without adding
+	int index = findIndex(circuit, &total, "hey", FALSE);
+	assert_int_equal(total, 0);
+	assert_int_equal(index, 0);
+
+	// Search unavaible gate with adding
+	index = findIndex(circuit, &total, "hey", TRUE);
+	assert_int_equal(total, 1);
+	assert_int_equal(index, 0);
+
+	// Search an available gate
+	index = findIndex(circuit, &total, "hey", TRUE);
+	assert_int_equal(total, 1);
+	assert_int_equal(index, 0);
+
+	if(circuit[0]) free(circuit[0]);
 }
