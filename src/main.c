@@ -92,7 +92,6 @@ int main( int argc, char* argv[] )
     /* Parse command line arguments */
     parse_command_line_arguments(argc, argv);
     
-
     /* Populate the circuit and faults list from the passed netlist file */
     populate_circuit_from_file();
 
@@ -139,9 +138,10 @@ void onProgramTermination()
     int K = 0;
     extern HASH_ENTRY hashTableGates[MAX_GATES];
     for(; K < MAX_GATES; K++)
-    {
         if(hashTableGates[K].strKey) free(hashTableGates[K].strKey);
-    }
+    
+    for(K = 0; K < info.numGates; K++)
+        if(circuit[K]) free(circuit[K]);
 }
 
 /*
