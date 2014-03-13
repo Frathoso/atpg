@@ -60,12 +60,56 @@ extern char ERROR_MESSAGE[MAX_LINE_LENGTH];    // Holds custom error messages
 extern BOOLEAN isDebugMode;    // Turns ON/OFF the display of program progress
 extern volatile int debugLevel;
 
+char* filename = NULL;  // Circuit benchmark filename
+
+CIRCUIT circuit;        // Graph containing all the gates nodes in the circuit
+CIRCUIT_INFO info;      // Graphs metadata object
+FAULT* faultList[50000];     // TODO: Determine the probable size of fault list
+
+STOP_WATCH stopwatch;   // Stopwatch for measuring exectuting time
+
+/*
+ *  Module driving function prototypes
+ */
+void onProgramTermination( void );
+void parse_command_line_arguments( int argc, char* argv[] );
+void populate_circuit_from_file( void );
+void generate_test_patterns( void );
+
+
+/*
+ *  Program entry point
+ *
+ *  @param  argc - count of command line arguments
+ *  @param  argv - names of command line arguments
+ *  @return      - execution exit status
+ */
+int main( int argc, char* argv[] )
+{
+    /* Register the program finalizing function */
+    atexit(onProgramTermination);
+
+    /* Parse command line arguments */
+    parse_command_line_arguments(argc, argv);
+    
+
+    /* Populate the circuit and faults list from the passed netlist file */
+    populate_circuit_from_file();
+
+    /* Generate test patterns */
+    generate_test_patterns();
+    
+    exit(EXIT_SUCCESS);
+}
+
 
 /*
  *  Alerts the user of a successful execution of the program or the error
  *  causing an unsuccessful termination of the program
+ *  
+ *  @return nothing
  */
-void onProgramTermination(void)
+void onProgramTermination()
 {
     if(isDebugMode == FALSE || debugLevel <= 0) return;
 
@@ -101,21 +145,14 @@ void onProgramTermination(void)
 }
 
 /*
- *  Program entry point
+ *  Parses the passed in command line arguments and configure right program options
  *
  *  @param  argc - count of command line arguments
  *  @param  argv - names of command line arguments
- *  @return      - execution exit status
+ *  @return nothing
  */
-int main( int argc, char* argv[] )
+void parse_command_line_arguments(int argc, char* argv[])
 {
-    /* Register the program finalizing function */
-    atexit(onProgramTermination);
-
-    /* ===========================================================================
-     *  Parse command line arguments
-     * ===========================================================================*/
-    char* filename = NULL;
     errno = opterr = 0;
     int opt;
     while((opt = getopt(argc, argv, OPTIONS_LIST)) != -1)
@@ -154,20 +191,20 @@ int main( int argc, char* argv[] )
         errno = ERROR_COMMAND_LINE_ARGUMENTS;
         exit(1);
     }
+}
 
-    /* ===========================================================================
-     *  Populate the circuit and faults list from the passed netlist file 
-     * ===========================================================================*/
-    CIRCUIT circuit;        // Graph containing all the gates nodes in the circuit
-    CIRCUIT_INFO info;      // Graphs metadata object
-    FAULT* faultList[50000];     // TODO: Determine the probable size of fault list
-
+/*
+ *  Parses the given file and builds a circuit from the file netlist
+ *  
+ *  @return nothing
+ */
+void populate_circuit_from_file()
+{
     extern HASH_ENTRY hashTableGates[MAX_GATES];
     bzero(hashTableGates, sizeof(hashTableGates));
 
     if(isDebugMode && debugLevel > 0) fprintf(stdout, "Parsing: \"%s\"...\n", filename);
 
-    STOP_WATCH stopwatch;
     startSW(&stopwatch);
     if(populateCircuit(circuit, &info, filename))
     {
@@ -190,11 +227,15 @@ int main( int argc, char* argv[] )
         for(K = 0; K < info.numPO; K++) printf("%s  ", circuit[info.outputs[K]]->name);
         fprintf(stdout, "\n\n");
     }   
+}
 
-
-    /* ===========================================================================
-     *  Generate test patterns 
-     * ===========================================================================*/
+/*
+ *  Generates test patterns for the populate circuit
+ *  
+ *  @return nothing
+ */
+void generate_test_patterns()
+{
     startSW(&stopwatch);
 
     int index = 1, stuck_at = 1;
@@ -206,24 +247,24 @@ int main( int argc, char* argv[] )
     {
         for(stuck_at = 0; stuck_at < 2; stuck_at++)
         {
-        	clearPropagationValuesCircuit(circuit, info.numGates);
+            clearPropagationValuesCircuit(circuit, info.numGates);
 
-        	results = excite(circuit, index, (stuck_at == 1? B : D));
-        	if(results == FALSE){
-        		//printf("Excite %s <%c> [ _No ]\t", circuit[index]->name, logicName((stuck_at == 1? B : D)));
-        		continue;
-        	}
-        	//else printf("Excite %s <%c> [ Yes ]\t", circuit[index]->name, logicName((stuck_at == 1? B : D)));
+            results = excite(circuit, index, (stuck_at == 1? B : D));
+            if(results == FALSE){
+                //printf("Excite %s <%c> [ _No ]\t", circuit[index]->name, logicName((stuck_at == 1? B : D)));
+                continue;
+            }
+            //else printf("Excite %s <%c> [ Yes ]\t", circuit[index]->name, logicName((stuck_at == 1? B : D)));
 
-        	/*
-        	int me = 0;
-        	for(; me <info.numGates; me++) printf("%s<%c> ", circuit[me]->name, logicName(circuit[me]->value));
-			*/
+            /*
+            int me = 0;
+            for(; me <info.numGates; me++) printf("%s<%c> ", circuit[me]->name, logicName(circuit[me]->value));
+            */
 
             results = propagate(circuit, index, (stuck_at == 1? B : D));
             if(results == TRUE)
             {
-            	//printf("Prop: [ Yes ]\n");
+                //printf("Prop: [ Yes ]\n");
                 if(isDebugMode) fprintf(stdout, "\t%s\t\t%d\t\t", circuit[index]->name, stuck_at);
                 TEST_VECTOR testVector = extractTestVector(circuit, &info);
                 displayTestVector(testVector);
@@ -235,6 +276,4 @@ int main( int argc, char* argv[] )
     double duration = getElaspedTimeSW(&stopwatch);
         if(isDebugMode && debugLevel > 0) fprintf(stdout, "\nTest vectors successfully generated "
                 "[ %.4f seconds ].\n\n", duration);
-    
-    exit(0);
 }
