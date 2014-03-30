@@ -196,6 +196,31 @@ typedef struct
 } FAULT;
 
 
+/*
+ *  A fault list structure
+ */
+typedef struct
+{
+    FAULT* list[MAX_GATES*2];
+    int count;
+} FAULT_LIST;
+
+
+/* 
+ * =====================================================================================
+ *                                  SIMULATION TYPES
+ * =====================================================================================
+ */
+
+/*
+ *  Simulation results
+ */
+ typedef struct 
+ {
+     char input[MAX_INPUT_GATES];
+     char output[MAX_OUTPUT_GATES];
+ } SIM_RESULT;
+
 /* 
  * =====================================================================================
  *									TEST VECTORS TYPES

@@ -39,6 +39,7 @@
 
 
 #include "libs/parser_netlist.h"
+#include "libs/fault_simulation.h"
 #include "libs/test_generator.h"
 #include "libs/hash.h"
 #include "libs/ptime.h"
@@ -63,8 +64,7 @@ char* filename = NULL;  // Circuit benchmark filename
 
 CIRCUIT circuit;        // Graph containing all the gates nodes in the circuit
 CIRCUIT_INFO info;      // Graphs metadata object
-FAULT* faultList[(MAX_GATES*2)];     // TODO: Determine the probable size of fault list
-int faultCount;
+FAULT_LIST faultList;   // List of all faults in the cictuits
 
 STOP_WATCH stopwatch;   // Stopwatch for measuring exectuting time
 
@@ -240,22 +240,22 @@ void populate_circuit_from_file()
  */
 void generate_fault_list()
 {
-	faultCount = 0;
-	int K;
+	int K, count = 0;
 	for(K = 0; K < info.numGates; K++)
 	{
 		// Add stuck at zero fault
-		faultList[faultCount] = (FAULT*) malloc(sizeof(FAULT));
-		faultList[faultCount]->index = K;
-		faultList[faultCount]->type = ST_0;
-		faultCount++;
+		faultList.list[count] = (FAULT*) malloc(sizeof(FAULT));
+		faultList.list[count]->index = K;
+		faultList.list[count]->type = ST_0;
+		count++;
 
 		// Add stuck at one fault
-		faultList[faultCount] = (FAULT*) malloc(sizeof(FAULT));
-		faultList[faultCount]->index = K;
-		faultList[faultCount]->type = ST_1;
-		faultCount++;
+		faultList.list[count] = (FAULT*) malloc(sizeof(FAULT));
+		faultList.list[count]->index = K;
+		faultList.list[count]->type = ST_1;
+		count++;
 	}
+	faultList.count = count;
 }
 
 /*
@@ -272,13 +272,13 @@ void generate_test_patterns()
     
     BOOLEAN results;
     int K;
-    for(K = 0; K < faultCount; K++)
+    for(K = 0; K < faultList.count; K++)
     {
-    	if(faultList[K] == NULL) continue;
+    	if(faultList.list[K] == NULL) continue;
 
     	clearPropagationValuesCircuit(circuit, info.numGates);
 
-        results = excite(circuit, faultList[K]->index, (faultList[K]->type == ST_1? B : D));
+        results = excite(circuit, faultList.list[K]->index, (faultList.list[K]->type == ST_1? B : D));
         if(results == FALSE){
             //printf("Excite %s <%c> [ _No ]\t", circuit[faultList[K]->index]->name, 
             //			logicName((faultList[K]->type == ST_1? B : D)));
@@ -292,13 +292,14 @@ void generate_test_patterns()
         for(; me <info.numGates; me++) printf("%s<%c> ", circuit[me]->name, logicName(circuit[me]->value));
         */
 
-        results = propagate(circuit, faultList[K]->index, (faultList[K]->type == ST_1? B : D));
+        results = propagate(circuit, faultList.list[K]->index, (faultList.list[K]->type == ST_1? B : D));
         if(results == TRUE)
         {
             //printf("Prop: [ Yes ]\n");
-            if(isDebugMode) fprintf(stdout, "\t%s\t\t%d\t\t", circuit[faultList[K]->index]->name, 
-            	faultList[K]->type);
+            if(isDebugMode) fprintf(stdout, "\t%s\t\t%d\t\t", circuit[faultList.list[K]->index]->name, 
+            	faultList.list[K]->type);
             TEST_VECTOR testVector = extractTestVector(circuit, &info);
+        	simulateTestVector(circuit, &info, &faultList, &testVector);
             displayTestVector(testVector);
         }
         //else  printf("Prop: [ _No ]\n");
