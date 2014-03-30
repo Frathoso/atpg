@@ -39,7 +39,6 @@
 
 
 #include "libs/parser_netlist.h"
-#include "libs/fault_list_generator.h"
 #include "libs/test_generator.h"
 #include "libs/hash.h"
 #include "libs/ptime.h"
@@ -64,7 +63,8 @@ char* filename = NULL;  // Circuit benchmark filename
 
 CIRCUIT circuit;        // Graph containing all the gates nodes in the circuit
 CIRCUIT_INFO info;      // Graphs metadata object
-FAULT* faultList[50000];     // TODO: Determine the probable size of fault list
+FAULT* faultList[(MAX_GATES*2)];     // TODO: Determine the probable size of fault list
+int faultCount;
 
 STOP_WATCH stopwatch;   // Stopwatch for measuring exectuting time
 
@@ -74,6 +74,7 @@ STOP_WATCH stopwatch;   // Stopwatch for measuring exectuting time
 void onProgramTermination( void );
 void parse_command_line_arguments( int argc, char* argv[] );
 void populate_circuit_from_file( void );
+void generate_fault_list( void );
 void generate_test_patterns( void );
 
 
@@ -94,6 +95,9 @@ int main( int argc, char* argv[] )
     
     /* Populate the circuit and faults list from the passed netlist file */
     populate_circuit_from_file();
+
+    /* Generate fault list */
+    generate_fault_list();
 
     /* Generate test patterns */
     generate_test_patterns();
@@ -230,6 +234,31 @@ void populate_circuit_from_file()
 }
 
 /*
+ *  Generates fault list for the populate circuit
+ *  
+ *  @return nothing
+ */
+void generate_fault_list()
+{
+	faultCount = 0;
+	int K;
+	for(K = 0; K < info.numGates; K++)
+	{
+		// Add stuck at zero fault
+		faultList[faultCount] = (FAULT*) malloc(sizeof(FAULT));
+		faultList[faultCount]->index = K;
+		faultList[faultCount]->type = ST_0;
+		faultCount++;
+
+		// Add stuck at one fault
+		faultList[faultCount] = (FAULT*) malloc(sizeof(FAULT));
+		faultList[faultCount]->index = K;
+		faultList[faultCount]->type = ST_1;
+		faultCount++;
+	}
+}
+
+/*
  *  Generates test patterns for the populate circuit
  *  
  *  @return nothing
@@ -238,39 +267,41 @@ void generate_test_patterns()
 {
     startSW(&stopwatch);
 
-    int index = 1, stuck_at = 1;
     if(isDebugMode) fprintf(stdout, "Total Lines: %d\n\n", info.numGates);
     if(isDebugMode) fprintf(stdout, "Test Vectors:\n <Wire> <Stuck-at> <Pattern> <Results> <# Faults>\n");
     
     BOOLEAN results;
-    for(index = 0; index < info.numGates; index++)
+    int K;
+    for(K = 0; K < faultCount; K++)
     {
-        for(stuck_at = 0; stuck_at < 2; stuck_at++)
-        {
-            clearPropagationValuesCircuit(circuit, info.numGates);
+    	if(faultList[K] == NULL) continue;
 
-            results = excite(circuit, index, (stuck_at == 1? B : D));
-            if(results == FALSE){
-                //printf("Excite %s <%c> [ _No ]\t", circuit[index]->name, logicName((stuck_at == 1? B : D)));
-                continue;
-            }
-            //else printf("Excite %s <%c> [ Yes ]\t", circuit[index]->name, logicName((stuck_at == 1? B : D)));
+    	clearPropagationValuesCircuit(circuit, info.numGates);
 
-            /*
-            int me = 0;
-            for(; me <info.numGates; me++) printf("%s<%c> ", circuit[me]->name, logicName(circuit[me]->value));
-            */
-
-            results = propagate(circuit, index, (stuck_at == 1? B : D));
-            if(results == TRUE)
-            {
-                //printf("Prop: [ Yes ]\n");
-                if(isDebugMode) fprintf(stdout, "\t%s\t\t%d\t\t", circuit[index]->name, stuck_at);
-                TEST_VECTOR testVector = extractTestVector(circuit, &info);
-                displayTestVector(testVector);
-            }
-            //else  printf("Prop: [ _No ]\n");
+        results = excite(circuit, faultList[K]->index, (faultList[K]->type == ST_1? B : D));
+        if(results == FALSE){
+            //printf("Excite %s <%c> [ _No ]\t", circuit[faultList[K]->index]->name, 
+            //			logicName((faultList[K]->type == ST_1? B : D)));
+            continue;
         }
+        //else printf("Excite %s <%c> [ Yes ]\t", circuit[faultList[K]->index]->name, 
+        //				logicName((faultList[K]->type == ST_1? B : D)));
+
+        /*
+        int me = 0;
+        for(; me <info.numGates; me++) printf("%s<%c> ", circuit[me]->name, logicName(circuit[me]->value));
+        */
+
+        results = propagate(circuit, faultList[K]->index, (faultList[K]->type == ST_1? B : D));
+        if(results == TRUE)
+        {
+            //printf("Prop: [ Yes ]\n");
+            if(isDebugMode) fprintf(stdout, "\t%s\t\t%d\t\t", circuit[faultList[K]->index]->name, 
+            	faultList[K]->type);
+            TEST_VECTOR testVector = extractTestVector(circuit, &info);
+            displayTestVector(testVector);
+        }
+        //else  printf("Prop: [ _No ]\n");
     }
 
     double duration = getElaspedTimeSW(&stopwatch);

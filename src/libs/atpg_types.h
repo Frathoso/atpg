@@ -172,6 +172,32 @@ typedef struct
 
 /* 
  * =====================================================================================
+ *                                  FAULT TYPES
+ * =====================================================================================
+ */
+
+/*
+ *  A fault type
+ */
+typedef enum
+{
+    ST_0,   // Stuck-at zero fault
+    ST_1    // Stuck-at one fault
+} FAULT_TYPE;
+
+
+/*
+ *  A fault structure
+ */
+typedef struct
+{
+    int index;          // The index of the wire stuck at fault
+    FAULT_TYPE type;    // Either stuck at 1 or stuck at 0
+} FAULT;
+
+
+/* 
+ * =====================================================================================
  *									TEST VECTORS TYPES
  * =====================================================================================
  */
