@@ -299,7 +299,7 @@ void generate_test_patterns()
             if(isDebugMode) fprintf(stdout, "\t%s\t\t%d\t\t", circuit[faultList.list[K]->index]->name, 
             	faultList.list[K]->type);
             TEST_VECTOR testVector = extractTestVector(circuit, &info);
-        	simulateTestVector(circuit, &info, &faultList, &testVector);
+        	simulateTestVector(circuit, &info, &faultList, &testVector, K+1);
             displayTestVector(testVector);
         }
         //else  printf("Prop: [ _No ]\n");

@@ -37,17 +37,17 @@
 SIM_RESULT test_pattern(CIRCUIT circuit, CIRCUIT_INFO* info, char* inPattern);
 
 
-/*
- *  Simulates a given test vector to drop all the faults that can be detected
+/*  Simulates a given test vector to drop all the faults that can be detected
  *  using it.
  *
  *  @param  circuit - the circuit
  *  @param  info 	- gate information object
  *  @param  fList 	- fault list object
  *  @param  tv 		- test vector object
+ *  @param  start 	- starting point in the fault list
  *  @return nothing
  */
 void simulateTestVector(CIRCUIT circuit, CIRCUIT_INFO* info, FAULT_LIST * fList,
-						TEST_VECTOR* tv);
+						TEST_VECTOR* tv, int start);
 
 #endif
