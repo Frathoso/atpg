@@ -37,6 +37,17 @@
 SIM_RESULT test_pattern(CIRCUIT circuit, CIRCUIT_INFO* info, char* inPattern);
 
 
+/*
+ *  Compares the levels of two gates
+ *
+ *  @param  lg 	- left gate's index
+ *  @param  rg 	- right gate's index
+ *  @return 0 if gate levels are the same, -1 if level of leftIndex is higher and
+ *			1 if the level of the right index is higher
+ */
+int cmpGateLevels(const void *lg, const void *rg);
+
+
 /*  Simulates a given test vector to drop all the faults that can be detected
  *  using it.
  *

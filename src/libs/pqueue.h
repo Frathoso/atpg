@@ -1,7 +1,12 @@
 /*
- *  (C) June 2011. Andrei Ciobanu
- *  http://andreinc.net
  *  Generic Priority Queue
+ *
+ *  Original Author:
+ *      (C) June 2011. Andrei Ciobanu
+ *      http://andreinc.net
+ *  
+ *  Revised by:
+ *      Francis Sowani
  */
 
 #ifndef __PQUEUE__H__
@@ -53,5 +58,11 @@ void pqueue_enqueue(PQueue *q, const void *data);
 
 /** Removes the element with the greatest priority from within the Queue */
 void *pqueue_dequeue(PQueue *q);
+
+/** Checks if the priority queue is full */
+int is_full(PQueue *q);
+
+/** Checks if the priority queue is empty */
+int is_empty(PQueue *q);
 
 #endif

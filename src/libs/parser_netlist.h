@@ -48,6 +48,24 @@ BOOLEAN appendNewGate( CIRCUIT circuit, int* total, char* name );
 BOOLEAN populateCircuit( CIRCUIT circuit, CIRCUIT_INFO* info, char* filename );
 
 /*
+ *  Compute gate levels in the entire circuit
+ *
+ *  @param  circuit - the circuit
+ *  @param  info    - gate information object
+ *  @return nothing
+ */
+void computeGateLevels(CIRCUIT circuit, CIRCUIT_INFO* info);
+
+/*
+ *  Compute gate level for the given circuit
+ *
+ *  @param  circuit - the circuit
+ *  @param  index - gate index of interest
+ *  @return int - the gate's level
+ */
+int computeGateLevel(CIRCUIT circuit, int index);
+
+/*
  *  Finds the first occurence of the given gate's <name> in the <circuit>
  *
  *  @param  CIRCUIT circuit - the circuit to search

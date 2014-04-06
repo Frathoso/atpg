@@ -1,7 +1,12 @@
 /*
- *  (C) June 2011. Andrei Ciobanu
- *  http://andreinc.net
  *  Generic Priority Queue
+ *
+ *  Original Author:
+ *      (C) June 2011. Andrei Ciobanu
+ *      http://andreinc.net
+ *  
+ *  Revised by:
+ *      Francis Sowani
  */
 
 #include <stdlib.h>
@@ -57,7 +62,7 @@ void pqueue_delete(PQueue *q) {
 void pqueue_enqueue(PQueue *q, const void *data) {
     size_t i;
     void *tmp = NULL;
-    //NP_CHECK(q);
+    NP_CHECK(q);
     if (q->size >= q->capacity) {
         DEBUG("Priority Queue is full. Cannot add another element .\n");
         return;
@@ -81,7 +86,7 @@ void pqueue_enqueue(PQueue *q, const void *data) {
 */
 void *pqueue_dequeue(PQueue *q) {
     void *data = NULL;
-    //NP_CHECK(q);
+    NP_CHECK(q);
     if (q->size < 1) {         
          /* Priority Queue is empty */         
          DEBUG("Priority Queue underflow . Cannot remove another element .\n");         
@@ -102,7 +107,7 @@ void pqueue_heapify(PQueue *q, size_t idx) {
     /* left index, right index, largest */
     void *tmp = NULL;
     size_t l_idx, r_idx, lrg_idx;
-    //NP_CHECK(q);
+    NP_CHECK(q);
 
     l_idx = LEFT(idx);
     r_idx = RIGHT(idx);
@@ -128,4 +133,22 @@ void pqueue_heapify(PQueue *q, size_t idx) {
         /* Heapify again */
         pqueue_heapify(q, lrg_idx);
     }
+}
+
+/** 
+ * Checks if the priority queue is full
+ */
+int is_full(PQueue *q)
+{
+    if(q->size >= q->capacity) return 1;
+    else return 0;
+}
+
+/** 
+ * Checks if the priority queue is empty
+ */
+int is_empty(PQueue *q)
+{
+    if(q->size == 0) return 1;
+    else return 0;
 }

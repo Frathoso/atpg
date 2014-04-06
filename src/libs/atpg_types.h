@@ -143,7 +143,7 @@ typedef struct
     PROP_OBJECT propagated[MAX_LOGIC_VALUES];  
     // Logical value of the wire during fault generation/simulation
     LOGIC_VALUE value;  
-    BOOLEAN 	flag4;      // Used for exclude
+    int 	level;          // Gate level from the inputs
     BOOLEAN 	flag5;      // Used for tracing
     BOOLEAN 	flag6;      // Used for IIR
     BOOLEAN 	flag7;      // Used for OIR

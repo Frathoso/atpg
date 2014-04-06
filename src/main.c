@@ -212,6 +212,8 @@ void populate_circuit_from_file()
     startSW(&stopwatch);
     if(populateCircuit(circuit, &info, filename))
     {
+        computeGateLevels(circuit, &info);
+
         double duration = getElaspedTimeSW(&stopwatch);
         if(isDebugMode && debugLevel > 0) fprintf(stdout, "Netlist file successfully parsed "
                 "[ %.4f seconds ].\n\n", duration);
@@ -298,7 +300,9 @@ void generate_test_patterns()
             //printf("Prop: [ Yes ]\n");
             if(isDebugMode) fprintf(stdout, "\t%s\t\t%d\t\t", circuit[faultList.list[K]->index]->name, 
             	faultList.list[K]->type);
+
             TEST_VECTOR testVector = extractTestVector(circuit, &info);
+        displayTestVector(testVector);
         	simulateTestVector(circuit, &info, &faultList, &testVector, K+1);
             displayTestVector(testVector);
         }

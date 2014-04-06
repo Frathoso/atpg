@@ -27,8 +27,12 @@
 #include "atpg_types.h"
 #include "logic_tables.h"
 #include "fault_simulation.h"
+#include "test_generator.h"
 #include "parser_netlist.h"
+#include "pqueue.h"
 
+int faultLine = -1;
+LOGIC_VALUE stuck_at;
 
 /*
  *  Generates output gates output from the given pattern
@@ -41,16 +45,9 @@ SIM_RESULT test_pattern(CIRCUIT circuit, CIRCUIT_INFO* info, char* inPattern)
 {
 	SIM_RESULT results;
 
-	// Initialize the propagation queue
-	TAILQ_HEAD(tailhead, entry) head;
-    //struct tailhead *headp;                 /* Tail queue head. */
-    struct entry
-    {
-        GATE *gatep;
-        TAILQ_ENTRY(entry) entries;         /* Tail queue. */
-    }*np;
-
-    TAILQ_INIT(&head);  
+	//printf("Pattern: %s\n", inPattern);
+	// Initialize the propagation priority queue list
+	PQueue *pqList = pqueue_new(cmpGateLevels, 2*MAX_GATES);
 
 	// Assign test pattern to input gates
 	int K, L;
@@ -65,57 +62,90 @@ SIM_RESULT test_pattern(CIRCUIT circuit, CIRCUIT_INFO* info, char* inPattern)
 			case 'X': circuit[info->inputs[K]]->value = X; break;
 		}
 
-		struct entry* node = malloc(sizeof(struct entry));
-		node->gatep = circuit[info->inputs[K]];
-
-		// Add node to the queue
-		TAILQ_INSERT_TAIL(&head, node, entries);
+		// Add gate to the queue
+		pqueue_enqueue(pqList, circuit[info->inputs[K]]);
 	}
+	circuit[faultLine]->value = stuck_at;
+
+	//printf("Value: %c\n", logicName(circuit[faultLine]->value));
+
+	/*
+	while(!is_empty(pqList)){
+		GATE* g = (GATE*) pqueue_dequeue(pqList);
+		printf("\nTest %s: %d", g->name, g->level);
+	}
+	exit(0);
+	*/
 
 	// generate output values
 	LOGIC_VALUE tValue;
-	while(head.tqh_first != NULL)
+	GATE * gate;
+	while(!is_empty(pqList))
 	{
-		// Propagate results through the current node
-		np = head.tqh_first;
+		// Propagate results through the next gate with least level
+		gate = (GATE*) pqueue_dequeue(pqList);
 
-		if(np->gatep->type != PI)
-		{
-			for(L = 0; L < np->gatep->numOut; L++)
-			{
-				
-			}
-			tValue = computeGateOutput(circuit, findIndex(circuit, &info->numGates, np->gatep->name, FALSE));
-		}
+		int index = findIndex(circuit, &info->numGates, gate->name, FALSE);
+		if(gate->type == PI)
+			tValue = gate->value;
 		else
-			tValue = np->gatep->value;
+			tValue = computeGateOutput(circuit, index);
 
-		printf("\n--->%s: %c", np->gatep->name, logicName(tValue));
+		printf("\n\t--->%s (%+d): %c", gate->name, gate->level, logicName(tValue));
 
-		// Add output lines into the queue
-		for(L = 0; L < np->gatep->numOut; L++)
+		if(gate->level >= 0)
 		{
-			struct entry* node = malloc(sizeof(struct entry));
-			node->gatep = circuit[np->gatep->out[L]];
-			TAILQ_INSERT_TAIL(&head, node, entries);
+			for(L=0; L<gate->numIn; L++) printf(" (%s=%c) ", circuit[gate->in[L]]->name, logicName(circuit[gate->in[L]]->value));
+			//printf(" %d, %s, %s --> ", index, circuit[4]->name, gate->name);
 		}
 
-
-		TAILQ_REMOVE(&head, np, entries);
+		// Add new output lines into the queue
+		for(L = 0; L < gate->numOut; L++)
+		{
+			if(circuit[gate->out[L]]->value == X)
+			{
+				circuit[gate->out[L]]->value = tValue;
+				circuit[faultLine]->value = stuck_at;
+				pqueue_enqueue(pqList, circuit[gate->out[L]]);
+			}
+		}
 	}
+
+	printf("\nDONE\n");
+	// Clear the priority list heap
+	pqueue_delete(pqList);
 
 	// Retrieve output results;
 	char outValues[MAX_OUTPUT_GATES];
 	for(K = 0; K < info->numPO; K++)
-	{
-
 		outValues[K] = logicName(circuit[info->outputs[K]]->value);
-	}
 	outValues[K] = '\0';
+
+	for(K = 0; K < info->numPI; K++)
+		results.input[K] = logicName(circuit[info->inputs[K]]->value);
+	results.input[K] = '\0';
 
 	strcpy(results.output, outValues);
 
 	return results;
+}
+
+
+/*
+ *  Compares the levels of two gates
+ *
+ *  @param  lg 	- left gate's index
+ *  @param  rg 	- right gate's index
+ *  @return 0 if gate levels are the same, 1 if level of leftIndex is higher and
+ *			-1 if the level of the right index is higher
+ */
+int cmpGateLevels(const void *lg, const void *rg)
+{
+	GATE *leftGate = (GATE*) lg;
+	GATE *rightGate = (GATE*) rg;
+	if(leftGate->level == rightGate->level) return 0;
+	else if(leftGate->level > rightGate->level) return -1;
+	else return 1;
 }
 
 /*  Simulates a given test vector to drop all the faults that can be detected
@@ -142,17 +172,32 @@ void simulateTestVector(CIRCUIT circuit, CIRCUIT_INFO* info, FAULT_LIST * fList,
 	{
 		if(fList->list[K] != NULL)
 		{
+			printf("\nSimulate %s stuck at %d", circuit[fList->list[K]->index]->name, fList->list[K]->type);
+			clearPropagationValuesCircuit(circuit, info->numGates);
+			circuit[fList->list[K]->index]->value = (fList->list[K]->type == ST_0 ? D : B);
+			faultLine = fList->list[K]->index;
+			stuck_at = (fList->list[K]->type == ST_0 ? D : B);
+			
+
 			SIM_RESULT results = test_pattern(circuit, info, tv->input);
 
-			BOOLEAN matches = TRUE;
-			if(strcmp(results.output, tv->output) != 0)
-			{
+			//printf("Results: %s stuck at %d: %s -> %s (%s)\n", circuit[faultLine]->name, stuck_at, tv->input, results.output, tv->output);
+
+			BOOLEAN matches = FALSE;
+			for(L = 0; L < strlen(tv->input); L++)
+					circuit[faultLine]->value = (stuck_at == D ? I : O);
+			if(strcmp(results.output, tv->output) == 0 && strcmp(results.input, tv->input) == 0)
+			{ 
+					matches = TRUE;
+				/*
 				for(L = 0; L < strlen(results.output); L++)
-					if(results.output[L] == 'X' || results.output[L] != tv->output[L])
+					if(!(results.output[L] == 'X' || results.output[L] == tv->output[L] ||
+					     (results.output[L] == I && tv->output[L] == B) || (results.output[L] == O && tv->output[L] == D)))
 					{
 						matches = FALSE;
 						break;
 					}
+				*/
 			}
 
 
@@ -160,8 +205,9 @@ void simulateTestVector(CIRCUIT circuit, CIRCUIT_INFO* info, FAULT_LIST * fList,
 			if(matches == TRUE)
 			{
 				tv->faults_count = tv->faults_count + 1;
-			free(fList->list[K]);
-			fList->list[K] = NULL;
+				printf("\t[%s]: Collapsed!\n", circuit[fList->list[K]->index]->name);
+				free(fList->list[K]);
+				fList->list[K] = NULL;
 			}
 		}
 	}

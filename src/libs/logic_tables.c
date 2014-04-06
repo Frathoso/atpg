@@ -61,6 +61,9 @@ LOGIC_VALUE computeGateOutput( CIRCUIT circuit, int index )
 				return negate(result, TRUE);
 			else	// OR Gate
 				return result;
+
+		case BUF:
+			return (negate(circuit[circuit[index]->in[0]]->value, circuit[index]->inv));
 		default:
 			// TODO: Implement XOR and other gate types
 			return X;

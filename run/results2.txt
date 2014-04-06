@@ -1,0 +1,34 @@
+Parsing: "/home/frathoso/Dropbox/Spring_2014/Capstone/atpg/benchmarks/custom0.bench"...
+Netlist file successfully parsed [ 0.0001 seconds ].
+
+Input gates:
+A  B  C  E  
+Output gates:
+L  
+
+Total Lines: 9
+
+Test Vectors:
+ <Wire> <Stuck-at> <Pattern> <Results> <# Faults>
+	A		0		IIII		D			1
+	A		1		OIII		B			1
+	B		0		OIII		B			1
+	B		1		OOII		D			1
+	C		0		OIII		B			1
+	C		1		OIOI		D			1
+	E		0		IIXI		D			1
+	E		1		IIXO		B			1
+	L		0		IIXI		D			1
+	L		1		IIXO		B			1
+	J		0		OOII		D			1
+	J		1		OIII		B			1
+	I		0		OIII		B			1
+	I		1		OOII		D			1
+	H		0		IIII		D			1
+	H		1		OIII		B			1
+	K		0		IIII		D			1
+	K		1		OIII		B			1
+
+Test vectors successfully generated [ 0.0000 seconds ].
+
+Program successfully executed!

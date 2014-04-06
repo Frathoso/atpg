@@ -56,6 +56,7 @@ BOOLEAN appendNewGate( CIRCUIT circuit, int* total, char* name )
     circuit[*total]->PPO    = 0;
     circuit[*total]->type   = OTHER;
     circuit[*total]->value  = X;
+    circuit[*total]->level  = -1;
     bzero(circuit[*total]->justified, sizeof(JUST_OBJECT));
     bzero(circuit[*total]->propagated, sizeof(PROP_OBJECT));
     (*total)++;
@@ -124,6 +125,8 @@ BOOLEAN populateCircuit( CIRCUIT circuit, CIRCUIT_INFO* info, char* filename )
             // Append a new input gate and initialize its details
             index = info->numGates;
             appendNewGate(circuit, &(info->numGates), tempBuffer);
+
+            circuit[index]->level = 0;
 
             if(isPseudo)
             {
@@ -365,6 +368,49 @@ BOOLEAN populateCircuit( CIRCUIT circuit, CIRCUIT_INFO* info, char* filename )
     fclose(fp);
 
     return TRUE;
+}
+
+/*
+ *  Compute gate levels in the entire circuit
+ *
+ *  @param  circuit - the circuit
+ *  @param  info    - gate information object
+ *  @return nothing
+ */
+void computeGateLevels(CIRCUIT circuit, CIRCUIT_INFO* info)
+{
+    int K, level;
+    for(K = 0; K < info->numGates; K++)
+    {
+        // Skipping PI and already computed gates
+        if(circuit[K]->level < 0)
+        {
+            level = computeGateLevel(circuit, K);
+            circuit[K]->level = level;
+        }
+    }
+}
+
+/*
+ *  Compute gate level for the given circuit
+ *
+ *  @param  circuit - the circuit
+ *  @param  index - gate index of interest
+ *  @return int - the gate's level
+ */
+int computeGateLevel(CIRCUIT circuit, int index)
+{
+    if(circuit[index]->level >= 0) return circuit[index]->level;
+    else
+    {
+        int K, temp, level = -1;
+        for(K = 0; K < circuit[index]->numIn; K++)
+        {
+            temp = computeGateLevel(circuit, circuit[index]->in[K]);
+            if(temp > level) level = temp;
+        }
+        return (level+1);
+    }
 }
 
 /*
