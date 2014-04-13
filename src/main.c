@@ -302,7 +302,7 @@ void generate_test_patterns()
             	faultList.list[K]->type);
 
             TEST_VECTOR testVector = extractTestVector(circuit, &info);
-        displayTestVector(testVector);
+            //displayTestVector(testVector);
         	simulateTestVector(circuit, &info, &faultList, &testVector, K+1);
             displayTestVector(testVector);
         }

@@ -31,17 +31,18 @@
 #include "parser_netlist.h"
 #include "pqueue.h"
 
-int faultLine = -1;
-LOGIC_VALUE stuck_at;
 
 /*
  *  Generates output gates output from the given pattern
  *
  *  @param  circuit - the circuit
  *  @param  info 	- gate information object
+ *  @param	fault 	- the fault to be excited as the pattern is generated
+ *  @param  wasFaultExcited - for keeping track if the fault was excited during the execution
  *  @return SIM_RESULTS the simulation results
  */
-SIM_RESULT test_pattern(CIRCUIT circuit, CIRCUIT_INFO* info, char* inPattern)
+SIM_RESULT test_pattern(CIRCUIT circuit, CIRCUIT_INFO* info, char* inPattern, 
+						FAULT* fault, BOOLEAN* wasFaultExcited)
 {
 	SIM_RESULT results;
 
@@ -65,39 +66,56 @@ SIM_RESULT test_pattern(CIRCUIT circuit, CIRCUIT_INFO* info, char* inPattern)
 		// Add gate to the queue
 		pqueue_enqueue(pqList, circuit[info->inputs[K]]);
 	}
-	circuit[faultLine]->value = stuck_at;
 
 	//printf("Value: %c\n", logicName(circuit[faultLine]->value));
-
-	/*
-	while(!is_empty(pqList)){
-		GATE* g = (GATE*) pqueue_dequeue(pqList);
-		printf("\nTest %s: %d", g->name, g->level);
-	}
-	exit(0);
-	*/
 
 	// generate output values
 	LOGIC_VALUE tValue;
 	GATE * gate;
 	while(!is_empty(pqList))
 	{
-		// Propagate results through the next gate with least level
+		// Select the next gate to propagate the values (i.e. the gate with the least level)
 		gate = (GATE*) pqueue_dequeue(pqList);
 
 		int index = findIndex(circuit, &info->numGates, gate->name, FALSE);
+
+		// Determine the gate's new logical value
 		if(gate->type == PI)
 			tValue = gate->value;
 		else
 			tValue = computeGateOutput(circuit, index);
 
-		printf("\n\t--->%s (%+d): %c", gate->name, gate->level, logicName(tValue));
+		// Check if this gate is the one stuck-at fault and see if the fault was excited
+		if(index == fault->index)
+		{
+			if(fault->type == ST_0 && tValue == I)
+			{
+				*wasFaultExcited = TRUE;
+				tValue = D;
+			}
+			else if(fault->type == ST_1 && tValue == O)
+			{
+				*wasFaultExcited = TRUE;
+				tValue = B;
+			}
+			else
+			{
+				*wasFaultExcited = FALSE;
+				// Stop execution, the fault cannot be excited with the current pattern
+				return results;
+			}
+		}
 
+		gate->value = tValue;
+
+		/*
+		printf("\n\t--->%s (%+d): %c", gate->name, gate->level, logicName(tValue));
 		if(gate->level >= 0)
 		{
 			for(L=0; L<gate->numIn; L++) printf(" (%s=%c) ", circuit[gate->in[L]]->name, logicName(circuit[gate->in[L]]->value));
 			//printf(" %d, %s, %s --> ", index, circuit[4]->name, gate->name);
 		}
+		*/
 
 		// Add new output lines into the queue
 		for(L = 0; L < gate->numOut; L++)
@@ -105,27 +123,24 @@ SIM_RESULT test_pattern(CIRCUIT circuit, CIRCUIT_INFO* info, char* inPattern)
 			if(circuit[gate->out[L]]->value == X)
 			{
 				circuit[gate->out[L]]->value = tValue;
-				circuit[faultLine]->value = stuck_at;
 				pqueue_enqueue(pqList, circuit[gate->out[L]]);
 			}
 		}
 	}
 
-	printf("\nDONE\n");
+	//printf("\nDONE\n");
 	// Clear the priority list heap
 	pqueue_delete(pqList);
 
 	// Retrieve output results;
-	char outValues[MAX_OUTPUT_GATES];
 	for(K = 0; K < info->numPO; K++)
-		outValues[K] = logicName(circuit[info->outputs[K]]->value);
-	outValues[K] = '\0';
+		results.output[K] = logicName(circuit[info->outputs[K]]->value);
+	results.output[K] = '\0';
 
+	// Retrieve input values
 	for(K = 0; K < info->numPI; K++)
 		results.input[K] = logicName(circuit[info->inputs[K]]->value);
 	results.input[K] = '\0';
-
-	strcpy(results.output, outValues);
 
 	return results;
 }
@@ -162,50 +177,32 @@ void simulateTestVector(CIRCUIT circuit, CIRCUIT_INFO* info, FAULT_LIST * fList,
 						TEST_VECTOR* tv, int start)
 {
 	// Remove Don't-Cares by appending random I or 0
-	int K, L;
+	int K;
 	for(K = 0; K < strlen(tv->input); K++)
 		if( tv->input[K] == 'X')
 			tv->input[K] = 'X';
 
 	// Simulate all remaining faults using the current pattern
+	BOOLEAN wasFaultExcited;
 	for(K = start; K < fList->count; K++)
 	{
 		if(fList->list[K] != NULL)
 		{
-			printf("\nSimulate %s stuck at %d", circuit[fList->list[K]->index]->name, fList->list[K]->type);
+			// Prepare the circuit for simulation
+			//printf("\nSimulate %s stuck at %d", circuit[fList->list[K]->index]->name, fList->list[K]->type);
 			clearPropagationValuesCircuit(circuit, info->numGates);
-			circuit[fList->list[K]->index]->value = (fList->list[K]->type == ST_0 ? D : B);
-			faultLine = fList->list[K]->index;
-			stuck_at = (fList->list[K]->type == ST_0 ? D : B);
-			
 
-			SIM_RESULT results = test_pattern(circuit, info, tv->input);
+			// Simulate the fault
+			wasFaultExcited = FALSE;
+			SIM_RESULT results = test_pattern(circuit, info, tv->input, fList->list[K], &wasFaultExcited);
 
-			//printf("Results: %s stuck at %d: %s -> %s (%s)\n", circuit[faultLine]->name, stuck_at, tv->input, results.output, tv->output);
-
-			BOOLEAN matches = FALSE;
-			for(L = 0; L < strlen(tv->input); L++)
-					circuit[faultLine]->value = (stuck_at == D ? I : O);
-			if(strcmp(results.output, tv->output) == 0 && strcmp(results.input, tv->input) == 0)
-			{ 
-					matches = TRUE;
-				/*
-				for(L = 0; L < strlen(results.output); L++)
-					if(!(results.output[L] == 'X' || results.output[L] == tv->output[L] ||
-					     (results.output[L] == I && tv->output[L] == B) || (results.output[L] == O && tv->output[L] == D)))
-					{
-						matches = FALSE;
-						break;
-					}
-				*/
-			}
-
+			//if(wasFaultExcited == TRUE)	printf("\t%s -> %s\n", results.input, results.output);
 
 			// Remove fault from list if it can be detected
-			if(matches == TRUE)
-			{
+			if(wasFaultExcited == TRUE && strcmp(results.output, tv->output) == 0)
+			{ 
 				tv->faults_count = tv->faults_count + 1;
-				printf("\t[%s]: Collapsed!\n", circuit[fList->list[K]->index]->name);
+				//printf("\t[%s]: Collapsed!\n", circuit[fList->list[K]->index]->name);
 				free(fList->list[K]);
 				fList->list[K] = NULL;
 			}
