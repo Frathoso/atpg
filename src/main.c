@@ -146,6 +146,9 @@ void onProgramTermination()
     
     for(K = 0; K < info.numGates; K++)
         if(circuit[K]) free(circuit[K]);
+
+    for(K = 0; K < faultList.count; K++) 
+        if(faultList.list[K]) free(faultList.list[K]);
 }
 
 /*
@@ -270,10 +273,10 @@ void generate_test_patterns()
     startSW(&stopwatch);
 
     if(isDebugMode) fprintf(stdout, "Total Lines: %d\n\n", info.numGates);
-    if(isDebugMode) fprintf(stdout, "Test Vectors:\n <Wire> <Stuck-at> <Pattern> <Results> <# Faults>\n");
+    if(isDebugMode) fprintf(stdout, "Test Vectors:\nFormat: <Pattern/Input> <Results/Output> <# Faults> {<List of Faults>}\n\n");
     
     BOOLEAN results;
-    int K;
+    int K, L;
     for(K = 0; K < faultList.count; K++)
     {
     	if(faultList.list[K] == NULL) continue;
@@ -281,32 +284,28 @@ void generate_test_patterns()
     	clearPropagationValuesCircuit(circuit, info.numGates);
 
         results = excite(circuit, faultList.list[K]->index, (faultList.list[K]->type == ST_1? B : D));
-        if(results == FALSE){
-            //printf("Excite %s <%c> [ _No ]\t", circuit[faultList[K]->index]->name, 
-            //			logicName((faultList[K]->type == ST_1? B : D)));
-            continue;
-        }
-        //else printf("Excite %s <%c> [ Yes ]\t", circuit[faultList[K]->index]->name, 
-        //				logicName((faultList[K]->type == ST_1? B : D)));
-
-        /*
-        int me = 0;
-        for(; me <info.numGates; me++) printf("%s<%c> ", circuit[me]->name, logicName(circuit[me]->value));
-        */
+        if(results == FALSE) continue;
 
         results = propagate(circuit, faultList.list[K]->index, (faultList.list[K]->type == ST_1? B : D));
         if(results == TRUE)
         {
-            //printf("Prop: [ Yes ]\n");
-            if(isDebugMode) fprintf(stdout, "\t%s\t\t%d\t\t", circuit[faultList.list[K]->index]->name, 
-            	faultList.list[K]->type);
-
             TEST_VECTOR testVector = extractTestVector(circuit, &info);
-            //displayTestVector(testVector);
+
+            // Add the current fault into the patterns fault list
+            testVector.faults_list[0] = (FAULT*) malloc(sizeof(FAULT));
+            testVector.faults_list[0]->index = faultList.list[K]->index;
+            testVector.faults_list[0]->type = faultList.list[K]->type;
+
+            // Simulate other faults in the remaining fault list
         	simulateTestVector(circuit, &info, &faultList, &testVector, K+1);
-            displayTestVector(testVector);
+
+            // Display results
+            displayTestVector(circuit, &testVector);
+
+            // Clear the faults list memory for this pattern
+            for(L = 0; L < testVector.faults_count; L++)
+                if(testVector.faults_list[L]) free(testVector.faults_list[L]);
         }
-        //else  printf("Prop: [ _No ]\n");
     }
 
     double duration = getElaspedTimeSW(&stopwatch);

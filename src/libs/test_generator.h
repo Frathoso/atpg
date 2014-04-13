@@ -92,9 +92,10 @@ TEST_VECTOR extractTestVector(CIRCUIT circuit, CIRCUIT_INFO* info);
 /*
  *  Print to the standard output the given test vector
  *
+ *  @param  CIRCUIT 	circuit - the circuit
  *  @param  TEST_VECTOR	tv 	- the test vector to output
  *  @return nothing
  */
-void displayTestVector(TEST_VECTOR tv);
+void displayTestVector(CIRCUIT circuit, TEST_VECTOR* tv);
 
 #endif

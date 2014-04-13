@@ -235,6 +235,7 @@ typedef struct
     char input[MAX_INPUT_GATES+1];    // Input gates values
     char output[MAX_OUTPUT_GATES+1];  // Output gates values
     int  faults_count;      // Total stuck-at faults the test can detect
+    FAULT* faults_list[MAX_GATES*2];
 } TEST_VECTOR;
 
 

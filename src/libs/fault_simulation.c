@@ -201,7 +201,13 @@ void simulateTestVector(CIRCUIT circuit, CIRCUIT_INFO* info, FAULT_LIST * fList,
 			// Remove fault from list if it can be detected
 			if(wasFaultExcited == TRUE && strcmp(results.output, tv->output) == 0)
 			{ 
+				// Add the fault into the patterns fault list first
+				tv->faults_list[tv->faults_count] = (FAULT*) malloc(sizeof(FAULT));
+				tv->faults_list[tv->faults_count]->index = fList->list[K]->index;
+				tv->faults_list[tv->faults_count]->type = fList->list[K]->type;
 				tv->faults_count = tv->faults_count + 1;
+
+				// Remove the fault from the list of undetected faults
 				//printf("\t[%s]: Collapsed!\n", circuit[fList->list[K]->index]->name);
 				free(fList->list[K]);
 				fList->list[K] = NULL;
