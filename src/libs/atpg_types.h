@@ -35,13 +35,16 @@
 /*
  *  Boolean type for True and False conditions
  */
-#ifndef BOOLEAN
+
+#ifdef BOOLEAN
+#undef BOOLEAN
+#endif
 typedef enum
 {
     FALSE = 0,  // Boolean False
     TRUE  = 1   // Boolean True
 } BOOLEAN;
-#endif
+
 
 
 /* 
