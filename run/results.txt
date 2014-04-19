@@ -11,12 +11,10 @@ Total Lines: 9
 Test Vectors:
 Format: <Pattern/Input> <Results/Output> <# Faults> {<List of Faults>}
 
-IIII	D	5	{ (A, 0) (E, 0) (L, 0) (H, 0) (K, 0) }
-OIII	B	8	{ (A, 1) (B, 0) (C, 0) (L, 1) (J, 1) (I, 0) (H, 1) (K, 1) }
-OOII	D	3	{ (B, 1) (J, 0) (I, 1) }
-OIOI	D	1	{ (C, 1) }
-IIXO	B	1	{ (E, 1) }
+OIII	D	7	{ (B, 0) (C, 0) (L, 0) (J, 1) (I, 0) (H, 1) (K, 1) }
+OOII	B	6	{ (B, 1) (E, 0) (L, 1) (J, 0) (I, 1) (K, 0) }
+OIOI	B	1	{ (C, 1) }
 
-Test vectors successfully generated [ 0.0018 seconds ].
+Test vectors successfully generated [ 0.0010 seconds ].
 
 Program successfully executed!

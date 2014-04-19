@@ -111,8 +111,14 @@ BOOLEAN excite(CIRCUIT circuit, int index, LOGIC_VALUE log_val)
 			LOGIC_VALUE other_value = X;
 			switch(circuit[index]->type)
 			{
-				case AND: other_value = I; break;
-				case OR : other_value = O; break;
+				case AND: 
+					if(circuit[index]->inv == FALSE) other_value = I;
+					else other_value = O; 
+					break;
+				case OR : 
+					if(circuit[index]->inv == FALSE) other_value = O;
+					else other_value = I;
+					break;
 				default : other_value = X; break;
 			}
 
@@ -252,7 +258,7 @@ BOOLEAN propagate(CIRCUIT circuit, int index, LOGIC_VALUE log_val)
 			circuit[circuit[outIndex]->in[K]]->value = other_value;
 		circuit[index]->value = log_val;
 
-		results = propagate(circuit, outIndex, log_val);
+		results = propagate(circuit, outIndex, negate(log_val, circuit[outIndex]->inv));
 		if(results == TRUE)
 		{
 			return TRUE;
