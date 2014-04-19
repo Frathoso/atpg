@@ -1,5 +1,5 @@
-Parsing: "/home/frathoso/Dropbox/ASpring_2014/Capstone/atpg/benchmarks/custom0b.bench"...
-Netlist file successfully parsed [ 0.0002 seconds ].
+Parsing: "/home/frathoso/Dropbox/ASpring_2014/Capstone/atpg/benchmarks/custom0.bench"...
+Netlist file successfully parsed [ 0.0150 seconds ].
 
 Input gates:
 A  B  C  E  
@@ -17,6 +17,6 @@ OOII	D	3	{ (B, 1) (J, 0) (I, 1) }
 OIOI	D	1	{ (C, 1) }
 IIXO	B	1	{ (E, 1) }
 
-Test vectors successfully generated [ 0.0018 seconds ].
+Test vectors successfully generated [ 0.0016 seconds ].
 
 Program successfully executed!

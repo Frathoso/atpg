@@ -88,18 +88,34 @@ BOOLEAN isOutputPossible( CIRCUIT circuit, int index, LOGIC_VALUE output )
 	for(K = 0; K < circuit[index]->numIn; K++)
 		if(circuit[circuit[index]->in[K]]->value == X)
 		{
-			// Check for the special cases of AND and OR gates
+			// Check for the special cases of AND/NAND and OR/NOR gates
 			if(result == FALSE)
 			{
-				if(circuit[index]->type == AND && circuit[index]->inv == FALSE && output == O)
+				if(circuit[index]->type == AND)
 				{
-					circuit[circuit[index]->in[K]]->value = O;
-					return TRUE;
+					if(circuit[index]->inv == FALSE && output == O)
+					{
+						circuit[circuit[index]->in[K]]->value = O;
+						return TRUE;
+					}
+					if(circuit[index]->inv == TRUE && output == I)
+					{
+						circuit[circuit[index]->in[K]]->value = O;
+						return TRUE;
+					}
 				}
-				if(circuit[index]->type == OR  && circuit[index]->inv == FALSE && output == I)
+				if(circuit[index]->type == OR)
 				{
-					circuit[circuit[index]->in[K]]->value = I;
-					return TRUE;
+					if(circuit[index]->inv == FALSE && output == I)
+					{
+						circuit[circuit[index]->in[K]]->value = I;
+						return TRUE;
+					}
+					if(circuit[index]->inv == FALSE && output == O)
+					{
+						circuit[circuit[index]->in[K]]->value = I;
+						return TRUE;
+					}
 				}
 			}
 
@@ -107,8 +123,14 @@ BOOLEAN isOutputPossible( CIRCUIT circuit, int index, LOGIC_VALUE output )
 			result = TRUE;
 			switch(circuit[index]->type)
 			{
-				case AND: circuit[circuit[index]->in[K]]->value = I; break;
-				case OR:  circuit[circuit[index]->in[K]]->value = O; break;
+				case AND: 
+					if(circuit[index]->inv == TRUE) circuit[circuit[index]->in[K]]->value = I;
+					else circuit[circuit[index]->in[K]]->value = O; 
+					break;
+				case OR:  
+					if(circuit[index]->inv == TRUE) circuit[circuit[index]->in[K]]->value = O;
+					else circuit[circuit[index]->in[K]]->value = I;
+					break;
 				case BUF: circuit[circuit[index]->in[K]]->value = (LOGIC_VALUE) negate(output, 
 					circuit[circuit[index]->in[K]]->inv); break;
 				default: break;

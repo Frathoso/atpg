@@ -176,7 +176,7 @@ int cmpGateLevels(const void *lg, const void *rg)
 void simulateTestVector(CIRCUIT circuit, CIRCUIT_INFO* info, FAULT_LIST * fList,
 						TEST_VECTOR* tv, int start)
 {
-	// Remove Don't-Cares by appending random I or 0
+	// TODO Remove Don't-Cares by appending random I or 0
 	int K;
 	for(K = 0; K < strlen(tv->input); K++)
 		if( tv->input[K] == 'X')
