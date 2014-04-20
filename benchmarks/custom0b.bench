@@ -15,5 +15,5 @@ J = NOT(I)
 
 H = AND(A, B)
 I = AND(B, C)
-K = OR(H, J)
+K = NOR(H, J)
 L = NAND(E, K)
