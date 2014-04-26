@@ -279,32 +279,33 @@ BOOLEAN propagate(CIRCUIT circuit, int index, LOGIC_VALUE log_val)
  *
  *  @param  CIRCUIT 	circuit - the circuit
  *  @param  CIRCUIT_INFO info  	- containing the list of inputs/outputs
- *  @return TEST_VECTOR - the generated test vector
+ *  @param  TEST_VECTOR	tv 	- the test vector to output
+ *  @return nothing
  */
-TEST_VECTOR extractTestVector(CIRCUIT circuit, CIRCUIT_INFO* info)
+void extractTestVector(CIRCUIT circuit, CIRCUIT_INFO* info, TEST_VECTOR *tv)
 {
-	TEST_VECTOR tv;
-	bzero(tv.input, sizeof(tv.input));
-	bzero(tv.output, sizeof(tv.output));
-	tv.faults_count = 1;
+	bzero(tv->input, sizeof(tv->input));
+	bzero(tv->output, sizeof(tv->output));
+	tv->faults_count = 1;
 
 	//	Get values of input gates
 	int K;
+	//printf("====> Inputs # %d\n", info->numPI);
 	for(K = 0; K < info->numPI; K++)
+	{
 		switch(circuit[info->inputs[K]]->value)
 		{
-			case X:
+			case X: tv->input[K] = 'X'; break;
 			case I:
-			case O: tv.input[K] = logicName(circuit[info->inputs[K]]->value); break;
-			case D: tv.input[K] = 'I'; break;
-			case B: tv.input[K] = 'O'; break;
+			case D: tv->input[K] = 'I'; break;
+			case O:
+			case B: tv->input[K] = 'O'; break;
 		}
+	}
 
 	// Get values of output gates
 	for(K = 0; K < info->numPO; K++)
-		tv.output[K] = logicName(circuit[info->outputs[K]]->value);
-
-	return tv;
+		tv->output[K] = logicName(circuit[info->outputs[K]]->value);
 }
 
 /*

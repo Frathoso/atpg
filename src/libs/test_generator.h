@@ -85,9 +85,10 @@ BOOLEAN propagate(CIRCUIT circuit, int index, LOGIC_VALUE log_val);
  *
  *  @param  CIRCUIT 	circuit - the circuit
  *  @param  CIRCUIT_INFO info  	- containing the list of inputs/outputs
- *  @return TEST_VECTOR - the generated test vector
+ *  @param  TEST_VECTOR	tv 	- the test vector to output
+ *  @return nothing
  */
-TEST_VECTOR extractTestVector(CIRCUIT circuit, CIRCUIT_INFO* info);
+void extractTestVector(CIRCUIT circuit, CIRCUIT_INFO* info, TEST_VECTOR *tv);
 
 /*
  *  Print to the standard output the given test vector

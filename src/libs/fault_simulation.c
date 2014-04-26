@@ -22,6 +22,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <time.h>
 #include <sys/queue.h>
 
 #include "atpg_types.h"
@@ -178,9 +179,13 @@ void simulateTestVector(CIRCUIT circuit, CIRCUIT_INFO* info, FAULT_LIST * fList,
 {
 	// TODO Remove Don't-Cares by appending random I or 0
 	int K;
+	srand(time(NULL));
 	for(K = 0; K < strlen(tv->input); K++)
 		if( tv->input[K] == 'X')
-			tv->input[K] = 'X';
+		{
+			if(rand() % 2)	tv->input[K] = 'I';
+			else tv->input[K] = 'O';
+		}
 
 	// Simulate all remaining faults using the current pattern
 	BOOLEAN wasFaultExcited;

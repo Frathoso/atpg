@@ -277,6 +277,7 @@ void generate_test_patterns()
     
     BOOLEAN results;
     int K, L;
+    TEST_VECTOR testVector;
     for(K = 0; K < faultList.count; K++)
     {
     	if(faultList.list[K] == NULL) continue;
@@ -289,7 +290,7 @@ void generate_test_patterns()
         results = propagate(circuit, faultList.list[K]->index, (faultList.list[K]->type == ST_1? B : D));
         if(results == TRUE)
         {
-            TEST_VECTOR testVector = extractTestVector(circuit, &info);
+            extractTestVector(circuit, &info, &testVector);
 
             // Add the current fault into the patterns fault list
             testVector.faults_list[0] = (FAULT*) malloc(sizeof(FAULT));
