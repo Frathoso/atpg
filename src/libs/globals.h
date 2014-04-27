@@ -29,8 +29,7 @@
 
 char ERROR_MESSAGE[MAX_LINE_LENGTH];    // Holds custom error messages
 
-BOOLEAN isDebugMode;    // Turns ON/OFF the display of program progress
-volatile int debugLevel;
+volatile COMMAND_LINE_OPTIONS options;   // Command line options
 
 HASH_ENTRY hashTableGates[MAX_GATES];	// hash table of gate names
 

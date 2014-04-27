@@ -24,8 +24,7 @@
 #include "stdio.h"
 #include "strings.h"
 
-extern BOOLEAN isDebugMode;
-extern volatile int debugLevel;
+extern volatile COMMAND_LINE_OPTIONS options;
 
 /*
  *  Sets all gates value from the gate to the primary output as Don't-Cares (X)
@@ -317,7 +316,7 @@ void extractTestVector(CIRCUIT circuit, CIRCUIT_INFO* info, TEST_VECTOR *tv)
  */
 void displayTestVector(CIRCUIT circuit, TEST_VECTOR* tv)
 {
-	if(isDebugMode) fprintf(stdout, "%s\t%s\t%d\t{", tv->input, tv->output, tv->faults_count);
+	if(options.isDebugMode) fprintf(stdout, "%s\t%s\t%d\t{", tv->input, tv->output, tv->faults_count);
 	int K;
 	for(K = 0; K < tv->faults_count; K++)
 		printf(" (%s, %d)", circuit[tv->faults_list[K]->index]->name, tv->faults_list[K]->type);

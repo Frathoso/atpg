@@ -57,8 +57,7 @@
  */
 extern char ERROR_MESSAGE[MAX_LINE_LENGTH];    // Holds custom error messages
 
-extern BOOLEAN isDebugMode;    // Turns ON/OFF the display of program progress
-extern volatile int debugLevel;
+
 
 char* filename = NULL;  // Circuit benchmark filename
 
@@ -114,7 +113,7 @@ int main( int argc, char* argv[] )
  */
 void onProgramTermination()
 {
-    if(isDebugMode == FALSE || debugLevel <= 0) return;
+    if(options.isDebugMode == FALSE || options.debugLevel <= 0) return;
 
     // Display any errors/success message
     switch(errno)
@@ -167,11 +166,11 @@ void parse_command_line_arguments(int argc, char* argv[])
         switch(opt)
         {
             case 'd':
-                isDebugMode = TRUE;
+                options.isDebugMode = TRUE;
                 break;
             case 'D':
-                isDebugMode = TRUE;
-                debugLevel = atoi(optarg);
+                options.isDebugMode = TRUE;
+                options.debugLevel = atoi(optarg);
                 break;
             case 'f':
                 filename = optarg;
@@ -210,7 +209,7 @@ void populate_circuit_from_file()
     extern HASH_ENTRY hashTableGates[MAX_GATES];
     bzero(hashTableGates, sizeof(hashTableGates));
 
-    if(isDebugMode && debugLevel > 0) fprintf(stdout, "Parsing: \"%s\"...\n", filename);
+    if(options.isDebugMode && options.debugLevel > 0) fprintf(stdout, "Parsing: \"%s\"...\n", filename);
 
     startSW(&stopwatch);
     if(populateCircuit(circuit, &info, filename))
@@ -218,7 +217,7 @@ void populate_circuit_from_file()
         computeGateLevels(circuit, &info);
 
         double duration = getElaspedTimeSW(&stopwatch);
-        if(isDebugMode && debugLevel > 0) fprintf(stdout, "Netlist file successfully parsed "
+        if(options.isDebugMode && options.debugLevel > 0) fprintf(stdout, "Netlist file successfully parsed "
                 "[ %.4f seconds ].\n\n", duration);
     }
     else
@@ -228,7 +227,7 @@ void populate_circuit_from_file()
     }
 
     int K; 
-    if(isDebugMode) 
+    if(options.isDebugMode) 
     {
         fprintf(stdout, "Input gates:\n");
         for(K = 0; K < info.numPI; K++) printf("%s  ", circuit[info.inputs[K]]->name);
@@ -272,8 +271,8 @@ void generate_test_patterns()
 {
     startSW(&stopwatch);
 
-    if(isDebugMode) fprintf(stdout, "Total Lines: %d\n\n", info.numGates);
-    if(isDebugMode) fprintf(stdout, "Test Vectors:\nFormat: <Pattern/Input> <Results/Output> <# Faults> {<List of Faults>}\n\n");
+    if(options.isDebugMode) fprintf(stdout, "Total Lines: %d\n\n", info.numGates);
+    if(options.isDebugMode) fprintf(stdout, "Test Vectors:\nFormat: <Pattern/Input> <Results/Output> <# Faults> {<List of Faults>}\n\n");
     
     BOOLEAN results;
     int K, L;
@@ -310,6 +309,6 @@ void generate_test_patterns()
     }
 
     double duration = getElaspedTimeSW(&stopwatch);
-        if(isDebugMode && debugLevel > 0) fprintf(stdout, "\nTest vectors successfully generated "
+        if(options.isDebugMode && options.debugLevel > 0) fprintf(stdout, "\nTest vectors successfully generated "
                 "[ %.4f seconds ].\n\n", duration);
 }
