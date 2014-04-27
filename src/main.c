@@ -207,9 +207,10 @@ void parse_command_line_arguments(int argc, char* argv[])
 {
     // Initialize options structure
     options.benchmarkFilename = NULL;
+    options.dontCareFilling = RANDOM;
 
     // Command line options list for the program
-    #define SHORT_OPTS "b:dD:f:hs:u:xX:"
+    char* SHORT_OPTS = "b:dD:f:hs:u:xX:";
     static struct option LONG_OPTS[] = {
         {"help",    no_argument, 0,  0},
         {"version", no_argument, 0,  0},
@@ -234,32 +235,37 @@ void parse_command_line_arguments(int argc, char* argv[])
                 break;
             case 'd':   // Turn ON the display of debug details with default level
                 options.isDebugMode = TRUE;
+                options.debugLevel = 0;     // Default debug level is zero
                 break;
             case 'D':   // Turn ON the display of debug details with the given level
                 options.isDebugMode = TRUE;
                 options.debugLevel = atoi(optarg);
                 break;
             case 'f':   // Define the fault list filename
+                options.isFaultListGiven = TRUE;
                 options.faultListFilename = optarg;
                 break;
             case 'h':   // Display help
                 displayHelpDetails();
                 break;
             case 's':   // Define the custom test patterns filename
+                options.isCustomFaultSimulation = TRUE;
                 options.testPatternFilename = optarg;
                 break;
             case 'u':   // Define the undetected faults results filename
+                options.isPrintUndetectedFaults = TRUE;
                 options.undetectedFaultsFilename = optarg;
                 break;
             case 'x':   // Turn ON one-test-per-fault feature
+                options.isOneTestPerFault = TRUE;
                 break;
             case 'X':   // Define the don't-cares filling option during fault simulation
                 if(strcmp(optarg, "1") == 0) 
                     options.dontCareFilling = ONES;
                 else if(strcmp(optarg, "0") == 0) 
-                    options.dontCareFilling = ONES;
+                    options.dontCareFilling = ZEROS;
                 else if(strcmp(optarg, "R") == 0 || strcmp(optarg, "r") == 0) 
-                    options.dontCareFilling = ONES;
+                    options.dontCareFilling = RANDOM;
                 else
                 {
                     fprintf(stdout, "Option -X requires the Don't-Care Filling option [1, 0, R].\n");
@@ -269,12 +275,13 @@ void parse_command_line_arguments(int argc, char* argv[])
                 break;
             case '?':   // Parse unknown command line argument
                 if (optopt == 'D')
-                    fprintf(stdout, "Option -%c requires the debug level (0, 1, 2).\n", optopt);
+                    fprintf(stdout, "Error: Option -%c requires the debug level (0, 1, 2).\n", optopt);
                 else if (optopt == 'b' || optopt == 'f' || optopt == 's' || optopt == 'u')
-                    fprintf(stdout, "Option -%c requires a filename.\n", optopt);
+                    fprintf(stdout, "Error: Option -%c requires a filename.\n", optopt);
                 else if (isprint(optopt))
-                    fprintf(stdout, "Unknown option '-%c'.\n", optopt);
-                //else fprintf(stdout, "Unknown option character '\\x%x'.\n", optopt);
+                    fprintf(stdout, "Error: Unknown option '-%c'.\n", optopt);
+                else 
+                    fprintf(stdout, "Error: Unknown option.\n");
                 errno = ERROR_COMMAND_LINE_ARGUMENTS;
                 exit(1);
             default:
