@@ -31,6 +31,9 @@
 /* opterr, getopt, optopt, optarg */
 #include <unistd.h>
 
+/* getopt_long, required_argument, no_argument, option */
+#include <getopt.h>
+
 /* errno */
 #include <errno.h>
 
@@ -45,10 +48,6 @@
 #include "libs/ptime.h"
 #include "libs/globals.h"
 
-/*
- *  Command line options list for the program
- */
-#define OPTIONS_LIST "dD:f:b:xu:X:s:"
 
 /*
  *  GLOBAL Variables
@@ -107,8 +106,6 @@ int main( int argc, char* argv[] )
  */
 void onProgramTermination()
 {
-    if(options.isDebugMode == FALSE || options.debugLevel <= 0) return;
-
     // Display any errors/success message
     switch(errno)
     {
@@ -124,7 +121,11 @@ void onProgramTermination()
             fprintf(stdout, "Error: %s\n", ERROR_MESSAGE);
             break;
         case ERROR_COMMAND_LINE_ARGUMENTS:
-            fprintf(stdout, "Usage:\natpg -b <benchmark filename> [-d] [-D <debug level>] \n");
+            fprintf(stdout, "\nUsage:\n%s -b <benchmark filename> \t[-d] [-D <debug level>]\n"
+                "\t[-f <fault list filename>] [-h] [--help] [--version] [-s <test pattern filename]\n"
+                "\t[-u <undetected faults results filename>] [-x] [-X <don't cares filling option>]\n",
+                GLOBAL_NAME);
+            fprintf(stdout, "\nFor detailed help run:\n%s --help\n\n", GLOBAL_NAME);
             break;
         default:
             perror("Error");
@@ -145,6 +146,57 @@ void onProgramTermination()
 }
 
 /*
+ *  Displays the program's version details
+ *
+ *  @return nothing
+ */
+void displayVersionDetails()
+{
+    printf("%s version %s\n", GLOBAL_NAME, VERSION);
+
+    exit(0);
+}
+
+/*
+ *  Displays the program execution command line arguments
+ *
+ *  @return nothing
+ */
+void displayHelpDetails()
+{
+    fprintf(stdout, "\n");
+    fprintf(stdout, "================================================================================\n");
+    fprintf(stdout, "*                     (C) New York University Abu Dhabi, 2014                  *\n");
+    fprintf(stdout, "*                                                                              *\n");
+    fprintf(stdout, "*                     Automatic Test Pattern Generation System                 *\n");
+    fprintf(stdout, "*                                                                              *\n");
+    fprintf(stdout, "================================================================================\n");
+    fprintf(stdout, "\n");
+    fprintf(stdout, "\nNAME\n\t%s - automatic test pattern generation system\n", GLOBAL_NAME);
+    fprintf(stdout, "\nSYNOPSIS\n\t%s  -b <benchmark filename> \t[-d] [-D <debug level>] \n", GLOBAL_NAME);
+    fprintf(stdout, "\t      [-f <fault list filename>] [-h] [-s <test pattern filename]\n");
+    fprintf(stdout, "\t      [-u <undetected faults results filename>] [-x]\n");
+    fprintf(stdout, "\t      [-X <don't cares filling option>]  [--help] [--version] \n");
+    fprintf(stdout, "\nDESCRIPTION\n");
+    fprintf(stdout, "\tTODO: Add the tool's description here\n");
+    fprintf(stdout, "\nOPTIONS\n");
+    fprintf(stdout, "\n\t-b\n\t    Specify the filename to parse the circuit netlist from\n");
+    fprintf(stdout, "\n\t-d\n\t    Print debugging information with the default debugging level 0\n");
+    fprintf(stdout, "\n\t-D\n\t    Print debugging information with the supplied debugging level\n");
+    fprintf(stdout, "\n\t-f\n\t    Specify the filename for the faults list of interest\n");
+    fprintf(stdout, "\n\t-h --help\n\t    \n");
+    fprintf(stdout, "\n\t-s\n\t    Specify the filename to parse test patterns to simulate fault \n"
+                          "\t    collapsing with\n");
+    fprintf(stdout, "\n\t-u\n\t    Specify the filename to save undetected faults into\n");
+    fprintf(stdout, "\n\t--version\n\t    Display the tools current version number\n");
+    fprintf(stdout, "\n\t-x\n\t    Turn ON/OFF fault collapsing\n");
+    fprintf(stdout, "\n\t-X\n\t    Option for filling in the don't cares with during fault simulation\n");
+    fprintf(stdout, "\n\n");
+
+    exit(0);
+}
+
+/*
  *  Parses the passed in command line arguments and configure right program options
  *
  *  @param  argc - count of command line arguments
@@ -153,31 +205,76 @@ void onProgramTermination()
  */
 void parse_command_line_arguments(int argc, char* argv[])
 {
+    // Initialize options structure
+    options.benchmarkFilename = NULL;
+
+    // Command line options list for the program
+    #define SHORT_OPTS "b:dD:f:hs:u:xX:"
+    static struct option LONG_OPTS[] = {
+        {"help",    no_argument, 0,  0},
+        {"version", no_argument, 0,  0},
+        {0,         0,           0,  0}
+    };
+
+
     errno = opterr = 0;
-    int opt;
-    while((opt = getopt(argc, argv, OPTIONS_LIST)) != -1)
+    int opt, long_opt_index;
+    while((opt = getopt_long(argc, argv, SHORT_OPTS, LONG_OPTS, &long_opt_index)) != -1)
     {
         switch(opt)
         {
-            case 'd':
+            case 0:     // Parse long option
+                if(strcmp("help", LONG_OPTS[long_opt_index].name) == 0) 
+                    displayHelpDetails();
+                else if(strcmp("version", LONG_OPTS[long_opt_index].name) == 0)
+                    displayVersionDetails();
+                break;
+            case 'b':   // Define the benchmark filename
+                options.benchmarkFilename = optarg;
+                break;
+            case 'd':   // Turn ON the display of debug details with default level
                 options.isDebugMode = TRUE;
                 break;
-            case 'D':
+            case 'D':   // Turn ON the display of debug details with the given level
                 options.isDebugMode = TRUE;
                 options.debugLevel = atoi(optarg);
                 break;
-            case 'b':
-                options.benchmarkFilename = optarg;
+            case 'f':   // Define the fault list filename
+                options.faultListFilename = optarg;
                 break;
-            case '?':
+            case 'h':   // Display help
+                displayHelpDetails();
+                break;
+            case 's':   // Define the custom test patterns filename
+                options.testPatternFilename = optarg;
+                break;
+            case 'u':   // Define the undetected faults results filename
+                options.undetectedFaultsFilename = optarg;
+                break;
+            case 'x':   // Turn ON one-test-per-fault feature
+                break;
+            case 'X':   // Define the don't-cares filling option during fault simulation
+                if(strcmp(optarg, "1") == 0) 
+                    options.dontCareFilling = ONES;
+                else if(strcmp(optarg, "0") == 0) 
+                    options.dontCareFilling = ONES;
+                else if(strcmp(optarg, "R") == 0 || strcmp(optarg, "r") == 0) 
+                    options.dontCareFilling = ONES;
+                else
+                {
+                    fprintf(stdout, "Option -X requires the Don't-Care Filling option [1, 0, R].\n");
+                    errno = ERROR_COMMAND_LINE_ARGUMENTS;
+                    exit(1);
+                }
+                break;
+            case '?':   // Parse unknown command line argument
                 if (optopt == 'D')
                     fprintf(stdout, "Option -%c requires the debug level (0, 1, 2).\n", optopt);
-                else if (optopt == 'b')
+                else if (optopt == 'b' || optopt == 'f' || optopt == 's' || optopt == 'u')
                     fprintf(stdout, "Option -%c requires a filename.\n", optopt);
                 else if (isprint(optopt))
                     fprintf(stdout, "Unknown option '-%c'.\n", optopt);
-                else
-                    fprintf(stdout, "Unknown option character '\\x%x'.\n", optopt);
+                //else fprintf(stdout, "Unknown option character '\\x%x'.\n", optopt);
                 errno = ERROR_COMMAND_LINE_ARGUMENTS;
                 exit(1);
             default:

@@ -23,6 +23,12 @@
 #define DEFINES_H
 
 /*
+ *	Tool's details
+ */
+#define GLOBAL_NAME 	"atpg"
+#define VERSION			"1.0"
+ 
+/*
  *  Custom error codes
  */
 #define ERROR_COMMAND_LINE_ARGUMENTS    10000
