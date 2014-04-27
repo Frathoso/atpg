@@ -176,16 +176,30 @@ int cmpGateLevels(const void *lg, const void *rg)
  */
 void simulateTestVector(CIRCUIT circuit, CIRCUIT_INFO* info, FAULT_LIST * fList,
 						TEST_VECTOR* tv, int start)
-{
-	// TODO Remove Don't-Cares by appending random I or 0
+{	
+	// Remove Don't-Cares
+	extern COMMAND_LINE_OPTIONS options;
 	int K;
-	srand(time(NULL));
-	for(K = 0; K < strlen(tv->input); K++)
-		if( tv->input[K] == 'X')
-		{
-			if(rand() % 2)	tv->input[K] = 'I';
-			else tv->input[K] = 'O';
-		}
+	if(options.dontCareFilling == ONES)
+	{
+		for(K = 0; K < strlen(tv->input); K++)
+			if( tv->input[K] == 'X') tv->input[K] = 'I';
+	}
+	else if(options.dontCareFilling == ZEROS)
+	{
+		for(K = 0; K < strlen(tv->input); K++)
+			if( tv->input[K] == 'X') tv->input[K] = 'O';
+	}
+	else
+	{
+		srand(time(NULL));
+		for(K = 0; K < strlen(tv->input); K++)
+			if( tv->input[K] == 'X')
+			{
+				if(rand() % 2)	tv->input[K] = 'I';
+				else tv->input[K] = 'O';
+			}
+	}
 
 	// Simulate all remaining faults using the current pattern
 	BOOLEAN wasFaultExcited;
