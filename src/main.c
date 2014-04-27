@@ -50,7 +50,7 @@
  *  d   - turn on debugging mode i.e. programs progress will be printed
  *  f   - specify the filename to parse the circuit netlist from
  */
-#define OPTIONS_LIST "df:D:"
+#define OPTIONS_LIST "dD:f:b:xu:X:s:"
 
 /*
  *  GLOBAL Variables

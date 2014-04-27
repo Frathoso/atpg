@@ -86,10 +86,35 @@ typedef struct
  * =====================================================================================
  */
 
+typedef enum
+{
+    ZEROS,
+    ONES,
+    RANDOM
+} DONTCARE_FILLING_OPTION;
+
 typedef struct
 {
-    BOOLEAN isDebugMode;    // Turns ON/OFF the display of program progress
-    int debugLevel;
+    BOOLEAN isDebugMode;    // -d => Turns ON/OFF the display of program progress
+    int     debugLevel;     // -D <level>
+
+    BOOLEAN isFaultListGiven;   // -f <filename>
+    char*   faultListFilename;  // -f <filename>
+
+    BOOLEAN isBenchmarkFileGiven;   // -b <filename>
+    char*   benchmarkFilename;      // -b <filename>
+
+    BOOLEAN isOneTestPerFault;      // -x
+
+
+
+    BOOLEAN isPrintUndetectedFaults;    // -u <filename>
+    char*   undetectedFaultsFilename;   // -u <filename>
+
+    DONTCARE_FILLING_OPTION dontCareFilling;    // -X <0, 1, R>
+
+    BOOLEAN isCustomFaultSimulation;    // -s <filename>
+    char*   testPatternFilename;        // -s <filename>
 } COMMAND_LINE_OPTIONS;
 
 /* 
