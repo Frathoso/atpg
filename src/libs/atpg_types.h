@@ -28,7 +28,7 @@
 
 /* 
  * =====================================================================================
- *									BOOLEAN TYPES
+ *                                  BOOLEAN TYPES
  * =====================================================================================
  */
 
@@ -49,7 +49,7 @@ typedef enum
 
 /* 
  * =====================================================================================
- *									LOGIC VALUES TYPES
+ *                                LOGIC VALUES TYPES
  * =====================================================================================
  */
 
@@ -67,7 +67,7 @@ typedef enum{
 
 /* 
  * =====================================================================================
- *                                  HASH TABLES TYPES
+ *                                HASH TABLES TYPES
  * =====================================================================================
  */
 
@@ -86,6 +86,9 @@ typedef struct
  * =====================================================================================
  */
 
+/*
+ *  Don't care filling options during fault simulation
+ */
 typedef enum
 {
     ZEROS,
@@ -93,33 +96,41 @@ typedef enum
     RANDOM
 } DONTCARE_FILLING_OPTION;
 
+/*
+ *  Command line options structure
+ */
 typedef struct
 {
-    BOOLEAN isDebugMode;    // -d => Turns ON/OFF the display of program progress
+    // Turn ON/OFF the display of program progress and/or results
+    BOOLEAN isDebugMode;    // -d 
     int     debugLevel;     // -D <level>
 
+    // Specify the filename for the faults list of interest
     BOOLEAN isFaultListGiven;   // -f <filename>
     char*   faultListFilename;  // -f <filename>
 
+    // Specify the filename to parse the circuit netlist from
     BOOLEAN isBenchmarkFileGiven;   // -b <filename>
     char*   benchmarkFilename;      // -b <filename>
 
+    // Turn ON/OFF fault collapsing
     BOOLEAN isOneTestPerFault;      // -x
 
-
-
+    // Specify the filename to save undetected faults into
     BOOLEAN isPrintUndetectedFaults;    // -u <filename>
     char*   undetectedFaultsFilename;   // -u <filename>
 
+    // Option for filling in the don't cares with during fault simulation
     DONTCARE_FILLING_OPTION dontCareFilling;    // -X <0, 1, R>
 
+    // Specify the filename to parse test patterns to simulate fault collapsing with
     BOOLEAN isCustomFaultSimulation;    // -s <filename>
     char*   testPatternFilename;        // -s <filename>
 } COMMAND_LINE_OPTIONS;
 
 /* 
  * =====================================================================================
- *									GATES TYPES
+ *                                    GATES TYPES
  * =====================================================================================
  */
 
@@ -163,24 +174,33 @@ typedef struct
 {
 	// Name given to the gate
     char    	name[MAX_WORD];   
+
     // Number of connected input and output gates
     BOOLEAN 	numIn;      
     BOOLEAN 	numOut;     
+
     // List of connected input and output gates
     int 		in[MAX_INPUT_GATES];     
     int 		out[MAX_OUTPUT_GATES];   
+
     // 1 -> the gate is inverted, 0 otherwise
-    BOOLEAN 	inv;        
+    BOOLEAN 	inv;   
+
     // Gate type
     GATE_TYPE 	type;    
+
     // 1 -> the gate is a primary output, 0 otherwise 
     BOOLEAN 	PO;        
+
     // 1 -> the gate is a pseudo PO, 0 otherwise 
     BOOLEAN 	PPO;     
+
     // Results of justifying this wire with a logical value   
     JUST_OBJECT justified[MAX_LOGIC_VALUES];   
+
     // Results of propagating this wire with a logical value
     PROP_OBJECT propagated[MAX_LOGIC_VALUES];  
+    
     // Logical value of the wire during fault generation/simulation
     LOGIC_VALUE value;  
     int 	level;          // Gate level from the inputs
@@ -212,7 +232,7 @@ typedef struct
 
 /* 
  * =====================================================================================
- *                                  FAULT TYPES
+ *                                   FAULT TYPES
  * =====================================================================================
  */
 

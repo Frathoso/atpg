@@ -47,19 +47,13 @@
 
 /*
  *  Command line options list for the program
- *  d   - turn on debugging mode i.e. programs progress will be printed
- *  f   - specify the filename to parse the circuit netlist from
  */
 #define OPTIONS_LIST "dD:f:b:xu:X:s:"
 
 /*
  *  GLOBAL Variables
  */
-extern char ERROR_MESSAGE[MAX_LINE_LENGTH];    // Holds custom error messages
-
-
-
-char* filename = NULL;  // Circuit benchmark filename
+//extern char ERROR_MESSAGE[MAX_LINE_LENGTH];    // Holds custom error messages
 
 CIRCUIT circuit;        // Graph containing all the gates nodes in the circuit
 CIRCUIT_INFO info;      // Graphs metadata object
@@ -130,7 +124,7 @@ void onProgramTermination()
             fprintf(stdout, "Error: %s\n", ERROR_MESSAGE);
             break;
         case ERROR_COMMAND_LINE_ARGUMENTS:
-            fprintf(stdout, "Usage:\natpg -f <filename> [-d] [-D <debug level>]\n");
+            fprintf(stdout, "Usage:\natpg -b <benchmark filename> [-d] [-D <debug level>] \n");
             break;
         default:
             perror("Error");
@@ -172,13 +166,13 @@ void parse_command_line_arguments(int argc, char* argv[])
                 options.isDebugMode = TRUE;
                 options.debugLevel = atoi(optarg);
                 break;
-            case 'f':
-                filename = optarg;
+            case 'b':
+                options.benchmarkFilename = optarg;
                 break;
             case '?':
                 if (optopt == 'D')
                     fprintf(stdout, "Option -%c requires the debug level (0, 1, 2).\n", optopt);
-                else if (optopt == 'f')
+                else if (optopt == 'b')
                     fprintf(stdout, "Option -%c requires a filename.\n", optopt);
                 else if (isprint(optopt))
                     fprintf(stdout, "Unknown option '-%c'.\n", optopt);
@@ -192,7 +186,7 @@ void parse_command_line_arguments(int argc, char* argv[])
         }
     }
 
-    if(filename == NULL)
+    if(options.benchmarkFilename == NULL)
     {
         errno = ERROR_COMMAND_LINE_ARGUMENTS;
         exit(1);
@@ -209,10 +203,10 @@ void populate_circuit_from_file()
     extern HASH_ENTRY hashTableGates[MAX_GATES];
     bzero(hashTableGates, sizeof(hashTableGates));
 
-    if(options.isDebugMode && options.debugLevel > 0) fprintf(stdout, "Parsing: \"%s\"...\n", filename);
+    if(options.isDebugMode && options.debugLevel > 0) fprintf(stdout, "Parsing: \"%s\"...\n", options.benchmarkFilename);
 
     startSW(&stopwatch);
-    if(populateCircuit(circuit, &info, filename))
+    if(populateCircuit(circuit, &info, options.benchmarkFilename))
     {
         computeGateLevels(circuit, &info);
 
