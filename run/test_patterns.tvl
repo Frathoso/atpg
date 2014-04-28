@@ -1,6 +1,11 @@
 Test Vectors:
 Format: <Pattern/Input> <Results/Output> <# Faults> {<List of Faults>}
 
-OIII	B	7	{ (B, 0) (C, 0) (L, 1) (J, 1) (I, 0) (H, 1) (K, 1) }
-OOII	D	6	{ (B, 1) (E, 0) (L, 0) (J, 0) (I, 1) (K, 0) }
+OIII	B	1	{ (B, 0) }
+OOII	D	1	{ (B, 1) }
+OIII	B	1	{ (C, 0) }
 OIOI	D	1	{ (C, 1) }
+OOII	D	1	{ (J, 0) }
+OIII	B	1	{ (J, 1) }
+OIII	B	1	{ (I, 0) }
+OOII	D	1	{ (I, 1) }

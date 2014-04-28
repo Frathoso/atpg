@@ -104,8 +104,7 @@ void test_search_gate_index_in_a_circuit()
 
 /*		*/
 void test_populate_circuit_from_an_input_file()
-{
-	#define FILE_NAME 					"benchmarks/test-0.bench"
+{ 					
 	#define TOTAL_LINES 				9
 	#define TOTAL_PRIMARY_INPUT_LINES	4
 	#define TOTAL_PRIMARY_OUTPUT_LINES	1
@@ -113,7 +112,10 @@ void test_populate_circuit_from_an_input_file()
 	CIRCUIT circuit;
 	CIRCUIT_INFO info;
 
-	populateCircuit(circuit, &info, FILE_NAME);
+	char* filename = "benchmarks/test-0.bench";
+
+	if(populateCircuit(circuit, &info, filename) == FALSE)
+		printf("ERROR\n");
 
 	// Test for circuit statistics
 	assert_int_equal(info.numGates, TOTAL_LINES);
