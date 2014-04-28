@@ -205,7 +205,7 @@ void simulateTestVector(CIRCUIT circuit, CIRCUIT_INFO* info, FAULT_LIST * fList,
 	BOOLEAN wasFaultExcited;
 	for(K = start; K < fList->count; K++)
 	{
-		if(fList->list[K] != NULL)
+		if(fList->list[K]->detected == FALSE)
 		{
 			// Prepare the circuit for simulation
 			//printf("\nSimulate %s stuck at %d", circuit[fList->list[K]->index]->name, fList->list[K]->type);
@@ -228,8 +228,7 @@ void simulateTestVector(CIRCUIT circuit, CIRCUIT_INFO* info, FAULT_LIST * fList,
 
 				// Remove the fault from the list of undetected faults
 				//printf("\t[%s]: Collapsed!\n", circuit[fList->list[K]->index]->name);
-				free(fList->list[K]);
-				fList->list[K] = NULL;
+				fList->list[K]->detected = TRUE;
 			}
 		}
 	}

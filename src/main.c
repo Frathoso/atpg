@@ -67,7 +67,10 @@ void onProgramTermination( void );
 void parse_command_line_arguments( int argc, char* argv[] );
 void populate_circuit_from_file( void );
 void generate_fault_list( void );
+void parse_fault_from_file( char* );
 void generate_test_patterns( void );
+void save_undetected_faults( void );
+void display_statistics( void );
 
 
 /*
@@ -89,10 +92,20 @@ int main( int argc, char* argv[] )
     populate_circuit_from_file();
 
     /* Generate fault list */
-    generate_fault_list();
+    if(options.isFaultListGiven == TRUE)
+        parse_fault_from_file(options.faultListFilename);
+    else
+        generate_fault_list();
 
     /* Generate test patterns */
     generate_test_patterns();
+
+    /* Save undetected faults if needed */
+    if(options.isPrintUndetectedFaults == TRUE)
+        save_undetected_faults();
+
+    /* Display statistics */
+    display_statistics();
     
     exit(EXIT_SUCCESS);
 }
@@ -110,7 +123,7 @@ void onProgramTermination()
     switch(errno)
     {
         case 0:
-            fprintf(stdout, "Program successfully executed!\n");
+            fprintf(stdout, "\nProgram successfully executed!\n");
             return;
             break;
         case ERROR_PARSING_NETLIST:
@@ -290,7 +303,8 @@ void parse_command_line_arguments(int argc, char* argv[])
         }
     }
 
-    if(options.benchmarkFilename == NULL)
+    // Confirm the required options have been supplied
+    if(options.isBenchmarkFileGiven == TRUE)
     {
         errno = ERROR_COMMAND_LINE_ARGUMENTS;
         exit(1);
@@ -349,15 +363,27 @@ void generate_fault_list()
 		faultList.list[count] = (FAULT*) malloc(sizeof(FAULT));
 		faultList.list[count]->index = K;
 		faultList.list[count]->type = ST_0;
+		faultList.list[count]->detected = FALSE;
 		count++;
 
 		// Add stuck at one fault
 		faultList.list[count] = (FAULT*) malloc(sizeof(FAULT));
 		faultList.list[count]->index = K;
 		faultList.list[count]->type = ST_1;
+		faultList.list[count]->detected = FALSE;
 		count++;
 	}
 	faultList.count = count;
+}
+
+/*
+ *  Parse fault list from a file
+ *  
+ *  @return nothing
+ */
+void parse_fault_from_file(char* filename)
+{
+    // TODO: Implement function
 }
 
 /*
@@ -377,7 +403,7 @@ void generate_test_patterns()
     TEST_VECTOR testVector;
     for(K = 0; K < faultList.count; K++)
     {
-    	if(faultList.list[K] == NULL) continue;
+    	if(faultList.list[K]->detected == TRUE) continue;
 
     	clearPropagationValuesCircuit(circuit, info.numGates);
 
@@ -403,10 +429,46 @@ void generate_test_patterns()
             // Clear the faults list memory for this pattern
             for(L = 0; L < testVector.faults_count; L++)
                 if(testVector.faults_list[L]) free(testVector.faults_list[L]);
+
+            // Mark the fault as detected
+            faultList.list[K]->detected = TRUE;
         }
     }
 
     double duration = getElaspedTimeSW(&stopwatch);
         if(options.isDebugMode && options.debugLevel > 0) fprintf(stdout, "\nTest vectors successfully generated "
                 "[ %.4f seconds ].\n\n", duration);
+}
+
+/*
+ *  Save undected faults into a file
+ *  
+ *  @return nothing
+ */
+void save_undetected_faults()
+{
+    char filename[MAX_WORD];
+    strcpy(filename, options.undetectedFaultsFilename);
+    strcat(filename, ".flt");
+    FILE* fp = fopen(filename, "w");
+    int K;
+    for(K = 0; K < faultList.count; K++)
+        if(faultList.list[K]->detected == FALSE)
+            fprintf(fp, "%s /%c\n", circuit[faultList.list[K]->index]->name, (faultList.list[K]->type == ST_1 ? '1':'0'));
+
+    fclose(fp);
+}
+
+/*
+ *  Compute and display execution statistics
+ *  
+ *  @return nothing
+ */
+void display_statistics( )
+{
+    int faults = 0, K;
+    for(K = 0; K < faultList.count; K++)
+        if(faultList.list[K]->detected == FALSE) faults++;
+    fprintf(stdout, "Undetected faults:\t%d\n", faults);
+
 }
