@@ -135,8 +135,8 @@ void onProgramTermination()
             break;
         case ERROR_COMMAND_LINE_ARGUMENTS:
             fprintf(stdout, "\nUsage:\n%s -b <benchmark filename> \t[-d] [-D <debug level>]\n"
-                "\t[-f <fault list filename>] [-h] [--help] [--version] [-s <test pattern filename]\n"
-                "\t[-u <undetected faults results filename>] [-x] [-X <don't cares filling option>]\n",
+                "\t[-f <fault list filename>] [-h] [--help] [--version]\n\t[-s <test pattern filename]"
+                "[-u <undetected faults results filename>]\n\t[-x] [-X <don't cares filling option>]\n",
                 GLOBAL_NAME);
             fprintf(stdout, "\nFor detailed help run:\n%s --help\n\n", GLOBAL_NAME);
             break;
@@ -245,6 +245,7 @@ void parse_command_line_arguments(int argc, char* argv[])
                     displayVersionDetails();
                 break;
             case 'b':   // Define the benchmark filename
+                options.isBenchmarkFileGiven = TRUE;
                 options.benchmarkFilename = optarg;
                 break;
             case 'd':   // Turn ON the display of debug details with default level
@@ -308,7 +309,7 @@ void parse_command_line_arguments(int argc, char* argv[])
     }
 
     // Confirm the required options have been supplied
-    if(options.isBenchmarkFileGiven == TRUE)
+    if(options.isBenchmarkFileGiven == FALSE)
     {
         errno = ERROR_COMMAND_LINE_ARGUMENTS;
         exit(1);

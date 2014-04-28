@@ -1,4 +1,4 @@
 #!/bin/bash
 
 HAPA=/home/frathoso/Dropbox/ASpring_2014/Capstone/atpg 
-$HAPA/bin/atpg -D 0 -x -X R -b $HAPA/benchmarks/custom0.bench -u run/custom0_undetected_faults -t run/custom0_test_patterns> $HAPA/run/custom0_results.txt
+$HAPA/bin/atpg -D 1 -X R -b $HAPA/benchmarks/custom0.bench -u run/undetected_faults -t run/test_patterns > $HAPA/run/results.txt
