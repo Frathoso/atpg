@@ -197,7 +197,7 @@ void displayHelpDetails()
     fprintf(stdout, "\n\t-d\n\t    Print debugging information with the default debugging level 0\n");
     fprintf(stdout, "\n\t-D\n\t    Print debugging information with the supplied debugging level\n");
     fprintf(stdout, "\n\t-f\n\t    Specify the filename for the faults list of interest\n");
-    fprintf(stdout, "\n\t-h --help\n\t    \n");
+    fprintf(stdout, "\n\t-h --help\n\t    Display the detailed help information\n");
     fprintf(stdout, "\n\t-s\n\t    Specify the filename to parse test patterns to simulate fault \n"
                           "\t    collapsing with\n");
     fprintf(stdout, "\n\t-u\n\t    Specify the filename to save undetected faults into\n");
