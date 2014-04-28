@@ -25,8 +25,9 @@
 /*
  *	Tool's details
  */
-#define GLOBAL_NAME 	"atpg"
-#define VERSION			"1.0"
+#define GLOBAL_NAME 			"atpg"
+#define VERSION					"1.0"
+#define FAULT_FILE_EXTENSION	".flt"
  
 /*
  *  Custom error codes

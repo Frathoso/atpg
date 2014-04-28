@@ -221,9 +221,10 @@ void parse_command_line_arguments(int argc, char* argv[])
     // Initialize options structure
     options.benchmarkFilename = NULL;
     options.dontCareFilling = RANDOM;
+    options.outputTestPatternFilename = NULL;
 
     // Command line options list for the program
-    char* SHORT_OPTS = "b:dD:f:hs:u:xX:";
+    char* SHORT_OPTS = "b:dD:f:hs:t:u:xX:";
     static struct option LONG_OPTS[] = {
         {"help",    no_argument, 0,  0},
         {"version", no_argument, 0,  0},
@@ -261,10 +262,13 @@ void parse_command_line_arguments(int argc, char* argv[])
             case 'h':   // Display help
                 displayHelpDetails();
                 break;
-            case 's':   // Define the custom test patterns filename
+            case 's':   // Define the custom input test patterns filename
                 options.isCustomFaultSimulation = TRUE;
-                options.testPatternFilename = optarg;
+                options.inputTestPatternFilename = optarg;
                 break;
+           	case 't':   // Define the custom output test patterns filename
+            	options.outputTestPatternFilename = optarg;
+            	break;
             case 'u':   // Define the undetected faults results filename
                 options.isPrintUndetectedFaults = TRUE;
                 options.undetectedFaultsFilename = optarg;
@@ -393,10 +397,22 @@ void parse_fault_from_file(char* filename)
  */
 void generate_test_patterns()
 {
+	// Prepare file to save test patterns into
+	char filename[MAX_WORD];
+	if(options.outputTestPatternFilename != NULL)
+    	strcpy(filename, options.outputTestPatternFilename);
+    else
+    	strcpy(filename, "test_patterns");
+    strcat(filename, ".tvl");
+    FILE* fp = fopen(filename, "w");
+
     startSW(&stopwatch);
 
-    if(options.isDebugMode) fprintf(stdout, "Total Lines: %d\n\n", info.numGates);
-    if(options.isDebugMode) fprintf(stdout, "Test Vectors:\nFormat: <Pattern/Input> <Results/Output> <# Faults> {<List of Faults>}\n\n");
+    if(options.isDebugMode) 
+    	fprintf(stdout, "Total Lines: %d\n\n", info.numGates);
+    if(options.isDebugMode && options.debugLevel > 0) 
+    	fprintf(stdout, "Test Vectors:\nFormat: <Pattern/Input> <Results/Output> <# Faults> {<List of Faults>}\n\n");
+    fprintf(fp, "Test Vectors:\nFormat: <Pattern/Input> <Results/Output> <# Faults> {<List of Faults>}\n\n");
     
     BOOLEAN results;
     int K, L;
@@ -420,11 +436,13 @@ void generate_test_patterns()
             testVector.faults_list[0]->index = faultList.list[K]->index;
             testVector.faults_list[0]->type = faultList.list[K]->type;
 
-            // Simulate other faults in the remaining fault list
-        	simulateTestVector(circuit, &info, &faultList, &testVector, K+1);
+            // Simulate other faults in the remaining fault list if fault collapsing is allowed
+            if(options.isOneTestPerFault == FALSE)
+        		simulateTestVector(circuit, &info, &faultList, &testVector, K+1);
 
-            // Display results
-            displayTestVector(circuit, &testVector);
+            // Display and save results
+            if(options.isDebugMode && options.debugLevel > 0) displayTestVector(circuit, &testVector);
+            saveTestVector(circuit, &testVector, fp);
 
             // Clear the faults list memory for this pattern
             for(L = 0; L < testVector.faults_count; L++)
@@ -449,7 +467,7 @@ void save_undetected_faults()
 {
     char filename[MAX_WORD];
     strcpy(filename, options.undetectedFaultsFilename);
-    strcat(filename, ".flt");
+    strcat(filename, FAULT_FILE_EXTENSION);
     FILE* fp = fopen(filename, "w");
     int K;
     for(K = 0; K < faultList.count; K++)
@@ -466,9 +484,18 @@ void save_undetected_faults()
  */
 void display_statistics( )
 {
-    int faults = 0, K;
+	fprintf(stdout, "\nTotal faults:\t%d\n", faultList.count);
+
+	int undetected_faults = 0, K;
     for(K = 0; K < faultList.count; K++)
-        if(faultList.list[K]->detected == FALSE) faults++;
-    fprintf(stdout, "Undetected faults:\t%d\n", faults);
+        if(faultList.list[K]->detected == FALSE) undetected_faults++;
+
+	fprintf(stdout, "\nDetected faults:\n\tCount:\t\t%d\n", (faultList.count-undetected_faults));
+	fprintf(stdout, "\tPercentage:\t%.0f%%\n", ((float) (faultList.count-undetected_faults)*100/faultList.count));
+
+    fprintf(stdout, "\nUndetected faults:\n\tTotal count:\t%d\n", undetected_faults);
+    fprintf(stdout, "\tPercentage:\t\t%.0f%%\n", ((float) (undetected_faults)*100/faultList.count));
+    fprintf(stdout, "\tOutput file:\t\"%s%s\"\n", options.undetectedFaultsFilename, 
+    				FAULT_FILE_EXTENSION);
 
 }

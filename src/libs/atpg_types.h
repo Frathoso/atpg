@@ -125,7 +125,10 @@ typedef struct
 
     // Specify the filename to parse test patterns to simulate fault collapsing with
     BOOLEAN isCustomFaultSimulation;    // -s <filename>
-    char*   testPatternFilename;        // -s <filename>
+    char*   inputTestPatternFilename;        // -s <filename>
+
+    // Specify the output test pattern filename
+    char*   outputTestPatternFilename;        // -t <filename>
 } COMMAND_LINE_OPTIONS;
 
 /* 

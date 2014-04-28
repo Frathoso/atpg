@@ -322,3 +322,20 @@ void displayTestVector(CIRCUIT circuit, TEST_VECTOR* tv)
 		printf(" (%s, %d)", circuit[tv->faults_list[K]->index]->name, tv->faults_list[K]->type);
 	printf(" }\n");
 }
+
+/*
+ *  Saves into the test pattern file the given test vector
+ *
+ *  @param  CIRCUIT 	circuit - the circuit
+ *  @param  TEST_VECTOR	tv 	- the test vector to output
+ *  @param  FILE*		fp 	- test patterns output file descriptor
+ *  @return nothing
+ */
+void saveTestVector(CIRCUIT circuit, TEST_VECTOR* tv, FILE* fp)
+{
+	fprintf(fp, "%s\t%s\t%d\t{", tv->input, tv->output, tv->faults_count);
+	int K;
+	for(K = 0; K < tv->faults_count; K++)
+		fprintf(fp, " (%s, %d)", circuit[tv->faults_list[K]->index]->name, tv->faults_list[K]->type);
+	fprintf(fp, " }\n");
+}

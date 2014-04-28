@@ -18,7 +18,7 @@
  *
  * =====================================================================================
  */
-
+#include <stdio.h>
 #include "atpg_types.h"
 #include "logic_tables.h"
 
@@ -98,5 +98,15 @@ void extractTestVector(CIRCUIT circuit, CIRCUIT_INFO* info, TEST_VECTOR *tv);
  *  @return nothing
  */
 void displayTestVector(CIRCUIT circuit, TEST_VECTOR* tv);
+
+/*
+ *  Saves into the test pattern file the given test vector
+ *
+ *  @param  CIRCUIT 	circuit - the circuit
+ *  @param  TEST_VECTOR	tv 	- the test vector to output
+ *  @param  FILE*		fp 	- test patterns output file descriptor
+ *  @return nothing
+ */
+void saveTestVector(CIRCUIT circuit, TEST_VECTOR* tv, FILE* fp);
 
 #endif
