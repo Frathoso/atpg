@@ -21,6 +21,8 @@
 
 #include "logic_tables.h"
 
+#include <stdio.h>
+
 
 /*
  *  Computes the logic value of the inputs on passing through the gate
@@ -124,11 +126,11 @@ BOOLEAN isOutputPossible( CIRCUIT circuit, int index, LOGIC_VALUE output )
 			switch(circuit[index]->type)
 			{
 				case AND: 
-					if(circuit[index]->inv == TRUE) circuit[circuit[index]->in[K]]->value = I;
+					if(circuit[index]->inv == FALSE) circuit[circuit[index]->in[K]]->value = I;
 					else circuit[circuit[index]->in[K]]->value = O; 
 					break;
 				case OR:  
-					if(circuit[index]->inv == TRUE) circuit[circuit[index]->in[K]]->value = O;
+					if(circuit[index]->inv == FALSE) circuit[circuit[index]->in[K]]->value = O;
 					else circuit[circuit[index]->in[K]]->value = I;
 					break;
 				case BUF: circuit[circuit[index]->in[K]]->value = (LOGIC_VALUE) negate(output, 

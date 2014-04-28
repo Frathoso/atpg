@@ -148,7 +148,8 @@ BOOLEAN excite(CIRCUIT circuit, int index, LOGIC_VALUE log_val)
  */
 BOOLEAN justify(CIRCUIT circuit, int index, LOGIC_VALUE log_val)
 {
-	//printf("---Justify(%s with '%c'): ", circuit[index]->name, logicName(log_val));
+	//printf("---Justify(%s with '%c' found %c): \n", circuit[index]->name, logicName(log_val), 
+	//		logicName(circuit[index]->value));
 
 	// A Primary Input can be justified for any value
 	if(circuit[index]->type == PI)

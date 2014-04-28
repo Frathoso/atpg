@@ -178,8 +178,8 @@ void simulateTestVector(CIRCUIT circuit, CIRCUIT_INFO* info, FAULT_LIST * fList,
 						TEST_VECTOR* tv, int start)
 {	
 	// Remove Don't-Cares
-	extern COMMAND_LINE_OPTIONS options;
 	int K;
+	extern COMMAND_LINE_OPTIONS options;
 	if(options.dontCareFilling == ONES)
 	{
 		for(K = 0; K < strlen(tv->input); K++)
