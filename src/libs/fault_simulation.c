@@ -220,15 +220,39 @@ void simulateTestVector(CIRCUIT circuit, CIRCUIT_INFO* info, FAULT_LIST * fList,
 			// Remove fault from list if it can be detected
 			if(wasFaultExcited == TRUE && strcmp(results.output, tv->output) == 0)
 			{ 
-				// Add the fault into the patterns fault list first
-				tv->faults_list[tv->faults_count] = (FAULT*) malloc(sizeof(FAULT));
-				tv->faults_list[tv->faults_count]->index = fList->list[K]->index;
-				tv->faults_list[tv->faults_count]->type = fList->list[K]->type;
-				tv->faults_count = tv->faults_count + 1;
+				int L;
+				BOOLEAN valid = TRUE;
+				for(L = 0; L < strlen(results.output) && valid == TRUE; L++)
+				{
+					switch(results.output[L])
+					{
+						case 'I':
+							if(tv->output[L] == 'O' || tv->output[L] == 'B') valid = FALSE;
+							break;
+						case 'O':
+							if(tv->output[L] == 'I' || tv->output[L] == 'D') valid = FALSE;
+							break;
+						case 'D':
+							if(tv->output[L] == 'O' || tv->output[L] == 'B') valid = FALSE;
+							break;
+						case 'B':
+							if(tv->output[L] == 'I' || tv->output[L] == 'D') valid = FALSE;
+							break;
+					}
+				}
 
-				// Remove the fault from the list of undetected faults
-				//printf("\t[%s]: Collapsed!\n", circuit[fList->list[K]->index]->name);
-				fList->list[K]->detected = TRUE;
+				if(valid == TRUE)
+				{
+					// Add the fault into the patterns fault list first
+					tv->faults_list[tv->faults_count] = (FAULT*) malloc(sizeof(FAULT));
+					tv->faults_list[tv->faults_count]->index = fList->list[K]->index;
+					tv->faults_list[tv->faults_count]->type = fList->list[K]->type;
+					tv->faults_count = tv->faults_count + 1;
+
+					// Remove the fault from the list of undetected faults
+					//printf("\t[%s]: Collapsed!\n", circuit[fList->list[K]->index]->name);
+					fList->list[K]->detected = TRUE;
+				}
 			}
 		}
 	}
