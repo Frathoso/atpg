@@ -49,7 +49,7 @@ SIM_RESULT test_pattern(CIRCUIT circuit, CIRCUIT_INFO* info, char* inPattern,
 
 	//printf("Pattern: %s\n", inPattern);
 	// Initialize the propagation priority queue list
-	PQueue *pqList = pqueue_new(cmpGateLevels, 2*MAX_GATES);
+	PQueue *pqList = pqueue_new(cmpGateLevels, 3*MAX_GATES);
 
 	// Assign test pattern to input gates
 	int K, L;
@@ -89,12 +89,12 @@ SIM_RESULT test_pattern(CIRCUIT circuit, CIRCUIT_INFO* info, char* inPattern,
 		// Check if this gate is the one stuck-at fault and see if the fault was excited
 		if(index == fault->index)
 		{
-			if(fault->type == ST_0 && tValue == I)
+			if(fault->type == ST_0 && (tValue == I || tValue == D))
 			{
 				*wasFaultExcited = TRUE;
 				tValue = D;
 			}
-			else if(fault->type == ST_1 && tValue == O)
+			else if(fault->type == ST_1 && (tValue == O || tValue == B))
 			{
 				*wasFaultExcited = TRUE;
 				tValue = B;
@@ -103,6 +103,7 @@ SIM_RESULT test_pattern(CIRCUIT circuit, CIRCUIT_INFO* info, char* inPattern,
 			{
 				*wasFaultExcited = FALSE;
 				// Stop execution, the fault cannot be excited with the current pattern
+				//printf("\nFault %s /%d cannon be excited\n", )
 				return results;
 			}
 		}
@@ -218,7 +219,7 @@ void simulateTestVector(CIRCUIT circuit, CIRCUIT_INFO* info, FAULT_LIST * fList,
 			//if(wasFaultExcited == TRUE)	printf("\t%s -> %s\n", results.input, results.output);
 
 			// Remove fault from list if it can be detected
-			if(wasFaultExcited == TRUE && strcmp(results.output, tv->output) == 0)
+			if(wasFaultExcited == TRUE)
 			{ 
 				int L;
 				BOOLEAN valid = TRUE;
@@ -252,6 +253,10 @@ void simulateTestVector(CIRCUIT circuit, CIRCUIT_INFO* info, FAULT_LIST * fList,
 					// Remove the fault from the list of undetected faults
 					//printf("\t[%s]: Collapsed!\n", circuit[fList->list[K]->index]->name);
 					fList->list[K]->detected = TRUE;
+				}
+				else
+				{
+					printf("In: %s \t%s\n", results.output, tv->output);
 				}
 			}
 		}

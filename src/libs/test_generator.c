@@ -305,7 +305,16 @@ void extractTestVector(CIRCUIT circuit, CIRCUIT_INFO* info, TEST_VECTOR *tv)
 
 	// Get values of output gates
 	for(K = 0; K < info->numPO; K++)
-		tv->output[K] = logicName(circuit[info->outputs[K]]->value);
+	{
+		switch(circuit[info->outputs[K]]->value)
+		{
+			case X: tv->output[K] = 'X'; break;
+			case I:
+			case D: tv->output[K] = 'I'; break;
+			case O:
+			case B: tv->output[K] = 'O'; break;
+		}
+	}
 }
 
 /*

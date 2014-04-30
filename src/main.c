@@ -222,6 +222,7 @@ void parse_command_line_arguments(int argc, char* argv[])
     options.benchmarkFilename = NULL;
     options.dontCareFilling = RANDOM;
     options.outputTestPatternFilename = NULL;
+    options.isOneTestPerFault = FALSE;
 
     // Command line options list for the program
     char* SHORT_OPTS = "b:dD:f:hs:t:u:xX:";
