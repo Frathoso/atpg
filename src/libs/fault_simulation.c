@@ -250,13 +250,13 @@ void simulateTestVector(CIRCUIT circuit, CIRCUIT_INFO* info, FAULT_LIST * fList,
 					tv->faults_list[tv->faults_count]->type = fList->list[K]->type;
 					tv->faults_count = tv->faults_count + 1;
 
+					// Add output results into the test pattern
+					for(L = 0; L < strlen(results.output); L++)
+						if(tv->output[L] == 'X') tv->output[L] = results.output[L];
+
 					// Remove the fault from the list of undetected faults
 					//printf("\t[%s]: Collapsed!\n", circuit[fList->list[K]->index]->name);
 					fList->list[K]->detected = TRUE;
-				}
-				else
-				{
-					printf("In: %s \t%s\n", results.output, tv->output);
 				}
 			}
 		}

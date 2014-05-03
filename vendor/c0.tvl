@@ -1,0 +1,8 @@
+Test Vectors:
+Format: <Pattern/Input> <Results/Output> <# Faults> {<List of Faults>}
+
+IIII	I	9	{ (A, 0) (B, 0) (C, 0) (E, 0) (L, 0) (J, 1) (I, 0) (H, 0) (K, 0) }
+OIII	O	4	{ (A, 1) (L, 1) (H, 1) (K, 1) }
+OOII	I	3	{ (B, 1) (J, 0) (I, 1) }
+OIOI	I	1	{ (C, 1) }
+IIIO	O	1	{ (E, 1) }
