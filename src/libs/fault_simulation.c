@@ -57,8 +57,8 @@ SIM_RESULT test_pattern(CIRCUIT circuit, CIRCUIT_INFO* info, char* inPattern,
 	{
 		switch(inPattern[K])
 		{
-			case 'I': circuit[info->inputs[K]]->value = I; break;
-			case 'O': circuit[info->inputs[K]]->value = O; break;
+			case '1': circuit[info->inputs[K]]->value = I; break;
+			case '0': circuit[info->inputs[K]]->value = O; break;
 			case 'D': circuit[info->inputs[K]]->value = D; break;
 			case 'B': circuit[info->inputs[K]]->value = B; break;
 			case 'X': circuit[info->inputs[K]]->value = X; break;
@@ -184,12 +184,12 @@ void simulateTestVector(CIRCUIT circuit, CIRCUIT_INFO* info, FAULT_LIST * fList,
 	if(options.dontCareFilling == ONES)
 	{
 		for(K = 0; K < strlen(tv->input); K++)
-			if( tv->input[K] == 'X') tv->input[K] = 'I';
+			if( tv->input[K] == 'X') tv->input[K] = '1';
 	}
 	else if(options.dontCareFilling == ZEROS)
 	{
 		for(K = 0; K < strlen(tv->input); K++)
-			if( tv->input[K] == 'X') tv->input[K] = 'O';
+			if( tv->input[K] == 'X') tv->input[K] = '0';
 	}
 	else
 	{
@@ -197,8 +197,8 @@ void simulateTestVector(CIRCUIT circuit, CIRCUIT_INFO* info, FAULT_LIST * fList,
 		for(K = 0; K < strlen(tv->input); K++)
 			if( tv->input[K] == 'X')
 			{
-				if(rand() % 2)	tv->input[K] = 'I';
-				else tv->input[K] = 'O';
+				if(rand() % 2)	tv->input[K] = '1';
+				else tv->input[K] = '0';
 			}
 	}
 
@@ -227,17 +227,17 @@ void simulateTestVector(CIRCUIT circuit, CIRCUIT_INFO* info, FAULT_LIST * fList,
 				{
 					switch(results.output[L])
 					{
-						case 'I':
-							if(tv->output[L] == 'O' || tv->output[L] == 'B') valid = FALSE;
+						case '1':
+							if(tv->output[L] == '0' || tv->output[L] == 'B') valid = FALSE;
 							break;
-						case 'O':
-							if(tv->output[L] == 'I' || tv->output[L] == 'D') valid = FALSE;
+						case '0':
+							if(tv->output[L] == '1' || tv->output[L] == 'D') valid = FALSE;
 							break;
 						case 'D':
-							if(tv->output[L] == 'O' || tv->output[L] == 'B') valid = FALSE;
+							if(tv->output[L] == '0' || tv->output[L] == 'B') valid = FALSE;
 							break;
 						case 'B':
-							if(tv->output[L] == 'I' || tv->output[L] == 'D') valid = FALSE;
+							if(tv->output[L] == '1' || tv->output[L] == 'D') valid = FALSE;
 							break;
 					}
 				}
@@ -257,10 +257,10 @@ void simulateTestVector(CIRCUIT circuit, CIRCUIT_INFO* info, FAULT_LIST * fList,
 							switch(results.output[L])
 							{
 								case 'X': tv->output[L] = 'X'; break;
-								case 'I':
-								case 'D': tv->output[L] = 'I'; break;
-								case 'O':
-								case 'B': tv->output[L] = 'O'; break;
+								case '1':
+								case 'D': tv->output[L] = '1'; break;
+								case '0':
+								case 'B': tv->output[L] = '0'; break;
 							}
 					}
 

@@ -297,9 +297,9 @@ void extractTestVector(CIRCUIT circuit, CIRCUIT_INFO* info, TEST_VECTOR *tv)
 		{
 			case X: tv->input[K] = 'X'; break;
 			case I:
-			case D: tv->input[K] = 'I'; break;
+			case D: tv->input[K] = '1'; break;
 			case O:
-			case B: tv->input[K] = 'O'; break;
+			case B: tv->input[K] = '0'; break;
 		}
 	}
 
@@ -310,9 +310,9 @@ void extractTestVector(CIRCUIT circuit, CIRCUIT_INFO* info, TEST_VECTOR *tv)
 		{
 			case X: tv->output[K] = 'X'; break;
 			case I:
-			case D: tv->output[K] = 'I'; break;
+			case D: tv->output[K] = '1'; break;
 			case O:
-			case B: tv->output[K] = 'O'; break;
+			case B: tv->output[K] = '0'; break;
 		}
 	}
 }
