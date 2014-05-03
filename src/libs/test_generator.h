@@ -95,9 +95,10 @@ void extractTestVector(CIRCUIT circuit, CIRCUIT_INFO* info, TEST_VECTOR *tv);
  *
  *  @param  CIRCUIT 	circuit - the circuit
  *  @param  TEST_VECTOR	tv 	- the test vector to output
+ *  @param  int 	tpCount - current test patterns generated
  *  @return nothing
  */
-void displayTestVector(CIRCUIT circuit, TEST_VECTOR* tv);
+void displayTestVector(CIRCUIT circuit, TEST_VECTOR* tv, int tpCount);
 
 /*
  *  Saves into the test pattern file the given test vector
@@ -105,8 +106,9 @@ void displayTestVector(CIRCUIT circuit, TEST_VECTOR* tv);
  *  @param  CIRCUIT 	circuit - the circuit
  *  @param  TEST_VECTOR	tv 	- the test vector to output
  *  @param  FILE*		fp 	- test patterns output file descriptor
+ *  @param  int 	tpCount - current test patterns generated
  *  @return nothing
  */
-void saveTestVector(CIRCUIT circuit, TEST_VECTOR* tv, FILE* fp);
+void saveTestVector(CIRCUIT circuit, TEST_VECTOR* tv, FILE* fp, int tpCount);
 
 #endif

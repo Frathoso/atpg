@@ -1,0 +1,14 @@
+* Name of circuit:  ../benchmarks/custom1.bench
+* Primary inputs :
+  A B C D E F 
+  
+* Primary outputs:
+  G H I 
+
+* Test patterns and fault free responses:
+
+   1: 010000 011
+   2: 101100 001
+   3: 111101 010
+   4: 011110 110
+   5: 001010 010

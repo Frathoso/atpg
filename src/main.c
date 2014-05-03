@@ -417,7 +417,7 @@ void generate_test_patterns()
     fprintf(fp, "Test Vectors:\nFormat: <Pattern/Input> <Results/Output> <# Faults> {<List of Faults>}\n\n");
     
     BOOLEAN results;
-    int K, L;
+    int K, L, testPatternCount = 0;
     TEST_VECTOR testVector;
     for(K = 0; K < faultList.count; K++)
     {
@@ -442,9 +442,12 @@ void generate_test_patterns()
             if(options.isOneTestPerFault == FALSE)
         		simulateTestVector(circuit, &info, &faultList, &testVector, K+1);
 
+            // Count test pattern
+            testPatternCount++;
+
             // Display and save results
-            if(options.isDebugMode && options.debugLevel > 0) displayTestVector(circuit, &testVector);
-            saveTestVector(circuit, &testVector, fp);
+            if(options.isDebugMode && options.debugLevel > 0) displayTestVector(circuit, &testVector, testPatternCount);
+            saveTestVector(circuit, &testVector, fp, testPatternCount);
 
             // Clear the faults list memory for this pattern
             for(L = 0; L < testVector.faults_count; L++)

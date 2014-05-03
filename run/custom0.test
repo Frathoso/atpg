@@ -1,0 +1,14 @@
+* Name of circuit:  /home/frathoso/Dropbox/ASpring_2014/Capstone/atpg/benchmarks/custom0.bench
+* Primary inputs :
+  A B C E 
+  
+* Primary outputs:
+  L 
+
+* Test patterns and fault free responses:
+
+   1: 0111 0
+   2: 0011 1
+   3: 0000 0
+   4: 1111 1
+   5: 0101 1

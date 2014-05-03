@@ -322,11 +322,13 @@ void extractTestVector(CIRCUIT circuit, CIRCUIT_INFO* info, TEST_VECTOR *tv)
  *
  *  @param  CIRCUIT 	circuit - the circuit
  *  @param  TEST_VECTOR	tv 	- the test vector to output
+ *  @param  int 	tpCount - current test patterns generated
  *  @return nothing
  */
-void displayTestVector(CIRCUIT circuit, TEST_VECTOR* tv)
+void displayTestVector(CIRCUIT circuit, TEST_VECTOR* tv, int tpCount)
 {
-	if(options.isDebugMode) fprintf(stdout, "%s\t%s\t%d", tv->input, tv->output, tv->faults_count);
+	if(options.isDebugMode) fprintf(stdout, "test %5d:\t%s\t%s\t%d", tpCount, tv->input, 
+		tv->output, tv->faults_count);
 
 	if(options.debugLevel < 2) fprintf(stdout, "\n");
 	else
@@ -334,8 +336,9 @@ void displayTestVector(CIRCUIT circuit, TEST_VECTOR* tv)
 		fprintf(stdout, "\t{");
 		int K;
 		for(K = 0; K < tv->faults_count; K++)
-			printf(" (%s, %d)", circuit[tv->faults_list[K]->index]->name, tv->faults_list[K]->type);
-		printf(" }\n");
+			fprintf(stdout, " (%s, %d)", circuit[tv->faults_list[K]->index]->name, 
+				tv->faults_list[K]->type);
+		fprintf(stdout, " }\n");
 	}
 }
 
@@ -345,13 +348,22 @@ void displayTestVector(CIRCUIT circuit, TEST_VECTOR* tv)
  *  @param  CIRCUIT 	circuit - the circuit
  *  @param  TEST_VECTOR	tv 	- the test vector to output
  *  @param  FILE*		fp 	- test patterns output file descriptor
+ *  @param  int 	tpCount - current test patterns generated
  *  @return nothing
  */
-void saveTestVector(CIRCUIT circuit, TEST_VECTOR* tv, FILE* fp)
+void saveTestVector(CIRCUIT circuit, TEST_VECTOR* tv, FILE* fp, int tpCount)
 {
-	fprintf(fp, "%s\t%s\t%d\t{", tv->input, tv->output, tv->faults_count);
-	int K;
-	for(K = 0; K < tv->faults_count; K++)
-		fprintf(fp, " (%s, %d)", circuit[tv->faults_list[K]->index]->name, tv->faults_list[K]->type);
-	fprintf(fp, " }\n");
+	if(options.isDebugMode) fprintf(fp, "test %5d:\t%s\t%s\t%d", tpCount, tv->input, 
+		tv->output, tv->faults_count);
+
+	if(options.debugLevel < 2) fprintf(fp, "\n");
+	else
+	{
+		fprintf(fp, "\t{");
+		int K;
+		for(K = 0; K < tv->faults_count; K++)
+			fprintf(fp, " (%s, %d)", circuit[tv->faults_list[K]->index]->name, 
+				tv->faults_list[K]->type);
+		fprintf(fp, " }\n");
+	}
 }

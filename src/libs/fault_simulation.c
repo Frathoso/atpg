@@ -242,6 +242,8 @@ void simulateTestVector(CIRCUIT circuit, CIRCUIT_INFO* info, FAULT_LIST * fList,
 					}
 				}
 
+				//valid = TRUE;
+
 				if(valid == TRUE)
 				{
 					// Add the fault into the patterns fault list first
