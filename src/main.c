@@ -136,7 +136,7 @@ void onProgramTermination()
         case ERROR_COMMAND_LINE_ARGUMENTS:
             fprintf(stdout, "\nUsage:\n%s -b <benchmark filename> \t[-d] [-D <debug level>]\n"
                 "\t[-f <fault list filename>] [-h] [--help] [--version]\n\t[-s <test pattern filename]"
-                "[-u <undetected faults results filename>]\n\t[-x] [-X <don't cares filling option>]\n",
+                "[-u <undetected faults results filename>]\n\t[-Z] [-X <don't cares filling option>]\n",
                 GLOBAL_NAME);
             fprintf(stdout, "\nFor detailed help run:\n%s --help\n\n", GLOBAL_NAME);
             break;
@@ -188,7 +188,7 @@ void displayHelpDetails()
     fprintf(stdout, "\nNAME\n\t%s - automatic test pattern generation system\n", GLOBAL_NAME);
     fprintf(stdout, "\nSYNOPSIS\n\t%s  -b <benchmark filename> \t[-d] [-D <debug level>] \n", GLOBAL_NAME);
     fprintf(stdout, "\t      [-f <fault list filename>] [-h] [-s <test pattern filename]\n");
-    fprintf(stdout, "\t      [-u <undetected faults results filename>] [-x]\n");
+    fprintf(stdout, "\t      [-u <undetected faults results filename>] [-Z]\n");
     fprintf(stdout, "\t      [-X <don't cares filling option>]  [--help] [--version] \n");
     fprintf(stdout, "\nDESCRIPTION\n");
     fprintf(stdout, "\tTODO: Add the tool's description here\n");
@@ -202,7 +202,7 @@ void displayHelpDetails()
                           "\t    collapsing with\n");
     fprintf(stdout, "\n\t-u\n\t    Specify the filename to save undetected faults into\n");
     fprintf(stdout, "\n\t--version\n\t    Display the tools current version number\n");
-    fprintf(stdout, "\n\t-x\n\t    Turn ON/OFF fault collapsing\n");
+    fprintf(stdout, "\n\t-Z\n\t    Turn ON/OFF fault collapsing\n");
     fprintf(stdout, "\n\t-X\n\t    Option for filling in the don't cares with during fault simulation\n");
     fprintf(stdout, "\n\n");
 
@@ -225,7 +225,7 @@ void parse_command_line_arguments(int argc, char* argv[])
     options.isOneTestPerFault = FALSE;
 
     // Command line options list for the program
-    char* SHORT_OPTS = "b:dD:f:hs:t:u:xX:";
+    char* SHORT_OPTS = "b:dD:f:hs:t:u:X:Z";
     static struct option LONG_OPTS[] = {
         {"help",    no_argument, 0,  0},
         {"version", no_argument, 0,  0},
@@ -275,7 +275,7 @@ void parse_command_line_arguments(int argc, char* argv[])
                 options.isPrintUndetectedFaults = TRUE;
                 options.undetectedFaultsFilename = optarg;
                 break;
-            case 'x':   // Turn ON one-test-per-fault feature
+            case 'Z':   // Turn ON one-test-per-fault feature
                 options.isOneTestPerFault = TRUE;
                 break;
             case 'X':   // Define the don't-cares filling option during fault simulation
@@ -419,6 +419,7 @@ void generate_test_patterns()
     BOOLEAN results;
     int K, L, testPatternCount = 0;
     TEST_VECTOR testVector;
+    SIM_RESULT simResults;
     for(K = 0; K < faultList.count; K++)
     {
     	if(faultList.list[K]->detected == TRUE) continue;
@@ -442,6 +443,11 @@ void generate_test_patterns()
             if(options.isOneTestPerFault == FALSE)
         		simulateTestVector(circuit, &info, &faultList, &testVector, K+1);
 
+            // Compute all output gate values for the pattern
+            //clearPropagationValuesCircuit(circuit, info.numGates);
+            //simResults = generate_output(circuit, &info, testVector.input);
+            //strcpy(testVector.output, simResults.output);
+
             // Count test pattern
             testPatternCount++;
 
@@ -461,6 +467,9 @@ void generate_test_patterns()
     double duration = getElaspedTimeSW(&stopwatch);
         if(options.isDebugMode && options.debugLevel > 0) fprintf(stdout, "\nTest vectors successfully generated "
                 "[ %.4f seconds ].\n\n", duration);
+
+    // Display total patterns generated
+    fprintf(stdout, "\nTotal Patterns generated: %d\n", testPatternCount);
 }
 
 /*

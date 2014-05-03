@@ -170,17 +170,28 @@ LOGIC_VALUE negate( LOGIC_VALUE value, BOOLEAN inv )
 /*
  *  Returns the name of the given logic value
  *
- * 	@param  LOGIC_VALUE value - the value to be named
+ *  @param  LOGIC_VALUE value - the value to be named
+ *  @param  BOOLEAN isForOutput - use (1,0) instead of (I, O)
  *  @return char	- the name of the logic value
  */
-char logicName( LOGIC_VALUE value)
+char logicName( LOGIC_VALUE value, BOOLEAN isForOutput)
 {
-	switch(value){
-		case O: return 'O';
-		case I: return 'I';
-		case D: return 'D';
-		case B: return 'B';
-		case X: return 'X';
+	if(isForOutput == FALSE)
+		switch(value){
+			case O: return 'O';
+			case I: return 'I';
+			case D: return 'D';
+			case B: return 'B';
+			case X: return 'x';
+			default: return ' ';
+		}
+	else
+		switch(value){
+		case I:
+		case D: return '1';
+		case O:
+		case B: return '0';
+		case X: return 'x';
 		default: return ' ';
 	}
 }

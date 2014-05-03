@@ -1,4 +1,5 @@
 # Compiled files #
+run/runall
 /test/bin
 /bin
 *.o
@@ -23,3 +24,6 @@ Thumbs.db
 
 # Sublime files
 *.tmp
+
+# results
+run/*.txt

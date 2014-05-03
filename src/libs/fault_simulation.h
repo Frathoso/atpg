@@ -32,12 +32,23 @@
  *
  *  @param  circuit - the circuit
  *  @param  info 	- gate information object
+ *  @param  inPattern - input gates' values
  *  @param	fault 	- the fault to be excited as the pattern is generated
  *  @param  wasFaultExcited - for keeping track if the fault was excited during the execution
  *  @return SIM_RESULTS the simulation results
  */
 SIM_RESULT test_pattern(CIRCUIT circuit, CIRCUIT_INFO* info, char* inPattern, 
 						FAULT* fault, BOOLEAN* wasFaultExcited);
+
+/*
+ *  Generates output gates output from the given pattern
+ *
+ *  @param  circuit - the circuit
+ *  @param  info 	- gate information object
+ *  @param  inPattern - input gates' values
+ *  @return SIM_RESULTS the simulation results
+ */
+SIM_RESULT generate_output(CIRCUIT circuit, CIRCUIT_INFO* info, char* inPattern);
 
 
 /*

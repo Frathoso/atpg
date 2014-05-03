@@ -83,7 +83,7 @@ LOGIC_VALUE TABLE_INV [5]    =  {       I,  O,  B,  D,  X   };
 /*
  *  Computes the logic value of the inputs on passing through the gate
  *
- * 	@param  CIRCUIT circuit - the circuit containing the gates
+ *  @param  CIRCUIT circuit - the circuit containing the gates
  *  @param  int 	index 	- the target gate
  *  @return LOGIC_VALUE	- the results of the operation
  */
@@ -93,9 +93,9 @@ LOGIC_VALUE computeGateOutput( CIRCUIT circuit, int index );
  *  Checks if it is possible to generate the given output by manipulating 
  *  the Don't-Cares (X) input lines
  *
- *	@param  CIRCUIT circuit - the circuit containing the gates
+ *  @param  CIRCUIT circuit - the circuit containing the gates
  *  @param  int         index   - the target gate
- *	@param  LOGIC_VALUE output - the logical value output of interest 
+ *  @param  LOGIC_VALUE output - the logical value output of interest 
  *  @return BOOLEAN TRUE if it is possible and FALSE otherwise
  */
 BOOLEAN isOutputPossible( CIRCUIT circuit, int index, LOGIC_VALUE output );
@@ -103,7 +103,7 @@ BOOLEAN isOutputPossible( CIRCUIT circuit, int index, LOGIC_VALUE output );
 /*
  *  Negates or passes the value as it is depending on the flag <inv>
  *
- * 	@param  LOGIC_VALUE value - the value to be negated
+ *  @param  LOGIC_VALUE value - the value to be negated
  *  @param  BOOLEAN		inv   - marking if the value has to be negated or not
  *  @return LOGIC_VALUE	- the results of the operation
  */
@@ -112,9 +112,10 @@ LOGIC_VALUE negate( LOGIC_VALUE value, BOOLEAN inv );
 /*
  *  Returns the name of the given logic value
  *
- * 	@param  LOGIC_VALUE value - the value to be named
+ *  @param  LOGIC_VALUE value - the value to be named
+ *  @param  BOOLEAN isForOutput - use (1,0) instead of (I, O)
  *  @return char	- the name of the logic value
  */
-char logicName( LOGIC_VALUE value);
+char logicName( LOGIC_VALUE value, BOOLEAN isForOutput);
 
 #endif

@@ -142,7 +142,7 @@ BOOLEAN populateCircuit( CIRCUIT circuit, CIRCUIT_INFO* info, char* filename )
             if (found) circuit[index]->PO = 1;
             circuit[index]->PPO    = 0;
 
-            if(options.isDebugMode && options.debugLevel > 1) printGateInfo(circuit, index);
+            if(options.isDebugMode && options.debugLevel > 2) printGateInfo(circuit, index);
         }
         else if(strstr(line, "OUTPUT"))     // Output gate
         {
@@ -172,7 +172,7 @@ BOOLEAN populateCircuit( CIRCUIT circuit, CIRCUIT_INFO* info, char* filename )
                 circuit[index]->PPO = 0;
             }
 
-            if(options.isDebugMode && options.debugLevel > 1) printGateInfo(circuit, index);
+            if(options.isDebugMode && options.debugLevel > 2) printGateInfo(circuit, index);
         }
         else if(strstr(line, "="))  // Inner gate
         {
@@ -359,7 +359,7 @@ BOOLEAN populateCircuit( CIRCUIT circuit, CIRCUIT_INFO* info, char* filename )
                     exit(1);
                 }
             }
-            if(options.isDebugMode && options.debugLevel > 1) printGateInfo(circuit, index);
+            if(options.isDebugMode && options.debugLevel > 2) printGateInfo(circuit, index);
         }
     }
     // free(tempBuffer);

@@ -38,6 +38,7 @@
  *
  *  @param  circuit - the circuit
  *  @param  info 	- gate information object
+ *  @param  inPattern - input gates' values
  *  @param	fault 	- the fault to be excited as the pattern is generated
  *  @param  wasFaultExcited - for keeping track if the fault was excited during the execution
  *  @return SIM_RESULTS the simulation results
@@ -61,7 +62,7 @@ SIM_RESULT test_pattern(CIRCUIT circuit, CIRCUIT_INFO* info, char* inPattern,
 			case '0': circuit[info->inputs[K]]->value = O; break;
 			case 'D': circuit[info->inputs[K]]->value = D; break;
 			case 'B': circuit[info->inputs[K]]->value = B; break;
-			case 'X': circuit[info->inputs[K]]->value = X; break;
+			case 'x': circuit[info->inputs[K]]->value = X; break;
 		}
 
 		// Add gate to the queue
@@ -136,17 +137,108 @@ SIM_RESULT test_pattern(CIRCUIT circuit, CIRCUIT_INFO* info, char* inPattern,
 
 	// Retrieve output results;
 	for(K = 0; K < info->numPO; K++)
-		results.output[K] = logicName(circuit[info->outputs[K]]->value);
+		results.output[K] = logicName(circuit[info->outputs[K]]->value, FALSE);
 	results.output[K] = '\0';
 
 	// Retrieve input values
 	for(K = 0; K < info->numPI; K++)
-		results.input[K] = logicName(circuit[info->inputs[K]]->value);
+		results.input[K] = logicName(circuit[info->inputs[K]]->value, FALSE);
 	results.input[K] = '\0';
 
 	return results;
 }
 
+
+/*
+ *  Generates output gates output from the given pattern
+ *
+ *  @param  circuit - the circuit
+ *  @param  info 	- gate information object
+ *  @param  inPattern - input gates' values
+ *  @return SIM_RESULTS the simulation results
+ */
+SIM_RESULT generate_output(CIRCUIT circuit, CIRCUIT_INFO* info, char* inPattern)
+{
+	SIM_RESULT results;
+
+	//printf("Pattern: %s\n", inPattern);
+	// Initialize the propagation priority queue list
+	PQueue *pqList = pqueue_new(cmpGateLevels, 3*MAX_GATES);
+
+	// Assign test pattern to input gates
+	int K, L;
+	for(K = 0; K < info->numPI; K++)
+	{
+		switch(inPattern[K])
+		{
+			case '1': circuit[info->inputs[K]]->value = I; break;
+			case '0': circuit[info->inputs[K]]->value = O; break;
+			case 'D': circuit[info->inputs[K]]->value = D; break;
+			case 'B': circuit[info->inputs[K]]->value = B; break;
+			case 'X':
+			case 'x': circuit[info->inputs[K]]->value = X; break;
+		}
+
+		// Add gate to the queue
+		pqueue_enqueue(pqList, circuit[info->inputs[K]]);
+	}
+
+	//printf("Value: %c\n", logicName(circuit[faultLine]->value));
+
+	// generate output values
+	LOGIC_VALUE tValue;
+	GATE * gate;
+	while(!is_empty(pqList))
+	{
+		// Select the next gate to propagate the values (i.e. the gate with the least level)
+		gate = (GATE*) pqueue_dequeue(pqList);
+
+		int index = findIndex(circuit, &info->numGates, gate->name, FALSE);
+
+		// Determine the gate's new logical value
+		if(gate->type == PI)
+			tValue = gate->value;
+		else
+			tValue = computeGateOutput(circuit, index);
+
+		gate->value = tValue;
+
+		/*
+		printf("\n\t--->%s (%+d): %c", gate->name, gate->level, logicName(tValue));
+		if(gate->level >= 0)
+		{
+			for(L=0; L<gate->numIn; L++) printf(" (%s=%c) ", circuit[gate->in[L]]->name, logicName(circuit[gate->in[L]]->value));
+			//printf(" %d, %s, %s --> ", index, circuit[4]->name, gate->name);
+		}
+		*/
+
+		// Add new output lines into the queue
+		for(L = 0; L < gate->numOut; L++)
+		{
+			if(circuit[gate->out[L]]->value == X)
+			{
+				circuit[gate->out[L]]->value = tValue;
+				pqueue_enqueue(pqList, circuit[gate->out[L]]);
+			}
+		}
+	}
+
+	//printf("\nDONE\n");
+	// Clear the priority list heap
+	pqueue_delete(pqList);
+
+	// Retrieve output results;
+	for(K = 0; K < info->numPO; K++)
+		results.output[K] = logicName(circuit[info->outputs[K]]->value, TRUE);
+	results.output[K] = '\0';
+
+	// Retrieve input values
+	for(K = 0; K < info->numPI; K++)
+		results.input[K] = logicName(circuit[info->inputs[K]]->value, TRUE);
+	results.input[K] = '\0';
+
+	return results;
+}
 
 /*
  *  Compares the levels of two gates
@@ -184,18 +276,18 @@ void simulateTestVector(CIRCUIT circuit, CIRCUIT_INFO* info, FAULT_LIST * fList,
 	if(options.dontCareFilling == ONES)
 	{
 		for(K = 0; K < strlen(tv->input); K++)
-			if( tv->input[K] == 'X') tv->input[K] = '1';
+			if( tv->input[K] == 'x') tv->input[K] = '1';
 	}
 	else if(options.dontCareFilling == ZEROS)
 	{
 		for(K = 0; K < strlen(tv->input); K++)
-			if( tv->input[K] == 'X') tv->input[K] = '0';
+			if( tv->input[K] == 'x') tv->input[K] = '0';
 	}
 	else
 	{
 		srand(time(NULL));
 		for(K = 0; K < strlen(tv->input); K++)
-			if( tv->input[K] == 'X')
+			if( tv->input[K] == 'x')
 			{
 				if(rand() % 2)	tv->input[K] = '1';
 				else tv->input[K] = '0';
@@ -255,10 +347,10 @@ void simulateTestVector(CIRCUIT circuit, CIRCUIT_INFO* info, FAULT_LIST * fList,
 					// Add output results into the test pattern
 					for(L = 0; L < strlen(results.output); L++)
 					{
-						if(tv->output[L] == 'X')
+						if(tv->output[L] == 'x')
 							switch(results.output[L])
 							{
-								case 'X': tv->output[L] = 'X'; break;
+								case 'x': tv->output[L] = 'x'; break;
 								case '1':
 								case 'D': tv->output[L] = '1'; break;
 								case '0':
