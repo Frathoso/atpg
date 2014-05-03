@@ -326,11 +326,17 @@ void extractTestVector(CIRCUIT circuit, CIRCUIT_INFO* info, TEST_VECTOR *tv)
  */
 void displayTestVector(CIRCUIT circuit, TEST_VECTOR* tv)
 {
-	if(options.isDebugMode) fprintf(stdout, "%s\t%s\t%d\t{", tv->input, tv->output, tv->faults_count);
-	int K;
-	for(K = 0; K < tv->faults_count; K++)
-		printf(" (%s, %d)", circuit[tv->faults_list[K]->index]->name, tv->faults_list[K]->type);
-	printf(" }\n");
+	if(options.isDebugMode) fprintf(stdout, "%s\t%s\t%d", tv->input, tv->output, tv->faults_count);
+
+	if(options.debugLevel < 2) fprintf(stdout, "\n");
+	else
+	{
+		fprintf(stdout, "\t{");
+		int K;
+		for(K = 0; K < tv->faults_count; K++)
+			printf(" (%s, %d)", circuit[tv->faults_list[K]->index]->name, tv->faults_list[K]->type);
+		printf(" }\n");
+	}
 }
 
 /*
