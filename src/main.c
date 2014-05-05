@@ -514,7 +514,15 @@ void save_undetected_faults()
     int K;
     for(K = 0; K < faultList.count; K++)
         if(faultList.list[K]->detected == FALSE)
-            fprintf(fp, "%s /%c\n", circuit[faultList.list[K]->index]->name, (faultList.list[K]->type == ST_1 ? '1':'0'));
+        {
+            if(faultList.list[K]->indexOut < 0)
+                fprintf(fp, "%s /%c\n", circuit[faultList.list[K]->index]->name, 
+                            (faultList.list[K]->type == ST_1 ? '1':'0'));
+            else
+                fprintf(fp, "%s->%s /%c\n", circuit[faultList.list[K]->index]->name, 
+                    circuit[faultList.list[K]->indexOut]->name, 
+                    (faultList.list[K]->type == ST_1 ? '1':'0'));
+        }
 
     fclose(fp);
 }
