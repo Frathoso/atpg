@@ -256,6 +256,7 @@ typedef enum
 typedef struct
 {
     int index;          // The index of the wire stuck at fault
+    int indexOut;       // For specifying fan out segments
     FAULT_TYPE type;    // Either stuck at 1 or stuck at 0
     BOOLEAN detected;   // Flag if the fault is detected or not
 } FAULT;

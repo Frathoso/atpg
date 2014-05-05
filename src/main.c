@@ -362,22 +362,45 @@ void populate_circuit_from_file()
  */
 void generate_fault_list()
 {
-	int K, count = 0;
+	int K, L, count = 0;
 	for(K = 0; K < info.numGates; K++)
 	{
-		// Add stuck at zero fault
+		// Add stuck at zero fault for the main segment
 		faultList.list[count] = (FAULT*) malloc(sizeof(FAULT));
-		faultList.list[count]->index = K;
-		faultList.list[count]->type = ST_0;
+		faultList.list[count]->index    = K;
+        faultList.list[count]->indexOut = -1;
+		faultList.list[count]->type     = ST_0;
 		faultList.list[count]->detected = FALSE;
 		count++;
 
-		// Add stuck at one fault
+		// Add stuck at one fault for the main segment
 		faultList.list[count] = (FAULT*) malloc(sizeof(FAULT));
-		faultList.list[count]->index = K;
-		faultList.list[count]->type = ST_1;
+		faultList.list[count]->index    = K;
+        faultList.list[count]->indexOut = -1;
+		faultList.list[count]->type     = ST_1;
 		faultList.list[count]->detected = FALSE;
 		count++;
+
+        // Add fan out segments
+        if(circuit[K]->numOut > 1)
+            for(L = 0; L < circuit[K]->numOut; L++)
+            {
+                // Add stuck at zero fault for the fan out segment
+                faultList.list[count] = (FAULT*) malloc(sizeof(FAULT));
+                faultList.list[count]->index    = K;
+                faultList.list[count]->indexOut = circuit[K]->out[L];
+                faultList.list[count]->type     = ST_0;
+                faultList.list[count]->detected = FALSE;
+                count++;
+
+                // Add stuck at one fault for the fan out segment
+                faultList.list[count] = (FAULT*) malloc(sizeof(FAULT));
+                faultList.list[count]->index    = K;
+                faultList.list[count]->indexOut = circuit[K]->out[L];
+                faultList.list[count]->type     = ST_1;
+                faultList.list[count]->detected = FALSE;
+                count++;
+            }
 	}
 	faultList.count = count;
 }
