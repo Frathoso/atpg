@@ -378,8 +378,12 @@ void displayTestVector(CIRCUIT circuit, TEST_VECTOR* tv, int tpCount)
 		fprintf(stdout, "\t{");
 		int K;
 		for(K = 0; K < tv->faults_count; K++)
-			fprintf(stdout, " (%s, %d)", circuit[tv->faults_list[K]->index]->name, 
-				tv->faults_list[K]->type);
+			if(tv->faults_list[K]->indexOut < 0)
+				fprintf(stdout, " (%s, %d)", circuit[tv->faults_list[K]->index]->name, 
+					tv->faults_list[K]->type);
+			else
+				fprintf(stdout, " (%s->%s, %d)", circuit[tv->faults_list[K]->index]->name, 
+					circuit[tv->faults_list[K]->indexOut]->name, tv->faults_list[K]->type);
 		fprintf(stdout, " }\n");
 	}
 }
@@ -404,8 +408,12 @@ void saveTestVector(CIRCUIT circuit, TEST_VECTOR* tv, FILE* fp, int tpCount)
 		fprintf(fp, "\t{");
 		int K;
 		for(K = 0; K < tv->faults_count; K++)
-			fprintf(fp, " (%s, %d)", circuit[tv->faults_list[K]->index]->name, 
-				tv->faults_list[K]->type);
+			if(tv->faults_list[K]->indexOut < 0)
+				fprintf(fp, " (%s, %d)", circuit[tv->faults_list[K]->index]->name, 
+					tv->faults_list[K]->type);
+			else
+				fprintf(fp, " (%s->%s, %d)", circuit[tv->faults_list[K]->index]->name, 
+					circuit[tv->faults_list[K]->indexOut]->name, tv->faults_list[K]->type);
 		fprintf(fp, " }\n");
 	}
 }

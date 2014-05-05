@@ -459,8 +459,9 @@ void generate_test_patterns()
 
             // Add the current fault into the patterns fault list
             testVector.faults_list[0] = (FAULT*) malloc(sizeof(FAULT));
-            testVector.faults_list[0]->index = faultList.list[K]->index;
-            testVector.faults_list[0]->type = faultList.list[K]->type;
+            testVector.faults_list[0]->index    = faultList.list[K]->index;
+            testVector.faults_list[0]->indexOut = faultList.list[K]->indexOut;
+            testVector.faults_list[0]->type     = faultList.list[K]->type;
 
             // Simulate other faults in the remaining fault list if fault collapsing is allowed
             if(options.isOneTestPerFault == FALSE)

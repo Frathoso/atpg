@@ -340,8 +340,9 @@ void simulateTestVector(CIRCUIT circuit, CIRCUIT_INFO* info, FAULT_LIST * fList,
 				{
 					// Add the fault into the patterns fault list first
 					tv->faults_list[tv->faults_count] = (FAULT*) malloc(sizeof(FAULT));
-					tv->faults_list[tv->faults_count]->index = fList->list[K]->index;
-					tv->faults_list[tv->faults_count]->type = fList->list[K]->type;
+					tv->faults_list[tv->faults_count]->index 	= fList->list[K]->index;
+					tv->faults_list[tv->faults_count]->indexOut = fList->list[K]->indexOut;
+					tv->faults_list[tv->faults_count]->type 	= fList->list[K]->type;
 					tv->faults_count = tv->faults_count + 1;
 
 					// Add output results into the test pattern
