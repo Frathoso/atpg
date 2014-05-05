@@ -25,6 +25,46 @@
 
 
 /*
+ *  Extracts a logic value from the given gate
+ *
+ * 	@param  CIRCUIT circuit - the circuit containing the gates
+ *  @param  int 	index 	- the target gate
+ *  @return LOGIC_VALUE	- the results of the operation
+ */
+inline LOGIC_VALUE getLogicValue( CIRCUIT circuit, int index, int inIndex)
+{
+	int L;
+	if(circuit[circuit[index]->in[inIndex]]->numOut > 1)
+	{
+		for(L = 0; L < circuit[circuit[index]->in[inIndex]]->numOut; L++)
+			if(circuit[circuit[index]->in[inIndex]]->out[L] == index) break;
+		return circuit[circuit[index]->in[inIndex]]->values[L];
+	}
+	else
+		return circuit[circuit[index]->in[inIndex]]->value;
+}
+
+/*
+ *  Sets a logic value to the given gate's input line
+ *
+ * 	@param  CIRCUIT circuit - the circuit containing the gates
+ *  @param  int 	index 	- the target gate
+ *  @return LOGIC_VALUE	- the results of the operation
+ */
+inline void setInputLogicValue( CIRCUIT circuit, int index, int inIndex, LOGIC_VALUE log_val)
+{
+	int L;
+	if(circuit[circuit[index]->in[inIndex]]->numOut > 1)
+	{
+		for(L = 0; L < circuit[circuit[index]->in[inIndex]]->numOut; L++)
+			if(circuit[circuit[index]->in[inIndex]]->out[L] == index) break;
+		circuit[circuit[index]->in[inIndex]]->values[L] = log_val;
+	}
+	else
+		circuit[circuit[index]->in[inIndex]]->value = log_val;
+}
+
+/*
  *  Computes the logic value of the inputs on passing through the gate
  *
  * 	@param  CIRCUIT circuit - the circuit containing the gates
@@ -39,10 +79,10 @@ LOGIC_VALUE computeGateOutput( CIRCUIT circuit, int index )
 	{
 		case AND:
 			K = 0;
-			result = circuit[circuit[index]->in[K]]->value;
+			result = getLogicValue(circuit, index, K);
 			while(++K < circuit[index]->numIn)
 			{	
-				temp = circuit[circuit[index]->in[K]]->value;
+				temp = getLogicValue(circuit, index, K);
 				result = TABLE_AND[result][temp];
 			}
 
@@ -52,10 +92,10 @@ LOGIC_VALUE computeGateOutput( CIRCUIT circuit, int index )
 				return result;
 		case OR:
 			K = 0;
-			result = circuit[circuit[index]->in[K]]->value;
+			result = getLogicValue(circuit, index, K);
 			while(++K < circuit[index]->numIn)
 			{
-				temp = circuit[circuit[index]->in[K]]->value;
+				temp = getLogicValue(circuit, index, K);
 				result = TABLE_OR[result][temp];
 			}
 
@@ -88,34 +128,34 @@ BOOLEAN isOutputPossible( CIRCUIT circuit, int index, LOGIC_VALUE output )
 
 	// Check if there are any Don't-Cares to manipulate and set them to their probable values
 	for(K = 0; K < circuit[index]->numIn; K++)
-		if(circuit[circuit[index]->in[K]]->value == X)
+		if(getLogicValue(circuit, index, K) == X)
 		{
 			// Check for the special cases of AND/NAND and OR/NOR gates
 			if(result == FALSE)
 			{
 				if(circuit[index]->type == AND)
 				{
-					if(circuit[index]->inv == FALSE && output == O)
+					if(circuit[index]->inv == FALSE && (output == O || output == B))
 					{
-						circuit[circuit[index]->in[K]]->value = O;
+						setInputLogicValue(circuit, index, K, O);
 						return TRUE;
 					}
-					if(circuit[index]->inv == TRUE && output == I)
+					if(circuit[index]->inv == TRUE && (output == I || output == D))
 					{
-						circuit[circuit[index]->in[K]]->value = O;
+						setInputLogicValue(circuit, index, K, O);
 						return TRUE;
 					}
 				}
 				if(circuit[index]->type == OR)
 				{
-					if(circuit[index]->inv == FALSE && output == I)
+					if(circuit[index]->inv == FALSE && (output == I || output == D))
 					{
-						circuit[circuit[index]->in[K]]->value = I;
+						setInputLogicValue(circuit, index, K, I);
 						return TRUE;
 					}
-					if(circuit[index]->inv == FALSE && output == O)
+					if(circuit[index]->inv == FALSE && (output == O || output == B))
 					{
-						circuit[circuit[index]->in[K]]->value = I;
+						setInputLogicValue(circuit, index, K, I);
 						return TRUE;
 					}
 				}
@@ -126,15 +166,15 @@ BOOLEAN isOutputPossible( CIRCUIT circuit, int index, LOGIC_VALUE output )
 			switch(circuit[index]->type)
 			{
 				case AND: 
-					if(circuit[index]->inv == FALSE) circuit[circuit[index]->in[K]]->value = I;
-					else circuit[circuit[index]->in[K]]->value = O; 
+					if(circuit[index]->inv == FALSE) setInputLogicValue(circuit, index, K, I);
+					else setInputLogicValue(circuit, index, K, O); 
 					break;
 				case OR:  
-					if(circuit[index]->inv == FALSE) circuit[circuit[index]->in[K]]->value = O;
-					else circuit[circuit[index]->in[K]]->value = I;
+					if(circuit[index]->inv == FALSE) setInputLogicValue(circuit, index, K, O);
+					else setInputLogicValue(circuit, index, K, I);
 					break;
-				case BUF: circuit[circuit[index]->in[K]]->value = (LOGIC_VALUE) negate(output, 
-					circuit[circuit[index]->in[K]]->inv); break;
+				case BUF: setInputLogicValue(circuit, index, K, negate(output, 
+					circuit[circuit[index]->in[K]]->inv)); break;
 				default: break;
 			}
 		}

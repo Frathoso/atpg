@@ -19,6 +19,7 @@
  * =====================================================================================
  */
 
+#include <stdlib.h>
 #include "globals.h"
 #include "test_generator.h"
 #include "stdio.h"
@@ -92,7 +93,13 @@ void clearPropagationValuesCircuit(CIRCUIT circuit, int numGates)
  */
 BOOLEAN excite(CIRCUIT circuit, int index, int indexOut, LOGIC_VALUE log_val)
 {
-	//printf("Excite(%s with '%c')\n", circuit[index]->name, logicName(log_val));
+	/*
+	if(indexOut < 0)
+		printf("Excite(%s with '%c')\n", circuit[index]->name, logicName(log_val, FALSE));
+	else
+		printf("Excite(%s->%s with '%c')\n", circuit[index]->name, circuit[indexOut]->name, 
+				logicName(log_val, FALSE));
+	*/
 
 	int K, L;
 	// Excite fanout segments if available
@@ -106,6 +113,14 @@ BOOLEAN excite(CIRCUIT circuit, int index, int indexOut, LOGIC_VALUE log_val)
 		// Continue justifying the main segment
 		indexOut = -1;
 		log_val  = (log_val == X ? X : ((log_val == D || log_val == I) ? I : O));
+
+		/*
+		if(indexOut < 0)
+			printf("Excite(%s with '%c')\n", circuit[index]->name, logicName(log_val, FALSE));
+		else
+			printf("Excite(%s->%s with '%c')\n", circuit[index]->name, circuit[indexOut]->name, 
+					logicName(log_val, FALSE));
+		*/
 	}
 
 	// A Primary Input does not need excitation
@@ -195,8 +210,10 @@ BOOLEAN excite(CIRCUIT circuit, int index, int indexOut, LOGIC_VALUE log_val)
  */
 BOOLEAN justify(CIRCUIT circuit, int index, LOGIC_VALUE log_val)
 {
-	//printf("---Justify(%s with '%c' found %c): \n", circuit[index]->name, logicName(log_val), 
-	//		logicName(circuit[index]->value));
+	/*
+	printf("---Justify(%s with '%c' found %c): \n", circuit[index]->name, logicName(log_val, FALSE), 
+			logicName(circuit[index]->value, FALSE));
+	*/
 
 	// A Primary Input can be justified for any value
 	if(circuit[index]->type == PI)
@@ -215,14 +232,15 @@ BOOLEAN justify(CIRCUIT circuit, int index, LOGIC_VALUE log_val)
 		LOGIC_VALUE just_value = negate(log_val, circuit[index]->inv);
 		if(circuit[circuit[index]->in[0]]->value == X )
 			circuit[circuit[index]->in[0]]->value = just_value;
-		
 
+		// TODO Justify fanout segments
+		
 		return (justify(circuit, circuit[index]->in[0], just_value));
 	}
 
 	// Check if the current gate's output cannot be justified from its inputs
 	LOGIC_VALUE result = computeGateOutput(circuit, index);
-	if(result != log_val)
+	while(result != log_val)
 	{
 		// Check if it is possible to justify if the Don't-Cares were manipulated
 		if(isOutputPossible(circuit, index, log_val) == FALSE)
@@ -231,6 +249,7 @@ BOOLEAN justify(CIRCUIT circuit, int index, LOGIC_VALUE log_val)
 			circuit[index]->justified[log_val].value = FALSE;
 			return FALSE;
 		}
+		else break;
 	}
 
 	// Justify the current gate's inputs
@@ -270,6 +289,9 @@ BOOLEAN propagate(CIRCUIT circuit, int index, int indexOut, LOGIC_VALUE log_val)
 	// Propagate through a fanout segment
 	if(indexOut >= 0)
 	{
+		for(K = 0; K < circuit[index]->numOut; K++)
+			if(circuit[index]->out[K] == indexOut)
+				circuit[index]->values[K] = log_val;
 		index = indexOut;
 		indexOut = -1;
 
@@ -285,8 +307,10 @@ BOOLEAN propagate(CIRCUIT circuit, int index, int indexOut, LOGIC_VALUE log_val)
 	// Set this wire and it's fan-out segments to the propagated value
 	circuit[index]->value = log_val;
 	if(circuit[index]->numOut > 1 && indexOut < 0)
+	{
 		for(K = 0; K < circuit[index]->numOut; K++)
 			circuit[index]->values[K] = log_val;
+	}
 
 	// Check if a Primary Output has been reached
 	BOOLEAN results;

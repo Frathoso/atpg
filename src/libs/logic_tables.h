@@ -81,6 +81,24 @@ LOGIC_VALUE TABLE_INV [5]    =  {       I,  O,  B,  D,  X   };
 
 
 /*
+ *  Extracts a logic value from the given gate
+ *
+ *  @param  CIRCUIT circuit - the circuit containing the gates
+ *  @param  int         index   - the target gate
+ *  @return LOGIC_VALUE - the results of the operation
+ */
+inline LOGIC_VALUE getLogicValue( CIRCUIT circuit, int index, int inIndex);
+
+/*
+ *  Sets a logic value to the given gate's input line
+ *
+ *   @param  CIRCUIT circuit - the circuit containing the gates
+ *  @param  int         index   - the target gate
+ *  @return LOGIC_VALUE - the results of the operation
+ */
+inline void setInputLogicValue( CIRCUIT circuit, int index, int inIndex, LOGIC_VALUE log_val);
+
+/*
  *  Computes the logic value of the inputs on passing through the gate
  *
  *  @param  CIRCUIT circuit - the circuit containing the gates
