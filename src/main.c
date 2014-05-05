@@ -435,6 +435,8 @@ void generate_test_patterns()
 
     if(options.isDebugMode) 
     	fprintf(stdout, "Total Gates: %d\n\n", (info.numGates-info.numPI));
+    fprintf(fp, "Total Gates: %d\n\n", (info.numGates-info.numPI));
+
     if(options.isDebugMode && options.debugLevel > 0) 
     	fprintf(stdout, "Test Vectors:\nFormat: <Pattern/Input> <Results/Output> <# Faults> {<List of Faults>}\n\n");
     fprintf(fp, "Test Vectors:\nFormat: <Pattern/Input> <Results/Output> <# Faults> {<List of Faults>}\n\n");
@@ -449,10 +451,12 @@ void generate_test_patterns()
 
     	clearPropagationValuesCircuit(circuit, info.numGates);
 
-        results = excite(circuit, faultList.list[K]->index, (faultList.list[K]->type == ST_1? B : D));
+        results = excite(circuit, faultList.list[K]->index, faultList.list[K]->indexOut, 
+                            (faultList.list[K]->type == ST_1? B : D));
         if(results == FALSE) continue;
 
-        results = propagate(circuit, faultList.list[K]->index, (faultList.list[K]->type == ST_1? B : D));
+        results = propagate(circuit, faultList.list[K]->index, faultList.list[K]->indexOut,
+                            (faultList.list[K]->type == ST_1? B : D));
         if(results == TRUE)
         {
             extractTestVector(circuit, &info, &testVector);

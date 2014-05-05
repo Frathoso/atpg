@@ -50,10 +50,11 @@ void clearPropagationValuesCircuit(CIRCUIT circuit, int numGates);
  *
  *  @param  CIRCUIT 	circuit - the circuit
  *  @param  int 		index  	- the position of the gate in the <circuit>
+ *  @param  int 		indexOut- the position of the fan out segment if present
  *  @param  LOGIC_VALUE	log_val	- the logical value to excite the given gate with
  *  @return BOOLEAN -  TRUE	 if the value can be excited and FALSE otherwise
  */
-BOOLEAN excite(CIRCUIT circuit, int index, LOGIC_VALUE log_val);
+BOOLEAN excite(CIRCUIT circuit, int index, int indexOut, LOGIC_VALUE log_val);
 
 /*
  *  Justifies to the primary input the value given to a circuit line
@@ -74,11 +75,12 @@ BOOLEAN justify(CIRCUIT circuit, int index, LOGIC_VALUE log_val);
  *
  *  @param  CIRCUIT 	circuit - the circuit
  *  @param  int 		index  	- the position of the gate in the <circuit>
+ *  @param  int 		indexOut- the position of the fan out segment if present
  *  @param  LOGIC_VALUE	log_val	- the logical value to justify the given gate with
  *  @return BOOLEAN -  TRUE	 if the value can be justified and FALSE if the 
  *					   value causes conflicts
  */
-BOOLEAN propagate(CIRCUIT circuit, int index, LOGIC_VALUE log_val);
+BOOLEAN propagate(CIRCUIT circuit, int index, int indexOut, LOGIC_VALUE log_val);
 
 /*
  *  Extracts a test pattern from the current input and output values

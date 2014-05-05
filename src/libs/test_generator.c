@@ -86,10 +86,11 @@ void clearPropagationValuesCircuit(CIRCUIT circuit, int numGates)
  *
  *  @param  CIRCUIT 	circuit - the circuit
  *  @param  int 		index  	- the position of the gate in the <circuit>
+ *  @param  int 		indexOut- the position of the fan out segment if present
  *  @param  LOGIC_VALUE	log_val	- the logical value to excite the given gate with
  *  @return BOOLEAN -  TRUE	 if the value can be excited and FALSE otherwise
  */
-BOOLEAN excite(CIRCUIT circuit, int index, LOGIC_VALUE log_val)
+BOOLEAN excite(CIRCUIT circuit, int index, int indexOut, LOGIC_VALUE log_val)
 {
 	//printf("Excite(%s with '%c')\n", circuit[index]->name, logicName(log_val));
 
@@ -111,7 +112,7 @@ BOOLEAN excite(CIRCUIT circuit, int index, LOGIC_VALUE log_val)
 	BOOLEAN results;
 	if(circuit[index]->type == BUF)
 	{
-		results = excite(circuit, (int) circuit[index]->in[0], 
+		results = excite(circuit, (int) circuit[index]->in[0], -1,
 					  (LOGIC_VALUE) negate(log_val, (BOOLEAN) circuit[index]->inv));
 		
 		circuit[index]->value = (results == TRUE ? log_val : X);
@@ -132,7 +133,7 @@ BOOLEAN excite(CIRCUIT circuit, int index, LOGIC_VALUE log_val)
 	int inLine = 0;
 	for(; inLine < circuit[index]->numIn; inLine++)
 	{
-		if(excite(circuit, circuit[index]->in[inLine], log_val) == TRUE)
+		if(excite(circuit, circuit[index]->in[inLine], -1, log_val) == TRUE)
 		{
 			LOGIC_VALUE other_value = X;
 			switch(circuit[index]->type)
@@ -237,11 +238,12 @@ BOOLEAN justify(CIRCUIT circuit, int index, LOGIC_VALUE log_val)
  *
  *  @param  CIRCUIT 	circuit - the circuit
  *  @param  int 		index  	- the position of the gate in the <circuit>
+ *  @param  int 		indexOut- the position of the fan out segment if present
  *  @param  LOGIC_VALUE	log_val	- the logical value to justify the given gate with
  *  @return BOOLEAN -  TRUE	 if the value can be justified and FALSE if the 
  *					   value causes conflicts
  */
-BOOLEAN propagate(CIRCUIT circuit, int index, LOGIC_VALUE log_val)
+BOOLEAN propagate(CIRCUIT circuit, int index, int indexOut, LOGIC_VALUE log_val)
 {
 	//printf("Propagate(%s with '%c')\n", circuit[index]->name, logicName(log_val));
 
@@ -283,7 +285,7 @@ BOOLEAN propagate(CIRCUIT circuit, int index, LOGIC_VALUE log_val)
 			case BUF:
 			{
 				LOGIC_VALUE prop_value = negate(log_val, circuit[outIndex]->inv);
-				results = propagate(circuit, outIndex, prop_value);
+				results = propagate(circuit, outIndex, -1, prop_value);
 				circuit[outIndex]->value = (results == TRUE ? prop_value : X);
 				if(results == TRUE) return TRUE;
 				else continue;
@@ -297,7 +299,7 @@ BOOLEAN propagate(CIRCUIT circuit, int index, LOGIC_VALUE log_val)
 			circuit[circuit[outIndex]->in[K]]->value = other_value;
 		circuit[index]->value = log_val;
 
-		results = propagate(circuit, outIndex, negate(log_val, circuit[outIndex]->inv));
+		results = propagate(circuit, outIndex, -1, negate(log_val, circuit[outIndex]->inv));
 		if(results == TRUE)
 		{
 			return TRUE;
