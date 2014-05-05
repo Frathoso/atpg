@@ -146,9 +146,9 @@ typedef enum
     OR,     // Logical OR Gate
     PI,     // Primary Input
     BUF,    // Buffer
-    FF,     //
+    FF,     // Flip-Flop
     XOR,    // Logical XOR Gate
-    PPI,    //
+    PPI,    // Pseudo Primary Input
     OTHER   // Other gate type
 } GATE_TYPE;
 
@@ -176,27 +176,27 @@ typedef struct
 typedef struct
 {
 	// Name given to the gate
-    char    	name[MAX_WORD];   
+    char name[MAX_WORD];   
 
     // Number of connected input and output gates
-    BOOLEAN 	numIn;      
-    BOOLEAN 	numOut;     
+    BOOLEAN numIn;      
+    BOOLEAN numOut;     
 
     // List of connected input and output gates
-    int 		in[MAX_INPUT_GATES];     
-    int 		out[MAX_OUTPUT_GATES];   
+    int in[MAX_INPUT_GATES];     
+    int out[MAX_OUTPUT_GATES];   
 
     // 1 -> the gate is inverted, 0 otherwise
-    BOOLEAN 	inv;   
+    BOOLEAN inv;   
 
     // Gate type
-    GATE_TYPE 	type;    
+    GATE_TYPE type;    
 
     // 1 -> the gate is a primary output, 0 otherwise 
-    BOOLEAN 	PO;        
+    BOOLEAN PO;        
 
     // 1 -> the gate is a pseudo PO, 0 otherwise 
-    BOOLEAN 	PPO;     
+    BOOLEAN PPO;     
 
     // Results of justifying this wire with a logical value   
     JUST_OBJECT justified[MAX_LOGIC_VALUES];   
@@ -206,10 +206,11 @@ typedef struct
     
     // Logical value of the wire during fault generation/simulation
     LOGIC_VALUE value;  
-    int 	level;          // Gate level from the inputs
-    BOOLEAN 	flag5;      // Used for tracing
-    BOOLEAN 	flag6;      // Used for IIR
-    BOOLEAN 	flag7;      // Used for OIR
+    // Logical values of the fan out segments
+    LOGIC_VALUE values[MAX_OUTPUT_GATES];
+
+    // Gate level from the inputs
+    int level;          
 } GATE;
 
 typedef GATE* CIRCUIT[MAX_GATES];   // A circuit is a graph of gates
