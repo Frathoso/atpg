@@ -161,6 +161,8 @@ SIM_RESULT generate_output(CIRCUIT circuit, CIRCUIT_INFO* info, char* inPattern)
 {
 	SIM_RESULT results;
 
+	// TODO take fanout into consideration
+
 	//printf("Pattern: %s\n", inPattern);
 	// Initialize the propagation priority queue list
 	PQueue *pqList = pqueue_new(cmpGateLevels, 3*MAX_GATES);

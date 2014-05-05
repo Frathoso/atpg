@@ -36,6 +36,7 @@
 #define ERROR_PARSING_NETLIST           10001
 #define ERROR_IO_LIMIT_EXCEEDED		    10002
 #define ERROR_PARSING_CIRCUIT		    10003
+#define ERROR_PARSING_FAULT_LIST        10004
 
 /*
  *  Gate contents limits

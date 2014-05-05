@@ -133,6 +133,9 @@ void onProgramTermination()
         case ERROR_PARSING_CIRCUIT:
             fprintf(stdout, "Error: %s\n", ERROR_MESSAGE);
             break;
+        case ERROR_PARSING_FAULT_LIST:
+            fprintf(stdout, "Error: %s\n", ERROR_MESSAGE);
+            break;
         case ERROR_COMMAND_LINE_ARGUMENTS:
             fprintf(stdout, "\nUsage:\n%s -b <benchmark filename> \t[-d] [-D <debug level>]\n"
                 "\t[-f <fault list filename>] [-h] [--help] [--version]\n\t[-s <test pattern filename]"
@@ -412,7 +415,91 @@ void generate_fault_list()
  */
 void parse_fault_from_file(char* filename)
 {
-    // TODO: Implement function
+    FILE* fp = fopen(filename, "r");
+    if(fp == NULL)
+    {
+        sprintf(ERROR_MESSAGE, "File \"%s\" not found", filename);
+        errno = ERROR_PARSING_FAULT_LIST;
+        exit(1);
+    }
+
+    char* line = NULL;
+    size_t len = 0;
+    char gate1[20], gate2[20];
+    int single = 0, fault1 = -1, fault2 = -1, count = 0, indexOut, index, L;
+    while((getline(&line, &len, fp)) != -1)
+    {
+        // Extract gate
+        if(strstr(line, "->") == NULL)
+        {
+            sscanf(line, "%[a-z,A-Z,0-9]", gate1);
+            single = 1;
+        }
+        else sscanf(line, "%[a-z,A-Z,0-9]->%[a-z,A-Z,0-9]", gate1, gate2);
+
+        // Extract fault
+        while(1)
+        {
+            if((line = strstr(line, "/")) == NULL) break;
+            line++;
+            if(fault1 < 0)  sscanf(line, "%d", &fault1);
+            else sscanf(line, "%d", &fault2);
+        }
+
+        // Add the first fault for the main segment
+        if(single)
+        {
+            faultList.list[count] = (FAULT*) malloc(sizeof(FAULT));
+            faultList.list[count]->index    = findIndex(circuit, &info.numGates, gate1, FALSE);
+            faultList.list[count]->indexOut = -1;
+            faultList.list[count]->type     = (fault1 == 0? ST_0 : ST_1);
+            faultList.list[count]->detected = FALSE;
+            count++;
+
+            if(fault2 >= 0)
+            {
+                faultList.list[count] = (FAULT*) malloc(sizeof(FAULT));
+                faultList.list[count]->index    = findIndex(circuit, &info.numGates, gate1, FALSE);
+                faultList.list[count]->indexOut = -1;
+                faultList.list[count]->type     = (fault2 == 0? ST_0 : ST_1);
+                faultList.list[count]->detected = FALSE;
+                count++;
+            }
+        }
+        else
+        {
+            index    = findIndex(circuit, &info.numGates, gate1, FALSE);
+            indexOut = findIndex(circuit, &info.numGates, gate2, FALSE);
+            
+            for(L = 0; L < circuit[index]->numOut; L++)
+                if(circuit[index]->out[L] == indexOut) break;
+
+            // Add the first fault for the fan out segment
+            if(index >= 0 && indexOut >= 0 && L <circuit[index]->numOut)
+            {
+                faultList.list[count] = (FAULT*) malloc(sizeof(FAULT));
+                faultList.list[count]->index    = index;
+                faultList.list[count]->indexOut = indexOut;
+                faultList.list[count]->type     = (fault1 == 0? ST_0 : ST_1);
+                faultList.list[count]->detected = FALSE;
+                count++;
+
+                if(fault2 >= 0)
+                {
+                    faultList.list[count] = (FAULT*) malloc(sizeof(FAULT));
+                    faultList.list[count]->index    = index;
+                    faultList.list[count]->indexOut = indexOut;
+                    faultList.list[count]->type     = (fault2 == 0? ST_0 : ST_1);
+                    faultList.list[count]->detected = FALSE;
+                    count++;
+                }
+            }
+        }
+    }
+
+    faultList.count = count;
+
+    if(line) free(line);
 }
 
 /*
