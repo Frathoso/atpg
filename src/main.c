@@ -434,7 +434,7 @@ void generate_test_patterns()
     startSW(&stopwatch);
 
     if(options.isDebugMode) 
-    	fprintf(stdout, "Total Lines: %d\n\n", info.numGates);
+    	fprintf(stdout, "Total Gates: %d\n\n", (info.numGates-info.numPI));
     if(options.isDebugMode && options.debugLevel > 0) 
     	fprintf(stdout, "Test Vectors:\nFormat: <Pattern/Input> <Results/Output> <# Faults> {<List of Faults>}\n\n");
     fprintf(fp, "Test Vectors:\nFormat: <Pattern/Input> <Results/Output> <# Faults> {<List of Faults>}\n\n");
