@@ -245,8 +245,13 @@ BOOLEAN propagate(CIRCUIT circuit, int index, LOGIC_VALUE log_val)
 {
 	//printf("Propagate(%s with '%c')\n", circuit[index]->name, logicName(log_val));
 
-	// Set this wire to the propagated value
+	int K;
+
+	// Set this wire and it's fan-out segments to the propagated value
 	circuit[index]->value = log_val;
+	if(circuit[index]->numOut > 1)
+		for(K = 0; K < circuit[index]->numOut; K++)
+			circuit[index]->values[K] = log_val;
 
 	// Check if a Primary Output has been reached
 	BOOLEAN results;
@@ -268,7 +273,7 @@ BOOLEAN propagate(CIRCUIT circuit, int index, LOGIC_VALUE log_val)
 	}
 
 	// Try propagating the current gate's value into a Primary Output
-	int outLine = 0, outIndex, K;
+	int outLine = 0, outIndex;
 	for(; outLine < circuit[index]->numOut; outLine++)
 	{
 		LOGIC_VALUE other_value = X;
@@ -300,6 +305,9 @@ BOOLEAN propagate(CIRCUIT circuit, int index, LOGIC_VALUE log_val)
 		else {
 			clearPropagationValuesPath(circuit, index);
 			circuit[index]->value = log_val;
+			if(circuit[index]->numOut > 1)
+			for(K = 0; K < circuit[index]->numOut; K++)
+				circuit[index]->values[K] = log_val;
 		}
 	}
 
