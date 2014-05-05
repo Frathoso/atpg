@@ -93,12 +93,17 @@ BOOLEAN excite(CIRCUIT circuit, int index, LOGIC_VALUE log_val)
 {
 	//printf("Excite(%s with '%c')\n", circuit[index]->name, logicName(log_val));
 
-	int K;
+	int K, L;
 
 	// A Primary Input does not need excitation
 	if(circuit[index]->type == PI)
 	{
 		circuit[index]->value = log_val;
+
+		if(circuit[index]->numOut > 1)
+			for(K = 0; K < circuit[index]->numOut; K++)
+				circuit[index]->values[K] = log_val;
+		
 		return TRUE;
 	}
 
@@ -108,7 +113,13 @@ BOOLEAN excite(CIRCUIT circuit, int index, LOGIC_VALUE log_val)
 	{
 		results = excite(circuit, (int) circuit[index]->in[0], 
 					  (LOGIC_VALUE) negate(log_val, (BOOLEAN) circuit[index]->inv));
+		
 		circuit[index]->value = (results == TRUE ? log_val : X);
+
+		if(circuit[index]->numOut > 1)
+			for(L = 0; L < circuit[index]->numOut; L++)
+				circuit[index]->values[L] = (results == TRUE ? log_val : X);
+
 		return results;
 	}
 
@@ -142,7 +153,14 @@ BOOLEAN excite(CIRCUIT circuit, int index, LOGIC_VALUE log_val)
 				if(K == inLine) circuit[circuit[index]->in[K]]->value = log_val;
 				else circuit[circuit[index]->in[K]]->value = other_value;
 			}
+
 			circuit[index]->value = log_val;
+			
+			if(circuit[index]->numOut > 1)
+				for(L = 0; L < circuit[index]->numOut; L++)
+					circuit[index]->values[L] = log_val;
+
+
 			return TRUE;
 		}
 		else return FALSE;
