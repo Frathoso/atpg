@@ -39,13 +39,19 @@ void clearPropagationValuesPath(CIRCUIT circuit, int index)
 	int K, J;
 	for(K = 0; K < circuit[index]->numIn; K++)
 	{
+		// Clear main segment
 		circuit[circuit[index]->in[K]]->value = X;
+
+		// Clear fan out segments
+		if(circuit[circuit[index]->in[K]]->numOut > 1)
+			for(J = 0; J < circuit[circuit[index]->in[K]]->numOut; J++)
+				circuit[circuit[index]->in[K]]->values[J] = X;
 
 		for(J = 0; J < MAX_LOGIC_VALUES; J++)
 			circuit[circuit[index]->in[K]]->justified[J].state = FALSE;
 	}
 
-	// Stop when reaching a primar output or continue clearing the output lines otherwise
+	// Stop when reaching a primary output or continue otherwise
 	if(circuit[index]->PO == TRUE)
 		return;
 	else
@@ -62,9 +68,17 @@ void clearPropagationValuesPath(CIRCUIT circuit, int index)
  */
 void clearPropagationValuesCircuit(CIRCUIT circuit, int numGates)
 {
-	int index;
+	int index, J;
 	for(index = 0; index < numGates; index++)
+	{
+		// Clear main segment
 		circuit[index]->value = X;
+
+		// Clear fan out segments
+		if(circuit[index]->numOut > 1)
+			for(J = 0; J < circuit[index]->numOut; J++)
+				circuit[index]->values[J] = X;
+	}
 }
 
 /*
@@ -78,6 +92,8 @@ void clearPropagationValuesCircuit(CIRCUIT circuit, int numGates)
 BOOLEAN excite(CIRCUIT circuit, int index, LOGIC_VALUE log_val)
 {
 	//printf("Excite(%s with '%c')\n", circuit[index]->name, logicName(log_val));
+
+	int K;
 
 	// A Primary Input does not need excitation
 	if(circuit[index]->type == PI)
@@ -102,7 +118,7 @@ BOOLEAN excite(CIRCUIT circuit, int index, LOGIC_VALUE log_val)
 
 
 	// Try exciting one of the current gates input
-	int inLine = 0, K;
+	int inLine = 0;
 	for(; inLine < circuit[index]->numIn; inLine++)
 	{
 		if(excite(circuit, circuit[index]->in[inLine], log_val) == TRUE)
