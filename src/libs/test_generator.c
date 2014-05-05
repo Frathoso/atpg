@@ -257,13 +257,34 @@ BOOLEAN justify(CIRCUIT circuit, int index, LOGIC_VALUE log_val)
  */
 BOOLEAN propagate(CIRCUIT circuit, int index, int indexOut, LOGIC_VALUE log_val)
 {
-	//printf("Propagate(%s with '%c')\n", circuit[index]->name, logicName(log_val));
+	/*
+	if(indexOut < 0)
+		printf("Propagate(%s with '%c')\n", circuit[index]->name, logicName(log_val, FALSE));
+	else
+		printf("Propagate(%s->%s with '%c')\n", circuit[index]->name,
+				circuit[indexOut]->name, logicName(log_val, FALSE));
+	*/
 
 	int K;
 
+	// Propagate through a fanout segment
+	if(indexOut >= 0)
+	{
+		index = indexOut;
+		indexOut = -1;
+
+		/*
+		if(indexOut < 0)
+			printf("Propagate(%s with '%c')\n", circuit[index]->name, logicName(log_val, FALSE));
+		else
+			printf("Propagate(%s->%s with '%c')\n", circuit[index]->name,
+					circuit[indexOut]->name, logicName(log_val, FALSE));
+		*/
+	}
+
 	// Set this wire and it's fan-out segments to the propagated value
 	circuit[index]->value = log_val;
-	if(circuit[index]->numOut > 1)
+	if(circuit[index]->numOut > 1 && indexOut < 0)
 		for(K = 0; K < circuit[index]->numOut; K++)
 			circuit[index]->values[K] = log_val;
 
