@@ -419,7 +419,7 @@ void generate_test_patterns()
     BOOLEAN results;
     int K, L, testPatternCount = 0;
     TEST_VECTOR testVector;
-    SIM_RESULT simResults;
+    //SIM_RESULT simResults;
     for(K = 0; K < faultList.count; K++)
     {
     	if(faultList.list[K]->detected == TRUE) continue;
@@ -509,7 +509,7 @@ void display_statistics( )
 
     fprintf(stdout, "\nUndetected faults:\n\tTotal count:\t%d\n", undetected_faults);
     fprintf(stdout, "\tPercentage:\t\t%.0f%%\n", ((float) (undetected_faults)*100/faultList.count));
-    fprintf(stdout, "\tOutput file:\t\"%s%s\"\n", options.undetectedFaultsFilename, 
-    				FAULT_FILE_EXTENSION);
+    fprintf(stdout, "\tOutput file:\t\"%s%s\"\n", (options.isPrintUndetectedFaults == TRUE? 
+                    options.undetectedFaultsFilename : "test_patterns.tvl"), FAULT_FILE_EXTENSION);
 
 }
