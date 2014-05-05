@@ -95,6 +95,18 @@ BOOLEAN excite(CIRCUIT circuit, int index, int indexOut, LOGIC_VALUE log_val)
 	//printf("Excite(%s with '%c')\n", circuit[index]->name, logicName(log_val));
 
 	int K, L;
+	// Excite fanout segments if available
+	if(circuit[index]->numOut > 1 && indexOut >= 0)
+	{
+		for(K = 0; K < circuit[index]->numOut; K++)
+			if(circuit[index]->out[K] != indexOut)
+				circuit[index]->values[K] = (log_val == X ? X : ((log_val == D || log_val == I) ? I : O));
+		circuit[index]-> value = (log_val == X ? X : ((log_val == D || log_val == I) ? I : O));
+
+		// Continue justifying the main segment
+		indexOut = -1;
+		log_val  = (log_val == X ? X : ((log_val == D || log_val == I) ? I : O));
+	}
 
 	// A Primary Input does not need excitation
 	if(circuit[index]->type == PI)
