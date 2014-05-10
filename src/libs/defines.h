@@ -43,15 +43,15 @@
  */
 #define MAX_WORD            32      // Maximum length of names
 #define MAX_GATES           100000  // Maximum gates in a circuit
-#define MAX_INPUT_GATES     500     // Maximum input lines in a gate
-#define MAX_OUTPUT_GATES    500     // Maximum output lines in a gate
+#define MAX_INPUT_GATES     2000    // Maximum input lines in a gate
+#define MAX_OUTPUT_GATES    2000    // Maximum output lines in a gate
 #define MAX_LINE_LENGTH     256     // Maximum length of an input file line
 #define MAX_LOGIC_VALUES	5 		// Maximum number of logical values used
 
 /*
  *
  */
-#define MAX_FAULTS          200000 	// Maximum number of faults
+#define MAX_FAULTS          1000000 // Maximum number of faults
 
 
 #endif

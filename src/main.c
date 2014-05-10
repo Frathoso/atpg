@@ -517,7 +517,7 @@ void random_test_generation(FILE* fp, int* testPatternCount)
     TEST_VECTOR tv;
     int K, L, noPatternsCount = 0;
     unsigned int seed = 0;
-    while(noPatternsCount < 50)
+    while(noPatternsCount < 32)
     {
         // Generate a random pattern
         if(seed < 1000) seed = time(((long *) NULL));
@@ -570,6 +570,7 @@ void random_test_generation(FILE* fp, int* testPatternCount)
  */
 void deterministic_test_generation(FILE* fp, int* testPatternCount)
 {
+    SIM_RESULT simResults;
     BOOLEAN results;
     int K, L;
     TEST_VECTOR testVector;
@@ -597,13 +598,13 @@ void deterministic_test_generation(FILE* fp, int* testPatternCount)
             testVector.faults_list[0]->type     = faultList.list[K]->type;
 
             // Simulate other faults in the remaining fault list if fault collapsing is allowed
-            if(options.isOneTestPerFault == FALSE)
-                simulateTestVector(circuit, &info, &faultList, &testVector, K+1);
+            //if(options.isOneTestPerFault == FALSE)
+            simulateTestVector(circuit, &info, &faultList, &testVector, K+1);
 
             // Compute all output gate values for the pattern
-            //clearPropagationValuesCircuit(circuit, info.numGates);
-            //simResults = generate_output(circuit, &info, testVector.input);
-            //strcpy(testVector.output, simResults.output);
+            clearPropagationValuesCircuit(circuit, info.numGates);
+            simResults = generate_output(circuit, &info, testVector.input);
+            strcpy(testVector.output, simResults.output);
 
             // Count test pattern
             (*testPatternCount)++;

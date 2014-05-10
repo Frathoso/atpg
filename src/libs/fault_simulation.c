@@ -58,7 +58,9 @@ SIM_RESULT test_pattern(CIRCUIT circuit, CIRCUIT_INFO* info, char* inPattern,
 	{
 		switch(inPattern[K])
 		{
+			case 'I':
 			case '1': circuit[info->inputs[K]]->value = I; break;
+			case 'O':
 			case '0': circuit[info->inputs[K]]->value = O; break;
 			case 'D': circuit[info->inputs[K]]->value = D; break;
 			case 'B': circuit[info->inputs[K]]->value = B; break;
