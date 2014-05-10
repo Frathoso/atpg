@@ -432,10 +432,10 @@ void parse_fault_from_file(char* filename)
         // Extract gate
         if(strstr(line, "->") == NULL)
         {
-            sscanf(line, "%[a-z,A-Z,0-9]", gate1);
+            sscanf(line, "%[a-z,A-Z,0-9,_]", gate1);
             single = 1;
         }
-        else sscanf(line, "%[a-z,A-Z,0-9]->%[a-z,A-Z,0-9]", gate1, gate2);
+        else sscanf(line, "%[a-z,A-Z,0-9,_]->%[a-z,A-Z,0-9,_]", gate1, gate2);
 
         // Extract fault
         while(1)
