@@ -31,17 +31,23 @@
  *  @param  int 	index 	- the target gate
  *  @return LOGIC_VALUE	- the results of the operation
  */
-inline LOGIC_VALUE getLogicValue( CIRCUIT circuit, int index, int inIndex)
+inline LOGIC_VALUE getLogicValue( CIRCUIT circuit, int index, int inPos)
 {
 	int L;
-	if(circuit[circuit[index]->in[inIndex]]->numOut > 1)
+	if(circuit[circuit[index]->in[inPos]]->numOut > 1)
 	{
-		for(L = 0; L < circuit[circuit[index]->in[inIndex]]->numOut; L++)
-			if(circuit[circuit[index]->in[inIndex]]->out[L] == index) break;
-		return circuit[circuit[index]->in[inIndex]]->values[L];
+		//printf("In: ");
+		for(L = 0; L < circuit[circuit[index]->in[inPos]]->numOut; L++)
+		{
+			//printf("%s(%c) ", circuit[circuit[circuit[index]->in[inPos]]->out[L]]->name, logicName(circuit[circuit[circuit[index]->in[inPos]]->out[L]]->value, FALSE));
+			if(circuit[circuit[index]->in[inPos]]->out[L] == index) break;
+		}
+		//printf("\n");
+		return circuit[circuit[circuit[index]->in[inPos]]->out[L]]->value;
+		//return circuit[circuit[index]->in[inPos]]->values[L];
 	}
 	else
-		return circuit[circuit[index]->in[inIndex]]->value;
+		return circuit[circuit[index]->in[inPos]]->value;
 }
 
 /*
@@ -79,11 +85,15 @@ LOGIC_VALUE computeGateOutput( CIRCUIT circuit, int index )
 	{
 		case AND:
 			K = 0;
+			//printf("\n\tYees (%s): ", circuit[index]->name);
 			result = getLogicValue(circuit, index, K);
 			while(++K < circuit[index]->numIn)
 			{	
+				//printf("[%c,", logicName(result, FALSE));
 				temp = getLogicValue(circuit, index, K);
+				//printf("%c]=", logicName(temp, FALSE));
 				result = TABLE_AND[result][temp];
+				//printf("%c, ", logicName(result, FALSE));
 			}
 
 			if(circuit[index]->inv == TRUE)	// NAND Gate

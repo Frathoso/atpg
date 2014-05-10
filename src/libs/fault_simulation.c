@@ -175,17 +175,17 @@ SIM_RESULT generate_output(CIRCUIT circuit, CIRCUIT_INFO* info, char* inPattern)
 		{
 			case '1': circuit[info->inputs[K]]->value = I; break;
 			case '0': circuit[info->inputs[K]]->value = O; break;
+			case 'd':
 			case 'D': circuit[info->inputs[K]]->value = D; break;
+			case 'b':
 			case 'B': circuit[info->inputs[K]]->value = B; break;
-			case 'X':
-			case 'x': circuit[info->inputs[K]]->value = X; break;
+			case 'x':
+			case 'X': circuit[info->inputs[K]]->value = X; break;
 		}
 
 		// Add gate to the queue
 		pqueue_enqueue(pqList, circuit[info->inputs[K]]);
 	}
-
-	//printf("Value: %c\n", logicName(circuit[faultLine]->value));
 
 	// generate output values
 	LOGIC_VALUE tValue;
@@ -206,13 +206,14 @@ SIM_RESULT generate_output(CIRCUIT circuit, CIRCUIT_INFO* info, char* inPattern)
 		gate->value = tValue;
 
 		/*
-		printf("\n\t--->%s (%+d): %c", gate->name, gate->level, logicName(tValue));
+		printf("\n\t--->%s (%+d): %c", gate->name, gate->level, logicName(tValue, FALSE));
 		if(gate->level >= 0)
 		{
-			for(L=0; L<gate->numIn; L++) printf(" (%s=%c) ", circuit[gate->in[L]]->name, logicName(circuit[gate->in[L]]->value));
-			//printf(" %d, %s, %s --> ", index, circuit[4]->name, gate->name);
+			for(L=0; L<gate->numIn; L++) printf(" (%s=%c) ", circuit[gate->in[L]]->name, logicName(circuit[gate->in[L]]->value, FALSE));
+			//printf(" [%d, %s, %s --> ", index, circuit[4]->name, gate->name);
 		}
 		*/
+		
 
 		// Add new output lines into the queue
 		for(L = 0; L < gate->numOut; L++)
@@ -277,18 +278,18 @@ void simulateTestVector(CIRCUIT circuit, CIRCUIT_INFO* info, FAULT_LIST * fList,
 	extern COMMAND_LINE_OPTIONS options;
 	if(options.dontCareFilling == ONES)
 	{
-		for(K = 0; K < strlen(tv->input); K++)
+		for(K = 0; K < info->numPI; K++)
 			if( tv->input[K] == 'x') tv->input[K] = '1';
 	}
 	else if(options.dontCareFilling == ZEROS)
 	{
-		for(K = 0; K < strlen(tv->input); K++)
+		for(K = 0; K < info->numPI; K++)
 			if( tv->input[K] == 'x') tv->input[K] = '0';
 	}
 	else
 	{
 		srand(time(NULL));
-		for(K = 0; K < strlen(tv->input); K++)
+		for(K = 0; K < info->numPI; K++)
 			if( tv->input[K] == 'x')
 			{
 				if(rand() % 2)	tv->input[K] = '1';
@@ -316,27 +317,26 @@ void simulateTestVector(CIRCUIT circuit, CIRCUIT_INFO* info, FAULT_LIST * fList,
 			if(wasFaultExcited == TRUE)
 			{ 
 				int L;
-				BOOLEAN valid = TRUE;
-				for(L = 0; L < strlen(results.output) && valid == TRUE; L++)
+				BOOLEAN valid = FALSE;
+				for(L = 0; L < strlen(results.output) && valid == FALSE; L++)
 				{
+					//printf("[%s->%s, %s->%s] ", tv->input, tv->output, results.input, results.output);
 					switch(results.output[L])
 					{
 						case '1':
-							if(tv->output[L] == '0' || tv->output[L] == 'B') valid = FALSE;
+						case 'I':
+							if(tv->output[L] == '0' || tv->output[L] == 'B') valid = TRUE;
 							break;
 						case '0':
-							if(tv->output[L] == '1' || tv->output[L] == 'D') valid = FALSE;
+						case 'O':
+							if(tv->output[L] == '1' || tv->output[L] == 'D') valid = TRUE;
 							break;
 						case 'D':
-							if(tv->output[L] == '0' || tv->output[L] == 'B') valid = FALSE;
-							break;
 						case 'B':
-							if(tv->output[L] == '1' || tv->output[L] == 'D') valid = FALSE;
+							valid = TRUE;
 							break;
 					}
 				}
-
-				//valid = TRUE;
 
 				if(valid == TRUE)
 				{
@@ -347,20 +347,6 @@ void simulateTestVector(CIRCUIT circuit, CIRCUIT_INFO* info, FAULT_LIST * fList,
 					tv->faults_list[tv->faults_count]->type 	= fList->list[K]->type;
 					tv->faults_count = tv->faults_count + 1;
 
-					// Add output results into the test pattern
-					for(L = 0; L < strlen(results.output); L++)
-					{
-						if(tv->output[L] == 'x')
-							switch(results.output[L])
-							{
-								case 'x': tv->output[L] = 'x'; break;
-								case '1':
-								case 'D': tv->output[L] = '1'; break;
-								case '0':
-								case 'B': tv->output[L] = '0'; break;
-							}
-					}
-
 					// Remove the fault from the list of undetected faults
 					//printf("\t[%s]: Collapsed!\n", circuit[fList->list[K]->index]->name);
 					fList->list[K]->detected = TRUE;
@@ -368,4 +354,5 @@ void simulateTestVector(CIRCUIT circuit, CIRCUIT_INFO* info, FAULT_LIST * fList,
 			}
 		}
 	}
+	//printf("\n");
 }	

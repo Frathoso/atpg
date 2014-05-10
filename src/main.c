@@ -34,6 +34,9 @@
 /* getopt_long, required_argument, no_argument, option */
 #include <getopt.h>
 
+/* time */
+#include <time.h>
+
 /* errno */
 #include <errno.h>
 
@@ -510,8 +513,55 @@ void parse_fault_from_file(char* filename)
  */
 void random_test_generation(FILE* fp, int* testPatternCount)
 {
+    SIM_RESULT simResults;
+    TEST_VECTOR tv;
+    int K, L, noPatternsCount = 0;
+    unsigned int seed = 0;
+    while(noPatternsCount < 50)
+    {
+        // Generate a random pattern
+        if(seed < 1000) seed = time(((long *) NULL));
+        else { seed = rand() % seed; }
+        srand((int) seed);
 
-}
+        for(K = 0; K < info.numPI; K++)
+            if(rand() % 100 > 50)  tv.input[K] = '1';
+            else tv.input[K] = '0';
+        tv.input[K] = '\0';
+
+        //strcpy(tv.input, "0011");
+
+        // Compute results for the input pattern
+        clearPropagationValuesCircuit(circuit, info.numGates);
+        simResults = generate_output(circuit, &info, tv.input);
+        strcpy(tv.output, simResults.output);
+
+        //printf("Haya: %s -> %s\n", tv.input, tv.output);
+
+        // Simulate the pattern
+        tv.faults_count = 0;
+        simulateTestVector(circuit, &info, &faultList, &tv, 0);
+
+        if(tv.faults_count == 0) noPatternsCount++;
+        else
+        {
+            // Count test pattern
+            (*testPatternCount)++;
+
+            // Display and save results
+            if(options.isDebugMode && options.debugLevel > 0) displayTestVector(circuit, &tv, *testPatternCount);
+            saveTestVector(circuit, &tv, fp, *testPatternCount);
+
+            // Clear the faults list memory for this pattern
+            for(L = 0; L < tv.faults_count; L++)
+                if(tv.faults_list[L]) free(tv.faults_list[L]);
+
+            // Mark the fault as detected
+            faultList.list[K]->detected = TRUE;
+        }
+        //break;
+    }
+}    
 
 /*
  *  Generates test patterns deterministically
@@ -602,6 +652,8 @@ void generate_test_patterns()
     // Perform random test pattern generation
     int testPatternCount = 0;
     random_test_generation(fp, &testPatternCount);
+
+    printf("-->\n");
 
     // Perform determinstic test pattern generation
     deterministic_test_generation(fp, &testPatternCount);
