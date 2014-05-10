@@ -502,41 +502,33 @@ void parse_fault_from_file(char* filename)
     if(line) free(line);
 }
 
+
 /*
- *  Generates test patterns for the populate circuit
+ *  Generates test patterns randomly
  *  
  *  @return nothing
  */
-void generate_test_patterns()
+void random_test_generation(FILE* fp, int* testPatternCount)
 {
-	// Prepare file to save test patterns into
-	char filename[MAX_WORD];
-	if(options.outputTestPatternFilename != NULL)
-    	strcpy(filename, options.outputTestPatternFilename);
-    else
-    	strcpy(filename, "test_patterns");
-    strcat(filename, ".tvl");
-    FILE* fp = fopen(filename, "w");
 
-    startSW(&stopwatch);
+}
 
-    if(options.isDebugMode) 
-    	fprintf(stdout, "Total Gates: %d\n\n", (info.numGates-info.numPI));
-    fprintf(fp, "Total Gates: %d\n\n", (info.numGates-info.numPI));
-
-    if(options.isDebugMode && options.debugLevel > 0) 
-    	fprintf(stdout, "Test Vectors:\nFormat: <Pattern/Input> <Results/Output> <# Faults> {<List of Faults>}\n\n");
-    fprintf(fp, "Test Vectors:\nFormat: <Pattern/Input> <Results/Output> <# Faults> {<List of Faults>}\n\n");
-    
+/*
+ *  Generates test patterns deterministically
+ *  
+ *  @return nothing
+ */
+void deterministic_test_generation(FILE* fp, int* testPatternCount)
+{
     BOOLEAN results;
-    int K, L, testPatternCount = 0;
+    int K, L;
     TEST_VECTOR testVector;
     //SIM_RESULT simResults;
     for(K = 0; K < faultList.count; K++)
     {
-    	if(faultList.list[K]->detected == TRUE) continue;
+        if(faultList.list[K]->detected == TRUE) continue;
 
-    	clearPropagationValuesCircuit(circuit, info.numGates);
+        clearPropagationValuesCircuit(circuit, info.numGates);
 
         results = excite(circuit, faultList.list[K]->index, faultList.list[K]->indexOut, 
                             (faultList.list[K]->type == ST_1? B : D));
@@ -556,7 +548,7 @@ void generate_test_patterns()
 
             // Simulate other faults in the remaining fault list if fault collapsing is allowed
             if(options.isOneTestPerFault == FALSE)
-        		simulateTestVector(circuit, &info, &faultList, &testVector, K+1);
+                simulateTestVector(circuit, &info, &faultList, &testVector, K+1);
 
             // Compute all output gate values for the pattern
             //clearPropagationValuesCircuit(circuit, info.numGates);
@@ -564,11 +556,11 @@ void generate_test_patterns()
             //strcpy(testVector.output, simResults.output);
 
             // Count test pattern
-            testPatternCount++;
+            (*testPatternCount)++;
 
             // Display and save results
-            if(options.isDebugMode && options.debugLevel > 0) displayTestVector(circuit, &testVector, testPatternCount);
-            saveTestVector(circuit, &testVector, fp, testPatternCount);
+            if(options.isDebugMode && options.debugLevel > 0) displayTestVector(circuit, &testVector, *testPatternCount);
+            saveTestVector(circuit, &testVector, fp, *testPatternCount);
 
             // Clear the faults list memory for this pattern
             for(L = 0; L < testVector.faults_count; L++)
@@ -578,7 +570,43 @@ void generate_test_patterns()
             faultList.list[K]->detected = TRUE;
         }
     }
+}
 
+/*
+ *  Generates test patterns for the populate circuit
+ *  
+ *  @return nothing
+ */
+void generate_test_patterns()
+{
+	// Prepare test patterns output files
+	char filename[MAX_WORD];
+	if(options.outputTestPatternFilename != NULL)
+    	strcpy(filename, options.outputTestPatternFilename);
+    else
+    	strcpy(filename, "test_patterns");
+    strcat(filename, ".tvl");
+    FILE* fp = fopen(filename, "w");
+
+    if(options.isDebugMode) 
+    	fprintf(stdout, "Total Gates: %d\n\n", (info.numGates-info.numPI));
+    fprintf(fp, "Total Gates: %d\n\n", (info.numGates-info.numPI));
+
+    if(options.isDebugMode && options.debugLevel > 0) 
+    	fprintf(stdout, "Test Vectors:\nFormat: <Pattern/Input> <Results/Output> <# Faults> {<List of Faults>}\n\n");
+    fprintf(fp, "Test Vectors:\nFormat: <Pattern/Input> <Results/Output> <# Faults> {<List of Faults>}\n\n");
+
+    // Start timer
+    startSW(&stopwatch);
+
+    // Perform random test pattern generation
+    int testPatternCount = 0;
+    random_test_generation(fp, &testPatternCount);
+
+    // Perform determinstic test pattern generation
+    deterministic_test_generation(fp, &testPatternCount);
+    
+    // Compute test patterns generation duration
     double duration = getElaspedTimeSW(&stopwatch);
         if(options.isDebugMode && options.debugLevel > 0) fprintf(stdout, "\nTest vectors successfully generated "
                 "[ %.4f seconds ].\n\n", duration);
