@@ -1,0 +1,54 @@
+
+ Circuit succesfully readed, constructing data structure...
+ 1.done
+ 2.done
+ 3.done
+ 4.done
+ 5.done
+
+ Computing fanlist...done
+	*******************************************************
+	*                                                     *
+	*          Welcome to atalanta (version 2.0)          *
+	*                                                     *
+	*               Dong S. Ha (ha@vt.edu)                *
+	*            Web: http://www.ee.vt.edu/ha             *
+	*  Virginia Polytechnic Institute & State University  *
+	*                                                     *
+	*******************************************************
+
+******   SUMMARY OF TEST PATTERN GENERATION RESULTS   ******
+1. Circuit structure
+   Name of the circuit                       : 35_inputs
+   Number of primary inputs                  : 214
+   Number of primary outputs                 : 228
+   Number of gates                           : 2779
+   Level of the circuit                      : 25
+
+2. ATPG parameters
+   Test pattern generation mode              : RPT + DTPG + TC
+   Limit of random patterns (packets)        : 16
+   Backtrack limit                           : 10
+   Initial random number generator seed      : 1399730425
+   Test pattern compaction mode              : REVERSE + SHUFFLE 
+   Limit of suffling compaction              : 2
+   Number of shuffles                        : 9
+
+3. Test pattern generation results
+   Number of test patterns before compaction : 435
+   Number of test patterns after compaction  : 260
+   Fault coverage                            : 99.131 %
+   Number of collapsed faults                : 4603
+   Number of identified redundant faults     : 40
+   Number of aborted faults                  : 0
+   Total number of backtrackings             : 0
+
+4. Memory used                               : 1024 Kbytes
+
+5. CPU time
+   Initialization                            : 0.000 secs
+   Fault simulation                          : 0.000 secs
+   FAN                                       : 0.000 secs
+   Total                                     : 0.000 secs
+
+ Computing time: 0.15s

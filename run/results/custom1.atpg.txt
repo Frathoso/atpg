@@ -1,0 +1,37 @@
+Parsing: "/home/frathoso/Dropbox/ASpring_2014/Capstone/atpg/benchmarks/custom1.bench"...
+Netlist file successfully parsed [ 0.0003 seconds ].
+
+Input gates:
+A  B  C  E  
+Output gates:
+L  
+
+Total Gates: 5
+
+Test Vectors:
+Format: <Pattern/Input> <Results/Output> <# Faults> {<List of Faults>}
+
+test     1:	1010	0	2
+-->
+test     2:	1111	1	5
+test     3:	0111	0	9
+test     4:	1011	1	4
+test     5:	1101	1	1
+
+Test vectors successfully generated [ 0.0120 seconds ].
+
+
+Total Patterns generated: 5
+
+Total faults:	22
+
+Detected faults:
+	Count:		22
+	Percentage:	100%
+
+Undetected faults:
+	Total count:	0
+	Percentage:		0%
+	Output file:	"run/custom1.atpg.flt"
+
+Program successfully executed!

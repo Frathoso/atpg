@@ -1,0 +1,59 @@
+* Log file for the circuit /home/frathoso/Dropbox/ASpring_2014/Capstone/atpg/benchmarks/custom2.bench.
+* Number of faults detected by each test pattern:
+
+test    1: 10101 00   11 faults detected
+test    2: 00010 11   12 faults detected
+test    3: 11101 01    5 faults detected
+test    4: 01110 00    1 faults detected
+test    5: 10001 11    1 faults detected
+test    6: 00000 01    3 faults detected
+
+End of test pattern generation.
+
+	*******************************************************
+	*                                                     *
+	*          Welcome to atalanta (version 2.0)          *
+	*                                                     *
+	*               Dong S. Ha (ha@vt.edu)                *
+	*            Web: http://www.ee.vt.edu/ha             *
+	*  Virginia Polytechnic Institute & State University  *
+	*                                                     *
+	*******************************************************
+
+******   SUMMARY OF TEST PATTERN GENERATION RESULTS   ******
+1. Circuit structure
+   Name of the circuit                       : CIRCUIT_2
+   Number of primary inputs                  : 5
+   Number of primary outputs                 : 2
+   Number of gates                           : 7
+   Level of the circuit                      : 3
+
+2. ATPG parameters
+   Test pattern generation mode              : RPT + DTPG + TC
+   Limit of random patterns (packets)        : 16
+   Backtrack limit                           : 10
+   Initial random number generator seed      : 1399730424
+   Test pattern compaction mode              : REVERSE + SHUFFLE 
+   Limit of suffling compaction              : 2
+   Number of shuffles                        : 4
+
+3. Test pattern generation results
+   Number of test patterns before compaction : 7
+   Number of test patterns after compaction  : 6
+   Fault coverage                            : 94.286 %
+   Number of collapsed faults                : 35
+   Number of identified redundant faults     : 2
+   Number of aborted faults                  : 0
+   Total number of backtrackings             : 0
+
+4. Memory used                               : 1024 Kbytes
+
+5. CPU time
+   Initialization                            : 0.000 secs
+   Fault simulation                          : 0.000 secs
+   FAN                                       : 0.000 secs
+   Total                                     : 0.000 secs
+
+* List of identified redundant faults:
+S5->H /0
+S4->G /1

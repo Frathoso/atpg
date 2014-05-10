@@ -1,0 +1,25 @@
+# circuit 1
+# 6 inputs
+# 3 outputs
+# 3 inverters
+# 4 gates (2 ANDs + 2 ORs)
+
+INPUT(A)
+INPUT(B)
+INPUT(C)
+INPUT(D)
+INPUT(E)
+INPUT(F)
+
+OUTPUT(G)
+OUTPUT(H)
+OUTPUT(I)
+
+S1 = NOT(A)
+S3 = NOT(D)
+
+S2 = AND(B, C)
+G = AND(S1, S2)
+I2 = OR(E, F)
+I = NOT(I2)
+H = OR(S3, I2)

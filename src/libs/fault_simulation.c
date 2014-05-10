@@ -301,6 +301,7 @@ void simulateTestVector(CIRCUIT circuit, CIRCUIT_INFO* info, FAULT_LIST * fList,
 
 	// Simulate all remaining faults using the current pattern
 	BOOLEAN wasFaultExcited;
+	//printf("\nSimulate %s stuck at %d\n", circuit[fList->list[K]->index]->name, fList->list[K]->type);
 	for(K = start; K < fList->count; K++)
 	{
 		if(fList->list[K]->detected == FALSE)
