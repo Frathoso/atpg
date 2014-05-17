@@ -1,7 +1,8 @@
 #!/bin/bash
 # custom1 custom2 s713 s953 s1423 s5378 s9234 
-BENCH=s953
+BENCH=custom1
 HAPA=/home/frathoso/Dropbox/ASpring_2014/Capstone/atpg 
-$HAPA/bin/atpg -D 1 -X R -b $HAPA/benchmarks/$BENCH.bench -Z -f $HAPA/benchmarks/$BENCH.flt  -u run/$BENCH.atpg > $HAPA/run/$BENCH.atpg.txt
+$HAPA/bin/atpg -D 1 -X R -b $HAPA/benchmarks/$BENCH.bench -f $HAPA/benchmarks/$BENCH.flt  -u run/$BENCH.atpg
+#$HAPA/bin/atpg -D 1 -X R -b $HAPA/benchmarks/$BENCH.bench -Z -f $HAPA/benchmarks/$BENCH.flt  -u run/$BENCH.atpg > $HAPA/run/$BENCH.atpg.txt
 
 #wine $HAPA/bin/atalanta.exe $HAPA/benchmarks/$BENCH.bench  -f $HAPA/benchmarks/$BENCH.flt -l run/$BENCH.atalanta.txt > $HAPA/run/results.txt
