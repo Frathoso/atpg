@@ -230,7 +230,7 @@ void parse_command_line_arguments(int argc, char* argv[])
     options.outputTestPatternFilename = NULL;
     options.isOneTestPerFault = FALSE;
 
-    // Command line options list for the program
+    // Define command line options list for the program
     char* SHORT_OPTS = "b:dD:f:hs:t:u:X:Z";
     static struct option LONG_OPTS[] = {
         {"help",    no_argument, 0,  0},
@@ -241,6 +241,7 @@ void parse_command_line_arguments(int argc, char* argv[])
 
     errno = opterr = 0;
     int opt, long_opt_index;
+
     while((opt = getopt_long(argc, argv, SHORT_OPTS, LONG_OPTS, &long_opt_index)) != -1)
     {
         switch(opt)
@@ -330,16 +331,24 @@ void parse_command_line_arguments(int argc, char* argv[])
  */
 void populate_circuit_from_file()
 {
+    // Initialize the hash tables
     extern HASH_ENTRY hashTableGates[MAX_GATES];
     bzero(hashTableGates, sizeof(hashTableGates));
 
     if(options.isDebugMode && options.debugLevel > 0) fprintf(stdout, "Parsing: \"%s\"...\n", options.benchmarkFilename);
 
+    // Start the stopwatch
     startSW(&stopwatch);
-    if(populateCircuit(circuit, &info, options.benchmarkFilename))
+
+    // Populate the circuit
+    BOOLEAN status = populateCircuit(circuit, &info, options.benchmarkFilename);
+
+    // Compute gate levels in a successfully parsed circuit or quit for errors
+    if(status == TRUE)
     {
         computeGateLevels(circuit, &info);
 
+        // Compute the time taken for parsing
         double duration = getElaspedTimeSW(&stopwatch);
         if(options.isDebugMode && options.debugLevel > 0) fprintf(stdout, "Netlist file successfully parsed "
                 "[ %.4f seconds ].\n\n", duration);
@@ -350,6 +359,7 @@ void populate_circuit_from_file()
         exit(1);
     }
 
+    // Display statistics if the mode permits
     int K; 
     if(options.isDebugMode) 
     {
@@ -368,6 +378,10 @@ void populate_circuit_from_file()
  */
 void generate_fault_list()
 {
+    /*
+     * Currently, simply all lines in the circuit will have faults associated with it.
+     * TODO: Determine redundant faults
+     */
 	int K, L, count = 0;
 	for(K = 0; K < info.numGates; K++)
 	{
@@ -418,6 +432,7 @@ void generate_fault_list()
  */
 void parse_fault_from_file(char* filename)
 {
+    // Open the faultlist file
     FILE* fp = fopen(filename, "r");
     if(fp == NULL)
     {
@@ -426,6 +441,16 @@ void parse_fault_from_file(char* filename)
         exit(1);
     }
 
+    /*
+     * The format used is the one defined by the ISCAS89
+     *   (1) Normal gate
+     *     Format:  <gate name> [/0] [/1]
+     *     Example: nyu-123 /0 /1
+     *   
+     *   (2) Fan-out segments
+     *     Format:  <start gatename> -> <ending gatename> [/0] [/1]
+     *     Example: nyu-23->nyu0 /1
+     */
     char* line = NULL;
     size_t len = 0;
     char gate1[20], gate2[20];
@@ -517,6 +542,7 @@ void random_test_generation(FILE* fp, int* testPatternCount)
     TEST_VECTOR tv;
     int K, L, noPatternsCount = 0;
     unsigned int seed = 0;
+    
     while(noPatternsCount < 32)
     {
         // Generate a random pattern
