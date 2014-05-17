@@ -64,7 +64,7 @@ FAULT_LIST faultList;   // List of all faults in the cictuits
 STOP_WATCH stopwatch;   // Stopwatch for measuring exectuting time
 
 /*
- *  Module driving function prototypes
+ *  Module-driving and helping functions' prototypes
  */
 void onProgramTermination( void );
 void parse_command_line_arguments( int argc, char* argv[] );
@@ -94,7 +94,7 @@ int main( int argc, char* argv[] )
     /* Populate the circuit and faults list from the passed netlist file */
     populate_circuit_from_file();
 
-    /* Generate fault list */
+    /* Generate fault list if the list was not supplied */
     if(options.isFaultListGiven == TRUE)
         parse_fault_from_file(options.faultListFilename);
     else
