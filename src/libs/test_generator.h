@@ -3,7 +3,7 @@
  *
  *       Filename:  test_generator.h
  *
- *    Description:
+ *    Description:	Defines functions used to perform test generation
  *
  *        Version:  1.0
  *        Created:  15 February 2014

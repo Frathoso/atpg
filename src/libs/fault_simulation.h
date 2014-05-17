@@ -3,7 +3,7 @@
  *
  *       Filename:  fault_simulation.h
  *
- *    Description:
+ *    Description:	Defines functions that are used to perform circuit’s simulations
  *
  *        Version:  1.0
  *        Created:  25 March 2014

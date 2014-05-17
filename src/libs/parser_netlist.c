@@ -4,9 +4,7 @@
  *       Filename:  parser_netlist.c
  *
  *    Description:  Netlist parser for the ATPG program. This parses a netlist
- *                  file and populates a circuit with the data. It defines the
- *                  Gate, Circuit and CircuitInfo data structures and all the
- *                  helper functions.
+ *                  file and populates a circuit with the data.
  *
  *        Version:  1.0
  *        Created:  07 December 2013

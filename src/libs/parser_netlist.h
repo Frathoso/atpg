@@ -3,8 +3,7 @@
  *
  *       Filename:  parser_netlist.h
  *
- *    Description:  Header file for the netlist parser. The file also defines
- *                  the Gate and CircuitInfo structures.
+ *    Description:  Header file for the netlist parser.
  *
  *        Version:  1.0
  *        Created:  02 December 2013

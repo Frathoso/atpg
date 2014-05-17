@@ -3,7 +3,7 @@
  *
  *       Filename:  atpg_types.h
  *
- *    Description:  Includes all defined constants
+ *    Description:  Defines custom datatypes used in the ATPG
  *
  *        Version:  1.0
  *        Created:  20 February 2013
